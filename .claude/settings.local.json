@@ -10,7 +10,8 @@
       "Bash(git push:*)",
       "WebFetch(domain:github.com)",
       "Bash(git config:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(for dir in D:/村长/frontend-interview/docs/*/)"
     ]
   }
 }

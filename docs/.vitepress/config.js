@@ -212,6 +212,33 @@ export default defineConfig({
             { text: '前端算法题', link: '/algorithm/frontend' }
           ]
         }
+      ],
+
+      '/html/': [
+        {
+          text: 'HTML 核心',
+          items: [
+            { text: 'HTML 基础', link: '/html/' },
+            { text: '语义化标签', link: '/html/semantic' },
+            { text: '无障碍访问', link: '/html/a11y' },
+            { text: 'Web Components', link: '/html/web-components' }
+          ]
+        }
+      ],
+
+      '/css/': [
+        {
+          text: 'CSS 核心',
+          items: [
+            { text: 'CSS 基础', link: '/css/' },
+            { text: 'BFC', link: '/css/bfc' },
+            { text: 'Flex 布局', link: '/css/flex' },
+            { text: 'Grid 布局', link: '/css/grid' },
+            { text: '居中方案', link: '/css/center' },
+            { text: '响应式设计', link: '/css/responsive' },
+            { text: '原子化 CSS', link: '/css/atomic-css' }
+          ]
+        }
       ]
     },
 
