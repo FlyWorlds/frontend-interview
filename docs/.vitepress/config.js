@@ -103,7 +103,8 @@ export default defineConfig({
             { text: '事件循环', link: '/browser/event-loop' },
             { text: '浏览器缓存', link: '/browser/cache' },
             { text: '浏览器存储', link: '/browser/storage' },
-            { text: 'Observer API', link: '/browser/observer-api' }
+            { text: 'Observer API', link: '/browser/observer-api' },
+            { text: 'WebAssembly', link: '/browser/webassembly' }
           ]
         }
       ],
