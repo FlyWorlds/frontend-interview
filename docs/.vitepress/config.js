@@ -13,7 +13,8 @@ export default defineConfig({
       { text: '框架', items: [{ text: 'Vue', link: '/vue/' }, { text: 'React', link: '/react/' }] },
       { text: '网络与浏览器', items: [{ text: '网络协议', link: '/network/' }, { text: '浏览器原理', link: '/browser/' }] },
       { text: '工程化', items: [{ text: '构建工具', link: '/engineering/' }, { text: '性能优化', link: '/performance/' }, { text: '微前端', link: '/micro-frontend/' }] },
-      { text: '进阶', items: [{ text: '设计模式', link: '/design-patterns/' }, { text: '场景题', link: '/scenarios/' }, { text: '算法', link: '/algorithm/' }, { text: '跨端开发', link: '/cross-platform/' }, { text: 'AI', link: '/ai/' }] }
+      { text: '进阶', items: [{ text: '设计模式', link: '/design-patterns/' }, { text: '场景题', link: '/scenarios/' }, { text: '算法', link: '/algorithm/' }, { text: '跨端开发', link: '/cross-platform/' }] },
+      { text: 'AI', link: '/ai/' }
     ],
 
     sidebar: {
@@ -164,12 +165,21 @@ export default defineConfig({
 
       '/ai/': [
         {
-          text: 'AI 与前端',
+          text: 'AI 基础',
           items: [
             { text: 'AI 前端应用', link: '/ai/' },
             { text: 'ChatGPT 集成', link: '/ai/chatgpt' },
             { text: 'AI 辅助开发', link: '/ai/ai-coding' },
             { text: '大模型应用', link: '/ai/llm' }
+          ]
+        },
+        {
+          text: 'AI Agent',
+          items: [
+            { text: 'AI Agent 概述', link: '/ai/agent/' },
+            { text: '入门与学习路径', link: '/ai/agent/learning-path' },
+            { text: '技术栈与框架', link: '/ai/agent/tech-stack' },
+            { text: '实战案例', link: '/ai/agent/practice' }
           ]
         }
       ],
