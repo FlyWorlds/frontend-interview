@@ -2618,3 +2618,511 @@ ws.onmessage = event => {
 在实际开发中，React 的 react-hot-loader、Vue 的 vue-loader 都已经帮我们处理好了 HMR，我们的业务代码不需要关心这些细节。CSS 的 style-loader 也内置了 HMR 支持。
 
 HMR 最大的好处就是能保留应用状态，比如表单填写到一半，修改代码后状态不会丢失，开发体验非常好。"
+
+---
+
+## Webpack 5 Module Federation（模块联邦）
+
+### 什么是 Module Federation？
+
+```javascript
+/**
+ * Module Federation 允许多个独立的 Webpack 构建共享代码
+ *
+ * 使用场景：
+ * 1. 微前端架构 - 独立部署的应用共享组件
+ * 2. 组件库动态加载 - 远程加载最新版本组件
+ * 3. 多项目代码复用 - 无需 npm 发布
+ *
+ * 核心概念：
+ * - Host (主机): 消费远程模块的应用
+ * - Remote (远程): 暴露模块给其他应用的应用
+ * - Shared (共享): 多个应用共享的依赖
+ */
+```
+
+### 基本配置
+
+```javascript
+// ============ Remote 应用配置 (提供模块) ============
+// remote-app/webpack.config.js
+const { ModuleFederationPlugin } = require('webpack').container;
+
+module.exports = {
+  output: {
+    publicPath: 'http://localhost:3001/',  // 远程地址
+  },
+
+  plugins: [
+    new ModuleFederationPlugin({
+      // 应用名称（全局唯一）
+      name: 'remoteApp',
+
+      // 输出文件名
+      filename: 'remoteEntry.js',
+
+      // 暴露的模块
+      exposes: {
+        './Button': './src/components/Button',
+        './Header': './src/components/Header',
+        './utils': './src/utils/index',
+      },
+
+      // 共享依赖
+      shared: {
+        react: {
+          singleton: true,       // 只使用一个版本
+          requiredVersion: '^18.0.0',
+          eager: false,          // 延迟加载
+        },
+        'react-dom': {
+          singleton: true,
+          requiredVersion: '^18.0.0',
+        },
+      },
+    }),
+  ],
+};
+
+// ============ Host 应用配置 (消费模块) ============
+// host-app/webpack.config.js
+const { ModuleFederationPlugin } = require('webpack').container;
+
+module.exports = {
+  plugins: [
+    new ModuleFederationPlugin({
+      name: 'hostApp',
+
+      // 引用远程模块
+      remotes: {
+        // 格式: 别名@远程地址/入口文件
+        remoteApp: 'remoteApp@http://localhost:3001/remoteEntry.js',
+      },
+
+      // 共享依赖
+      shared: {
+        react: { singleton: true },
+        'react-dom': { singleton: true },
+      },
+    }),
+  ],
+};
+```
+
+### 使用远程模块
+
+```javascript
+// Host 应用中使用远程组件
+
+// 方式1: 动态导入 (推荐)
+const RemoteButton = React.lazy(() => import('remoteApp/Button'));
+
+function App() {
+  return (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <RemoteButton onClick={() => console.log('clicked')}>
+        远程按钮
+      </RemoteButton>
+    </React.Suspense>
+  );
+}
+
+// 方式2: 静态导入 (需要配置 eager: true)
+import Button from 'remoteApp/Button';
+
+// 方式3: 异步加载入口
+// bootstrap.js
+import('./App').then(({ default: App }) => {
+  ReactDOM.render(<App />, document.getElementById('root'));
+});
+
+// index.js
+import('./bootstrap');  // 异步入口
+
+// 工具函数也可以共享
+import { formatDate } from 'remoteApp/utils';
+```
+
+### 实战：微前端架构
+
+```javascript
+// ============ 主应用 (Shell) ============
+// shell/webpack.config.js
+new ModuleFederationPlugin({
+  name: 'shell',
+  remotes: {
+    app1: 'app1@http://localhost:3001/remoteEntry.js',
+    app2: 'app2@http://localhost:3002/remoteEntry.js',
+    shared: 'shared@http://localhost:3003/remoteEntry.js',
+  },
+  shared: ['react', 'react-dom', 'react-router-dom'],
+});
+
+// shell/src/App.jsx
+const App1 = React.lazy(() => import('app1/App'));
+const App2 = React.lazy(() => import('app2/App'));
+const SharedHeader = React.lazy(() => import('shared/Header'));
+
+function Shell() {
+  return (
+    <Router>
+      <Suspense fallback={<Loading />}>
+        <SharedHeader />
+        <Routes>
+          <Route path="/app1/*" element={<App1 />} />
+          <Route path="/app2/*" element={<App2 />} />
+        </Routes>
+      </Suspense>
+    </Router>
+  );
+}
+
+// ============ 子应用1 ============
+// app1/webpack.config.js
+new ModuleFederationPlugin({
+  name: 'app1',
+  filename: 'remoteEntry.js',
+  exposes: {
+    './App': './src/App',
+  },
+  shared: ['react', 'react-dom', 'react-router-dom'],
+});
+
+// ============ 共享组件库 ============
+// shared/webpack.config.js
+new ModuleFederationPlugin({
+  name: 'shared',
+  filename: 'remoteEntry.js',
+  exposes: {
+    './Header': './src/Header',
+    './Footer': './src/Footer',
+    './Button': './src/Button',
+    './Modal': './src/Modal',
+  },
+  shared: ['react', 'react-dom'],
+});
+```
+
+### 动态远程模块
+
+```javascript
+// 动态加载远程模块（运行时确定）
+async function loadRemoteModule(scope, module) {
+  // 初始化共享作用域
+  await __webpack_init_sharing__('default');
+
+  const container = window[scope];
+
+  // 初始化容器
+  await container.init(__webpack_share_scopes__.default);
+
+  // 获取模块
+  const factory = await container.get(module);
+
+  return factory();
+}
+
+// 使用
+async function loadButton() {
+  const Button = await loadRemoteModule('remoteApp', './Button');
+  return Button;
+}
+
+// 配置动态远程
+// webpack.config.js
+new ModuleFederationPlugin({
+  name: 'host',
+  remotes: {
+    // 使用 promise 形式
+    dynamicRemote: `promise new Promise(resolve => {
+      const remoteUrl = window.remoteConfig?.url || 'http://localhost:3001/remoteEntry.js';
+      const script = document.createElement('script');
+      script.src = remoteUrl;
+      script.onload = () => {
+        resolve(window.dynamicRemote);
+      };
+      document.head.appendChild(script);
+    })`,
+  },
+});
+```
+
+### Module Federation 最佳实践
+
+```javascript
+/**
+ * 最佳实践：
+ *
+ * 1. 版本管理
+ *    - 使用 requiredVersion 确保兼容性
+ *    - 重要依赖设置 singleton: true
+ *
+ * 2. 错误处理
+ *    - 使用 Suspense + ErrorBoundary
+ *    - 设置 fallback 组件
+ *
+ * 3. 性能优化
+ *    - 合理设置 shared，避免重复加载
+ *    - 使用 eager: false 延迟加载
+ *
+ * 4. 开发体验
+ *    - 本地开发使用 fallback 模块
+ *    - 统一的类型定义
+ */
+
+// 错误边界处理
+class RemoteErrorBoundary extends React.Component {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <div>远程模块加载失败，请刷新重试</div>;
+    }
+    return this.props.children;
+  }
+}
+
+// 使用
+<RemoteErrorBoundary>
+  <React.Suspense fallback={<Skeleton />}>
+    <RemoteComponent />
+  </React.Suspense>
+</RemoteErrorBoundary>
+
+// TypeScript 类型声明
+// remote.d.ts
+declare module 'remoteApp/Button' {
+  const Button: React.FC<{ onClick?: () => void }>;
+  export default Button;
+}
+
+declare module 'remoteApp/utils' {
+  export function formatDate(date: Date): string;
+}
+```
+
+---
+
+## 构建工具对比：Webpack vs Vite vs Turbopack
+
+### 核心差异
+
+```javascript
+/**
+ * ┌─────────────┬──────────────────┬──────────────────┬──────────────────┐
+ * │    特性     │     Webpack      │      Vite        │    Turbopack     │
+ * ├─────────────┼──────────────────┼──────────────────┼──────────────────┤
+ * │ 开发模式    │ Bundle (打包)    │ No-Bundle (ESM)  │ 增量编译         │
+ * │ 冷启动速度  │ 慢 (10-30s)      │ 快 (1-3s)        │ 极快 (<1s)       │
+ * │ HMR 速度    │ 一般 (1-5s)      │ 快 (50-500ms)    │ 极快 (<50ms)     │
+ * │ 生产构建    │ 成熟稳定         │ Rollup (快)      │ 开发中           │
+ * │ 生态系统    │ 最丰富           │ 快速增长         │ 起步阶段         │
+ * │ 配置复杂度  │ 复杂             │ 简单             │ 简单             │
+ * │ 浏览器支持  │ IE11+            │ 现代浏览器       │ 现代浏览器       │
+ * │ 语言实现    │ JavaScript       │ Go + JavaScript  │ Rust             │
+ * └─────────────┴──────────────────┴──────────────────┴──────────────────┘
+ */
+```
+
+### Webpack 特点
+
+```javascript
+// Webpack 优势：
+// 1. 生态最成熟，插件最丰富
+// 2. 配置灵活，可高度定制
+// 3. 支持所有模块格式 (ESM, CommonJS, AMD)
+// 4. 支持旧版浏览器 (IE11)
+// 5. 企业级项目首选
+
+// Webpack 劣势：
+// 1. 配置复杂
+// 2. 冷启动慢
+// 3. 大项目 HMR 慢
+
+// 适用场景
+const webpackUseCases = [
+  '大型企业项目',
+  '需要兼容 IE11',
+  '需要复杂的构建定制',
+  '已有 Webpack 项目的维护',
+  '需要 Module Federation 的微前端',
+];
+```
+
+### Vite 特点
+
+```javascript
+// Vite 优势：
+// 1. 冷启动极快（利用浏览器原生 ESM）
+// 2. HMR 速度极快（只更新修改的模块）
+// 3. 开箱即用，配置简单
+// 4. 生产构建使用 Rollup
+
+// Vite 劣势：
+// 1. 不支持 IE11
+// 2. 大型项目首次请求较多
+// 3. 插件生态还在发展
+
+// Vite 为什么快？
+/*
+Webpack 开发模式:
+  修改文件 → 重新打包所有模块 → 浏览器刷新
+  时间复杂度: O(N)，N 为模块数量
+
+Vite 开发模式:
+  修改文件 → 只编译修改的文件 → 浏览器请求 ESM
+  时间复杂度: O(1)
+*/
+
+// vite.config.js
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    port: 3000,
+    proxy: {
+      '/api': 'http://localhost:8080',
+    },
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+        },
+      },
+    },
+  },
+});
+
+// 适用场景
+const viteUseCases = [
+  '新项目开发',
+  'Vue 3 / React 项目',
+  '追求开发体验',
+  '不需要 IE 兼容',
+  '中小型项目',
+];
+```
+
+### Turbopack 特点
+
+```javascript
+// Turbopack 优势：
+// 1. Rust 实现，性能极高
+// 2. 增量计算，只编译变化的部分
+// 3. 函数级 HMR
+// 4. Next.js 官方支持
+
+// Turbopack 劣势：
+// 1. 仍在开发中，功能不完整
+// 2. 目前只能用于 Next.js
+// 3. 插件系统不成熟
+
+// 性能对比（官方数据）
+/*
+冷启动速度：
+- Webpack: 10s
+- Vite:    3s
+- Turbopack: 0.5s (快 20 倍)
+
+HMR 速度（10000 模块项目）：
+- Webpack: 1000ms
+- Vite:    100ms
+- Turbopack: 10ms
+*/
+
+// 在 Next.js 中使用 Turbopack
+// next dev --turbo
+
+// 适用场景
+const turbopackUseCases = [
+  'Next.js 13+ 项目',
+  '追求极致性能',
+  '大型项目开发',
+  '愿意尝试新技术',
+];
+```
+
+### 选型建议
+
+```javascript
+/**
+ * 如何选择构建工具？
+ *
+ * 选 Webpack:
+ * ✓ 需要兼容 IE11
+ * ✓ 需要高度定制化配置
+ * ✓ 使用 Module Federation
+ * ✓ 企业级大型项目
+ * ✓ 已有 Webpack 项目
+ *
+ * 选 Vite:
+ * ✓ 新项目
+ * ✓ Vue 3 / React 项目
+ * ✓ 追求开发体验
+ * ✓ 不需要 IE 兼容
+ * ✓ 中小型项目
+ *
+ * 选 Turbopack:
+ * ✓ Next.js 项目
+ * ✓ 愿意尝试 Alpha/Beta 版本
+ * ✓ 追求极致性能
+ *
+ * 迁移路径:
+ * Webpack → Vite: 推荐，社区有迁移工具
+ * Vite → Turbopack: 等待 Turbopack 成熟
+ */
+
+// 面试回答模板
+const interviewAnswer = `
+构建工具的选择主要看项目需求：
+
+Webpack 是最成熟的方案，生态丰富、配置灵活，适合需要兼容旧浏览器或高度定制的企业级项目。缺点是配置复杂、开发启动慢。
+
+Vite 利用浏览器原生 ESM，开发体验极好，冷启动和 HMR 都很快。生产构建用 Rollup，也足够稳定。适合新项目，但不支持 IE。
+
+Turbopack 是 Vercel 用 Rust 写的，性能最强，但目前只能在 Next.js 中使用，还在开发中。
+
+我的建议是：新项目优先考虑 Vite，除非有特殊需求（IE 兼容、Module Federation）才用 Webpack。Next.js 项目可以尝试 Turbopack。
+`;
+```
+
+### Source Map 详细对比
+
+```javascript
+/**
+ * Source Map 类型对比:
+ *
+ * ┌──────────────────────────┬─────────┬─────────┬──────────┬────────────┐
+ * │        类型              │ 构建速度│ 重建速度│ 质量     │ 适用环境   │
+ * ├──────────────────────────┼─────────┼─────────┼──────────┼────────────┤
+ * │ (none)                   │ +++     │ +++     │ 无       │ 生产       │
+ * │ eval                     │ +++     │ +++     │ 低       │ 开发       │
+ * │ eval-source-map          │ --      │ +       │ 高       │ 开发       │
+ * │ eval-cheap-source-map    │ +       │ ++      │ 中低     │ 开发       │
+ * │ eval-cheap-module-source │ o       │ ++      │ 中       │ 开发(推荐) │
+ * │ source-map               │ --      │ --      │ 最高     │ 生产       │
+ * │ cheap-source-map         │ +       │ o       │ 中低     │ 都可以     │
+ * │ cheap-module-source-map  │ o       │ -       │ 中       │ 都可以     │
+ * │ hidden-source-map        │ --      │ --      │ 最高     │ 生产(安全) │
+ * │ nosources-source-map     │ --      │ --      │ 高       │ 生产(安全) │
+ * └──────────────────────────┴─────────┴─────────┴──────────┴────────────┘
+ *
+ * 推荐配置:
+ * - 开发环境: eval-cheap-module-source-map
+ * - 生产环境: source-map 或 hidden-source-map
+ */
+
+// webpack.config.js
+module.exports = (env) => ({
+  devtool: env.production
+    ? 'hidden-source-map'  // 生产：不暴露源码
+    : 'eval-cheap-module-source-map',  // 开发：快速且够用
+});

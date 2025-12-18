@@ -2265,3 +2265,1117 @@ const url = 'https://example.com?name=test&age=20&tags[]=a&tags[]=b'
 console.log(parseQueryString(url))
 // { name: 'test', age: '20', tags: ['a', 'b'] }
 ```
+
+## 数据结构实现
+
+### 链表操作
+
+```javascript
+// 链表节点定义
+class ListNode {
+  constructor(val, next = null) {
+    this.val = val
+    this.next = next
+  }
+}
+
+// 从数组创建链表
+// 时间复杂度: O(n)，空间复杂度: O(n)
+function createLinkedList(arr) {
+  if (!arr || arr.length === 0) return null
+
+  const head = new ListNode(arr[0])
+  let current = head
+
+  for (let i = 1; i < arr.length; i++) {
+    current.next = new ListNode(arr[i])
+    current = current.next
+  }
+
+  return head
+}
+
+// 链表转数组
+// 时间复杂度: O(n)，空间复杂度: O(n)
+function linkedListToArray(head) {
+  const result = []
+  let current = head
+
+  // 防止循环链表导致死循环
+  const visited = new Set()
+
+  while (current && !visited.has(current)) {
+    visited.add(current)
+    result.push(current.val)
+    current = current.next
+  }
+
+  return result
+}
+
+// 反转链表（迭代）
+// 时间复杂度: O(n)，空间复杂度: O(1)
+function reverseList(head) {
+  let prev = null
+  let current = head
+
+  while (current) {
+    const next = current.next
+    current.next = prev
+    prev = current
+    current = next
+  }
+
+  return prev
+}
+
+// 反转链表（递归）
+// 时间复杂度: O(n)，空间复杂度: O(n) - 递归栈
+function reverseListRecursive(head) {
+  if (!head || !head.next) return head
+
+  const newHead = reverseListRecursive(head.next)
+  head.next.next = head
+  head.next = null
+
+  return newHead
+}
+
+// 检测环形链表
+// 时间复杂度: O(n)，空间复杂度: O(1)
+function hasCycle(head) {
+  if (!head || !head.next) return false
+
+  let slow = head
+  let fast = head
+
+  while (fast && fast.next) {
+    slow = slow.next
+    fast = fast.next.next
+
+    if (slow === fast) return true
+  }
+
+  return false
+}
+
+// 找到环的入口
+// 时间复杂度: O(n)，空间复杂度: O(1)
+function detectCycle(head) {
+  if (!head || !head.next) return null
+
+  let slow = head
+  let fast = head
+
+  // 找到相遇点
+  while (fast && fast.next) {
+    slow = slow.next
+    fast = fast.next.next
+
+    if (slow === fast) {
+      // 从头节点和相遇点同时出发
+      let ptr = head
+      while (ptr !== slow) {
+        ptr = ptr.next
+        slow = slow.next
+      }
+      return ptr
+    }
+  }
+
+  return null
+}
+
+// 合并两个有序链表
+// 时间复杂度: O(n+m)，空间复杂度: O(1)
+function mergeTwoLists(l1, l2) {
+  const dummy = new ListNode(0)
+  let current = dummy
+
+  while (l1 && l2) {
+    if (l1.val <= l2.val) {
+      current.next = l1
+      l1 = l1.next
+    } else {
+      current.next = l2
+      l2 = l2.next
+    }
+    current = current.next
+  }
+
+  current.next = l1 || l2
+  return dummy.next
+}
+
+// 删除链表倒数第 N 个节点
+// 时间复杂度: O(n)，空间复杂度: O(1)
+function removeNthFromEnd(head, n) {
+  const dummy = new ListNode(0, head)
+  let fast = dummy
+  let slow = dummy
+
+  // fast 先走 n+1 步
+  for (let i = 0; i <= n; i++) {
+    fast = fast.next
+  }
+
+  // 同时移动
+  while (fast) {
+    fast = fast.next
+    slow = slow.next
+  }
+
+  slow.next = slow.next.next
+  return dummy.next
+}
+
+// 找到链表中间节点
+// 时间复杂度: O(n)，空间复杂度: O(1)
+function middleNode(head) {
+  let slow = head
+  let fast = head
+
+  while (fast && fast.next) {
+    slow = slow.next
+    fast = fast.next.next
+  }
+
+  return slow
+}
+
+// 测试
+const list = createLinkedList([1, 2, 3, 4, 5])
+console.log(linkedListToArray(reverseList(list))) // [5, 4, 3, 2, 1]
+```
+
+### 二叉树操作
+
+```javascript
+// 二叉树节点定义
+class TreeNode {
+  constructor(val, left = null, right = null) {
+    this.val = val
+    this.left = left
+    this.right = right
+  }
+}
+
+// 从数组构建二叉树（层序）
+// 时间复杂度: O(n)，空间复杂度: O(n)
+function buildTree(arr) {
+  if (!arr || arr.length === 0 || arr[0] === null) return null
+
+  const root = new TreeNode(arr[0])
+  const queue = [root]
+  let i = 1
+
+  while (queue.length && i < arr.length) {
+    const node = queue.shift()
+
+    if (i < arr.length && arr[i] !== null) {
+      node.left = new TreeNode(arr[i])
+      queue.push(node.left)
+    }
+    i++
+
+    if (i < arr.length && arr[i] !== null) {
+      node.right = new TreeNode(arr[i])
+      queue.push(node.right)
+    }
+    i++
+  }
+
+  return root
+}
+
+// 前序遍历（递归）
+// 时间复杂度: O(n)，空间复杂度: O(h) h为树高
+function preorderTraversal(root) {
+  const result = []
+
+  function traverse(node) {
+    if (!node) return
+    result.push(node.val)  // 根
+    traverse(node.left)     // 左
+    traverse(node.right)    // 右
+  }
+
+  traverse(root)
+  return result
+}
+
+// 前序遍历（迭代）
+// 时间复杂度: O(n)，空间复杂度: O(h)
+function preorderIterative(root) {
+  if (!root) return []
+
+  const result = []
+  const stack = [root]
+
+  while (stack.length) {
+    const node = stack.pop()
+    result.push(node.val)
+
+    // 先右后左入栈，保证左子树先处理
+    if (node.right) stack.push(node.right)
+    if (node.left) stack.push(node.left)
+  }
+
+  return result
+}
+
+// 中序遍历（递归）
+// 时间复杂度: O(n)，空间复杂度: O(h)
+function inorderTraversal(root) {
+  const result = []
+
+  function traverse(node) {
+    if (!node) return
+    traverse(node.left)     // 左
+    result.push(node.val)   // 根
+    traverse(node.right)    // 右
+  }
+
+  traverse(root)
+  return result
+}
+
+// 中序遍历（迭代）
+// 时间复杂度: O(n)，空间复杂度: O(h)
+function inorderIterative(root) {
+  const result = []
+  const stack = []
+  let current = root
+
+  while (current || stack.length) {
+    // 一直向左走
+    while (current) {
+      stack.push(current)
+      current = current.left
+    }
+
+    current = stack.pop()
+    result.push(current.val)
+    current = current.right
+  }
+
+  return result
+}
+
+// 后序遍历（递归）
+// 时间复杂度: O(n)，空间复杂度: O(h)
+function postorderTraversal(root) {
+  const result = []
+
+  function traverse(node) {
+    if (!node) return
+    traverse(node.left)     // 左
+    traverse(node.right)    // 右
+    result.push(node.val)   // 根
+  }
+
+  traverse(root)
+  return result
+}
+
+// 后序遍历（迭代）
+// 时间复杂度: O(n)，空间复杂度: O(h)
+function postorderIterative(root) {
+  if (!root) return []
+
+  const result = []
+  const stack = [root]
+
+  while (stack.length) {
+    const node = stack.pop()
+    result.unshift(node.val)  // 从头部插入
+
+    if (node.left) stack.push(node.left)
+    if (node.right) stack.push(node.right)
+  }
+
+  return result
+}
+
+// 层序遍历
+// 时间复杂度: O(n)，空间复杂度: O(n)
+function levelOrder(root) {
+  if (!root) return []
+
+  const result = []
+  const queue = [root]
+
+  while (queue.length) {
+    const levelSize = queue.length
+    const currentLevel = []
+
+    for (let i = 0; i < levelSize; i++) {
+      const node = queue.shift()
+      currentLevel.push(node.val)
+
+      if (node.left) queue.push(node.left)
+      if (node.right) queue.push(node.right)
+    }
+
+    result.push(currentLevel)
+  }
+
+  return result
+}
+
+// 二叉树最大深度
+// 时间复杂度: O(n)，空间复杂度: O(h)
+function maxDepth(root) {
+  if (!root) return 0
+  return 1 + Math.max(maxDepth(root.left), maxDepth(root.right))
+}
+
+// 判断是否对称二叉树
+// 时间复杂度: O(n)，空间复杂度: O(h)
+function isSymmetric(root) {
+  if (!root) return true
+
+  function isMirror(left, right) {
+    if (!left && !right) return true
+    if (!left || !right) return false
+
+    return left.val === right.val &&
+           isMirror(left.left, right.right) &&
+           isMirror(left.right, right.left)
+  }
+
+  return isMirror(root.left, root.right)
+}
+
+// 路径总和
+// 时间复杂度: O(n)，空间复杂度: O(h)
+function hasPathSum(root, targetSum) {
+  if (!root) return false
+
+  // 叶子节点
+  if (!root.left && !root.right) {
+    return root.val === targetSum
+  }
+
+  const remaining = targetSum - root.val
+  return hasPathSum(root.left, remaining) || hasPathSum(root.right, remaining)
+}
+
+// 二叉搜索树验证
+// 时间复杂度: O(n)，空间复杂度: O(h)
+function isValidBST(root, min = -Infinity, max = Infinity) {
+  if (!root) return true
+
+  if (root.val <= min || root.val >= max) return false
+
+  return isValidBST(root.left, min, root.val) &&
+         isValidBST(root.right, root.val, max)
+}
+
+// 最近公共祖先
+// 时间复杂度: O(n)，空间复杂度: O(h)
+function lowestCommonAncestor(root, p, q) {
+  if (!root || root === p || root === q) return root
+
+  const left = lowestCommonAncestor(root.left, p, q)
+  const right = lowestCommonAncestor(root.right, p, q)
+
+  if (left && right) return root
+  return left || right
+}
+
+// 测试
+const tree = buildTree([1, 2, 3, 4, 5, 6, 7])
+console.log(preorderTraversal(tree))  // [1, 2, 4, 5, 3, 6, 7]
+console.log(inorderTraversal(tree))   // [4, 2, 5, 1, 6, 3, 7]
+console.log(postorderTraversal(tree)) // [4, 5, 2, 6, 7, 3, 1]
+console.log(levelOrder(tree))         // [[1], [2, 3], [4, 5, 6, 7]]
+```
+
+### 图算法
+
+```javascript
+// 图的表示 - 邻接表
+class Graph {
+  constructor() {
+    this.adjacencyList = new Map()
+  }
+
+  addVertex(vertex) {
+    if (!this.adjacencyList.has(vertex)) {
+      this.adjacencyList.set(vertex, [])
+    }
+  }
+
+  addEdge(v1, v2, directed = false) {
+    this.addVertex(v1)
+    this.addVertex(v2)
+
+    this.adjacencyList.get(v1).push(v2)
+    if (!directed) {
+      this.adjacencyList.get(v2).push(v1)
+    }
+  }
+
+  // 深度优先遍历
+  // 时间复杂度: O(V + E)，空间复杂度: O(V)
+  dfs(start) {
+    const visited = new Set()
+    const result = []
+
+    const traverse = (vertex) => {
+      if (!vertex || visited.has(vertex)) return
+
+      visited.add(vertex)
+      result.push(vertex)
+
+      const neighbors = this.adjacencyList.get(vertex) || []
+      for (const neighbor of neighbors) {
+        traverse(neighbor)
+      }
+    }
+
+    traverse(start)
+    return result
+  }
+
+  // 深度优先遍历（迭代）
+  dfsIterative(start) {
+    const visited = new Set()
+    const result = []
+    const stack = [start]
+
+    while (stack.length) {
+      const vertex = stack.pop()
+
+      if (visited.has(vertex)) continue
+
+      visited.add(vertex)
+      result.push(vertex)
+
+      const neighbors = this.adjacencyList.get(vertex) || []
+      // 逆序入栈保证顺序
+      for (let i = neighbors.length - 1; i >= 0; i--) {
+        if (!visited.has(neighbors[i])) {
+          stack.push(neighbors[i])
+        }
+      }
+    }
+
+    return result
+  }
+
+  // 广度优先遍历
+  // 时间复杂度: O(V + E)，空间复杂度: O(V)
+  bfs(start) {
+    const visited = new Set([start])
+    const result = []
+    const queue = [start]
+
+    while (queue.length) {
+      const vertex = queue.shift()
+      result.push(vertex)
+
+      const neighbors = this.adjacencyList.get(vertex) || []
+      for (const neighbor of neighbors) {
+        if (!visited.has(neighbor)) {
+          visited.add(neighbor)
+          queue.push(neighbor)
+        }
+      }
+    }
+
+    return result
+  }
+
+  // 检测环（有向图）
+  // 时间复杂度: O(V + E)
+  hasCycle() {
+    const visited = new Set()
+    const recursionStack = new Set()
+
+    const dfs = (vertex) => {
+      visited.add(vertex)
+      recursionStack.add(vertex)
+
+      const neighbors = this.adjacencyList.get(vertex) || []
+      for (const neighbor of neighbors) {
+        if (!visited.has(neighbor)) {
+          if (dfs(neighbor)) return true
+        } else if (recursionStack.has(neighbor)) {
+          return true  // 回边，存在环
+        }
+      }
+
+      recursionStack.delete(vertex)
+      return false
+    }
+
+    for (const vertex of this.adjacencyList.keys()) {
+      if (!visited.has(vertex)) {
+        if (dfs(vertex)) return true
+      }
+    }
+
+    return false
+  }
+
+  // 拓扑排序（Kahn's Algorithm）
+  // 时间复杂度: O(V + E)，空间复杂度: O(V)
+  topologicalSort() {
+    const inDegree = new Map()
+    const result = []
+    const queue = []
+
+    // 初始化入度
+    for (const vertex of this.adjacencyList.keys()) {
+      inDegree.set(vertex, 0)
+    }
+
+    // 计算入度
+    for (const [vertex, neighbors] of this.adjacencyList) {
+      for (const neighbor of neighbors) {
+        inDegree.set(neighbor, (inDegree.get(neighbor) || 0) + 1)
+      }
+    }
+
+    // 入度为 0 的节点入队
+    for (const [vertex, degree] of inDegree) {
+      if (degree === 0) queue.push(vertex)
+    }
+
+    while (queue.length) {
+      const vertex = queue.shift()
+      result.push(vertex)
+
+      const neighbors = this.adjacencyList.get(vertex) || []
+      for (const neighbor of neighbors) {
+        inDegree.set(neighbor, inDegree.get(neighbor) - 1)
+        if (inDegree.get(neighbor) === 0) {
+          queue.push(neighbor)
+        }
+      }
+    }
+
+    // 检测是否有环
+    return result.length === this.adjacencyList.size ? result : []
+  }
+}
+
+// 最短路径 - Dijkstra 算法
+// 时间复杂度: O((V + E) log V)，空间复杂度: O(V)
+function dijkstra(graph, start) {
+  const distances = new Map()
+  const visited = new Set()
+  const pq = new MinPriorityQueue()  // 需要优先队列实现
+
+  // 初始化
+  for (const vertex of graph.adjacencyList.keys()) {
+    distances.set(vertex, Infinity)
+  }
+  distances.set(start, 0)
+  pq.enqueue(start, 0)
+
+  while (!pq.isEmpty()) {
+    const { element: current } = pq.dequeue()
+
+    if (visited.has(current)) continue
+    visited.add(current)
+
+    const neighbors = graph.adjacencyList.get(current) || []
+    for (const { node, weight } of neighbors) {
+      const newDist = distances.get(current) + weight
+      if (newDist < distances.get(node)) {
+        distances.set(node, newDist)
+        pq.enqueue(node, newDist)
+      }
+    }
+  }
+
+  return distances
+}
+
+// 简单优先队列实现
+class MinPriorityQueue {
+  constructor() {
+    this.heap = []
+  }
+
+  enqueue(element, priority) {
+    this.heap.push({ element, priority })
+    this.bubbleUp(this.heap.length - 1)
+  }
+
+  dequeue() {
+    if (this.heap.length === 0) return null
+
+    const min = this.heap[0]
+    const end = this.heap.pop()
+
+    if (this.heap.length > 0) {
+      this.heap[0] = end
+      this.bubbleDown(0)
+    }
+
+    return min
+  }
+
+  isEmpty() {
+    return this.heap.length === 0
+  }
+
+  bubbleUp(index) {
+    while (index > 0) {
+      const parentIndex = Math.floor((index - 1) / 2)
+      if (this.heap[index].priority >= this.heap[parentIndex].priority) break
+
+      [this.heap[index], this.heap[parentIndex]] =
+        [this.heap[parentIndex], this.heap[index]]
+      index = parentIndex
+    }
+  }
+
+  bubbleDown(index) {
+    const length = this.heap.length
+
+    while (true) {
+      const leftChild = 2 * index + 1
+      const rightChild = 2 * index + 2
+      let smallest = index
+
+      if (leftChild < length &&
+          this.heap[leftChild].priority < this.heap[smallest].priority) {
+        smallest = leftChild
+      }
+
+      if (rightChild < length &&
+          this.heap[rightChild].priority < this.heap[smallest].priority) {
+        smallest = rightChild
+      }
+
+      if (smallest === index) break
+
+      [this.heap[index], this.heap[smallest]] =
+        [this.heap[smallest], this.heap[index]]
+      index = smallest
+    }
+  }
+}
+
+// 测试
+const graph = new Graph()
+graph.addEdge('A', 'B')
+graph.addEdge('A', 'C')
+graph.addEdge('B', 'D')
+graph.addEdge('C', 'E')
+graph.addEdge('D', 'E')
+graph.addEdge('D', 'F')
+graph.addEdge('E', 'F')
+
+console.log(graph.dfs('A'))  // ['A', 'B', 'D', 'E', 'C', 'F']
+console.log(graph.bfs('A'))  // ['A', 'B', 'C', 'D', 'E', 'F']
+```
+
+## Object 方法实现
+
+### Object.freeze / seal / preventExtensions
+
+```javascript
+// Object.freeze 实现
+// 冻结对象：不能添加、删除、修改属性
+function myFreeze(obj) {
+  if (obj === null || typeof obj !== 'object') {
+    return obj
+  }
+
+  // 获取所有属性（包括 Symbol）
+  const props = Object.getOwnPropertyNames(obj)
+    .concat(Object.getOwnPropertySymbols(obj))
+
+  props.forEach(prop => {
+    const descriptor = Object.getOwnPropertyDescriptor(obj, prop)
+
+    // 数据属性：设为不可写、不可配置
+    if (descriptor.writable !== undefined) {
+      Object.defineProperty(obj, prop, {
+        writable: false,
+        configurable: false
+      })
+    } else {
+      // 访问器属性：只设为不可配置
+      Object.defineProperty(obj, prop, {
+        configurable: false
+      })
+    }
+  })
+
+  // 阻止添加新属性
+  Object.preventExtensions(obj)
+
+  return obj
+}
+
+// 深度冻结
+function deepFreeze(obj) {
+  if (obj === null || typeof obj !== 'object') {
+    return obj
+  }
+
+  // 冻结自身
+  Object.freeze(obj)
+
+  // 递归冻结属性
+  Object.getOwnPropertyNames(obj).forEach(prop => {
+    const value = obj[prop]
+    if (value && typeof value === 'object' && !Object.isFrozen(value)) {
+      deepFreeze(value)
+    }
+  })
+
+  return obj
+}
+
+// Object.seal 实现
+// 密封对象：不能添加、删除属性，但可以修改现有属性值
+function mySeal(obj) {
+  if (obj === null || typeof obj !== 'object') {
+    return obj
+  }
+
+  const props = Object.getOwnPropertyNames(obj)
+    .concat(Object.getOwnPropertySymbols(obj))
+
+  props.forEach(prop => {
+    Object.defineProperty(obj, prop, {
+      configurable: false
+    })
+  })
+
+  Object.preventExtensions(obj)
+
+  return obj
+}
+
+// Object.preventExtensions 实现原理
+// 阻止添加新属性（使用 Proxy 模拟）
+function myPreventExtensions(obj) {
+  return new Proxy(obj, {
+    defineProperty(target, prop, descriptor) {
+      if (!(prop in target)) {
+        throw new TypeError('Cannot add property, object is not extensible')
+      }
+      return Reflect.defineProperty(target, prop, descriptor)
+    },
+    set(target, prop, value) {
+      if (!(prop in target)) {
+        throw new TypeError('Cannot add property, object is not extensible')
+      }
+      return Reflect.set(target, prop, value)
+    }
+  })
+}
+
+// 测试
+const obj1 = { a: 1, b: { c: 2 } }
+myFreeze(obj1)
+obj1.a = 100  // 静默失败（严格模式会报错）
+console.log(obj1.a)  // 1
+obj1.b.c = 200  // 嵌套对象可修改
+console.log(obj1.b.c)  // 200
+
+const obj2 = { a: 1, b: { c: 2 } }
+deepFreeze(obj2)
+obj2.b.c = 200  // 静默失败
+console.log(obj2.b.c)  // 2
+```
+
+### 对象方法对比
+
+| 方法 | 添加属性 | 删除属性 | 修改属性 | 修改描述符 |
+|------|---------|---------|---------|-----------|
+| `Object.preventExtensions` | ❌ | ✅ | ✅ | ✅ |
+| `Object.seal` | ❌ | ❌ | ✅ | ❌ |
+| `Object.freeze` | ❌ | ❌ | ❌ | ❌ |
+
+```javascript
+// 检测方法
+Object.isExtensible(obj)  // 是否可扩展
+Object.isSealed(obj)      // 是否密封
+Object.isFrozen(obj)      // 是否冻结
+
+// 关系：frozen ⊆ sealed ⊆ non-extensible
+// 冻结的对象一定是密封的，密封的对象一定是不可扩展的
+```
+
+## 复杂度分析总结
+
+### 常见手写题复杂度
+
+| 实现 | 时间复杂度 | 空间复杂度 | 说明 |
+|------|-----------|-----------|------|
+| 防抖/节流 | O(1) | O(1) | 闭包存储定时器 |
+| 深拷贝 | O(n) | O(n) | n 为属性总数 |
+| call/apply/bind | O(1) | O(1) | 常数操作 |
+| Promise | O(1) | O(n) | n 为回调数量 |
+| new 操作符 | O(1) | O(1) | - |
+| instanceof | O(n) | O(1) | n 为原型链长度 |
+| 柯里化 | O(n) | O(n) | n 为参数数量 |
+| 数组扁平化 | O(n) | O(n) | n 为元素总数 |
+| 数组去重（Set） | O(n) | O(n) | - |
+| 数组去重（双循环） | O(n²) | O(n) | - |
+| LRU 缓存（Map） | O(1) | O(n) | get/put 均为 O(1) |
+| LRU 缓存（链表） | O(1) | O(n) | 更优的时间常数 |
+
+### 数据结构操作复杂度
+
+| 操作 | 数组 | 链表 | 二叉搜索树 | 哈希表 |
+|------|-----|------|-----------|-------|
+| 访问 | O(1) | O(n) | O(log n) | O(1) |
+| 搜索 | O(n) | O(n) | O(log n) | O(1) |
+| 插入 | O(n) | O(1) | O(log n) | O(1) |
+| 删除 | O(n) | O(1) | O(log n) | O(1) |
+
+## 边界情况处理
+
+### 类型检测与防御性编程
+
+```javascript
+// 完整的类型检测
+function getType(value) {
+  if (value === null) return 'null'
+  if (value === undefined) return 'undefined'
+
+  const type = typeof value
+  if (type !== 'object') return type
+
+  // 详细对象类型
+  return Object.prototype.toString.call(value).slice(8, -1).toLowerCase()
+}
+
+// 安全的属性访问
+function safeGet(obj, path, defaultValue = undefined) {
+  if (obj == null) return defaultValue
+
+  const keys = Array.isArray(path) ? path : path.split('.')
+  let result = obj
+
+  for (const key of keys) {
+    if (result == null) return defaultValue
+    result = result[key]
+  }
+
+  return result === undefined ? defaultValue : result
+}
+
+// 测试
+console.log(safeGet({ a: { b: { c: 1 } } }, 'a.b.c'))  // 1
+console.log(safeGet(null, 'a.b', 'default'))           // 'default'
+console.log(safeGet({ a: 1 }, 'a.b.c', 'default'))     // 'default'
+```
+
+### 常见边界情况清单
+
+```javascript
+// 1. null 和 undefined
+function handleNullUndefined(value) {
+  // 区分 null 和 undefined
+  if (value === null) {
+    return 'null'
+  }
+  if (value === undefined) {
+    return 'undefined'
+  }
+
+  // 同时检测
+  if (value == null) {  // null 或 undefined
+    return 'nullish'
+  }
+}
+
+// 2. NaN 检测
+function isReallyNaN(value) {
+  // 只有 NaN 不等于自身
+  return value !== value
+  // 或使用 Number.isNaN（推荐）
+  // return Number.isNaN(value)
+}
+
+// 3. 数组空值
+function handleSparseArray(arr) {
+  // 稀疏数组
+  const sparse = [1, , 3]  // [1, empty, 3]
+
+  // forEach 会跳过空位
+  sparse.forEach(item => console.log(item))  // 1, 3
+
+  // map 保留空位
+  const mapped = sparse.map(x => x * 2)  // [2, empty, 6]
+
+  // 安全遍历
+  for (let i = 0; i < arr.length; i++) {
+    if (i in arr) {  // 检测是否有值
+      console.log(arr[i])
+    }
+  }
+}
+
+// 4. 循环引用检测
+function hasCircular(obj, seen = new WeakSet()) {
+  if (obj === null || typeof obj !== 'object') {
+    return false
+  }
+
+  if (seen.has(obj)) {
+    return true
+  }
+
+  seen.add(obj)
+
+  for (const value of Object.values(obj)) {
+    if (hasCircular(value, seen)) {
+      return true
+    }
+  }
+
+  return false
+}
+
+// 5. 负零检测
+function isNegativeZero(value) {
+  return value === 0 && 1 / value === -Infinity
+}
+
+// 6. 大数精度
+function safeAdd(a, b) {
+  // Number.MAX_SAFE_INTEGER: 9007199254740991
+  if (Math.abs(a) > Number.MAX_SAFE_INTEGER ||
+      Math.abs(b) > Number.MAX_SAFE_INTEGER) {
+    return BigInt(a) + BigInt(b)
+  }
+  return a + b
+}
+
+// 7. 浮点数比较
+function floatEqual(a, b, epsilon = Number.EPSILON) {
+  return Math.abs(a - b) < epsilon
+}
+
+// 测试
+console.log(0.1 + 0.2 === 0.3)           // false
+console.log(floatEqual(0.1 + 0.2, 0.3))  // true
+```
+
+### 防御性克隆
+
+```javascript
+// 处理各种边界情况的深拷贝
+function robustDeepClone(obj, map = new WeakMap()) {
+  // 1. 处理原始类型和 null
+  if (obj === null || typeof obj !== 'object') {
+    return obj
+  }
+
+  // 2. 处理循环引用
+  if (map.has(obj)) {
+    return map.get(obj)
+  }
+
+  // 3. 处理特殊对象
+  const type = Object.prototype.toString.call(obj)
+
+  switch (type) {
+    case '[object Date]':
+      return new Date(obj.getTime())
+
+    case '[object RegExp]':
+      return new RegExp(obj.source, obj.flags)
+
+    case '[object Map]': {
+      const cloneMap = new Map()
+      map.set(obj, cloneMap)
+      obj.forEach((value, key) => {
+        cloneMap.set(
+          robustDeepClone(key, map),
+          robustDeepClone(value, map)
+        )
+      })
+      return cloneMap
+    }
+
+    case '[object Set]': {
+      const cloneSet = new Set()
+      map.set(obj, cloneSet)
+      obj.forEach(value => {
+        cloneSet.add(robustDeepClone(value, map))
+      })
+      return cloneSet
+    }
+
+    case '[object ArrayBuffer]':
+      return obj.slice(0)
+
+    case '[object DataView]':
+      return new DataView(obj.buffer.slice(0))
+
+    // TypedArray
+    case '[object Int8Array]':
+    case '[object Uint8Array]':
+    case '[object Uint8ClampedArray]':
+    case '[object Int16Array]':
+    case '[object Uint16Array]':
+    case '[object Int32Array]':
+    case '[object Uint32Array]':
+    case '[object Float32Array]':
+    case '[object Float64Array]':
+    case '[object BigInt64Array]':
+    case '[object BigUint64Array]':
+      return new obj.constructor(obj)
+
+    case '[object Error]':
+      return new obj.constructor(obj.message)
+
+    default: {
+      // 4. 处理普通对象和数组
+      const clone = Array.isArray(obj)
+        ? []
+        : Object.create(Object.getPrototypeOf(obj))
+
+      map.set(obj, clone)
+
+      // 5. 复制所有属性（包括 Symbol 和不可枚举）
+      const allKeys = [
+        ...Object.getOwnPropertyNames(obj),
+        ...Object.getOwnPropertySymbols(obj)
+      ]
+
+      for (const key of allKeys) {
+        const descriptor = Object.getOwnPropertyDescriptor(obj, key)
+
+        if (descriptor.value !== undefined) {
+          descriptor.value = robustDeepClone(descriptor.value, map)
+        }
+
+        Object.defineProperty(clone, key, descriptor)
+      }
+
+      return clone
+    }
+  }
+}
+
+// 测试
+const complex = {
+  date: new Date(),
+  regex: /test/gi,
+  map: new Map([['key', 'value']]),
+  set: new Set([1, 2, 3]),
+  typed: new Int32Array([1, 2, 3]),
+  [Symbol('sym')]: 'symbol',
+  nested: { a: { b: { c: 1 } } }
+}
+complex.self = complex  // 循环引用
+
+const cloned = robustDeepClone(complex)
+console.log(cloned.date instanceof Date)  // true
+console.log(cloned.self === cloned)       // true（正确处理循环引用）
+```

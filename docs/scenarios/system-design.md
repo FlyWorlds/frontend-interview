@@ -4,6 +4,30 @@
 
 系统设计题是高级前端面试的重头戏，考察候选人的**架构能力**、**技术选型**、**问题分解**能力。前端工程师需要能够独立设计和实现复杂的前端系统。
 
+### 系统设计答题框架
+
+```
+1. 需求澄清 (2-3分钟)
+   - 功能需求：核心功能有哪些？
+   - 非功能需求：用户量级、性能要求、可用性要求
+   - 边界条件：异常情况如何处理？
+
+2. 系统架构 (5-10分钟)
+   - 画出整体架构图
+   - 说明各模块职责
+   - 数据流向
+
+3. 核心模块设计 (10-15分钟)
+   - API 设计
+   - 数据库设计
+   - 关键算法
+
+4. 扩展性与优化 (5分钟)
+   - 性能优化
+   - 安全考虑
+   - 扩展性设计
+```
+
 ---
 
 ## 一、IM 即时通讯系统
@@ -22,6 +46,202 @@
  * 7. @功能、表情包
  * 8. 消息搜索
  */
+```
+
+### 系统架构图
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         客户端 (Web/App)                         │
+├─────────────────────────────────────────────────────────────────┤
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────────┐ │
+│  │ UI 组件  │  │ 消息管理 │  │ 本地存储 │  │ WebSocket 管理   │ │
+│  │ - 会话列表│  │ - 发送   │  │-IndexedDB│  │ - 心跳检测      │ │
+│  │ - 消息列表│  │ - 接收   │  │ - 缓存  │  │ - 断线重连      │ │
+│  │ - 输入框 │  │ - 状态   │  │ - 离线  │  │ - 消息队列      │ │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                    WebSocket + HTTPS
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                        负载均衡 (Nginx)                          │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                       WebSocket 网关集群                         │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐                       │
+│  │  网关 1  │  │  网关 2  │  │  网关 3  │  ...                  │
+│  └──────────┘  └──────────┘  └──────────┘                       │
+│       │              │              │                            │
+│       └──────────────┼──────────────┘                            │
+│                      │                                           │
+│              ┌───────▼───────┐                                   │
+│              │ 用户连接映射表 │  (Redis)                          │
+│              │ userId -> gwId │                                   │
+│              └───────────────┘                                   │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                         消息服务集群                             │
+│  ┌────────────────────────────────────────────────────────────┐ │
+│  │                     消息队列 (Kafka)                        │ │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐                  │ │
+│  │  │ 单聊消息 │  │ 群聊消息 │  │ 系统消息 │                  │ │
+│  │  └──────────┘  └──────────┘  └──────────┘                  │ │
+│  └────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                          数据存储层                              │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
+│  │    MySQL     │  │    Redis     │  │    MinIO     │          │
+│  │  - 用户表   │  │  - 会话缓存  │  │  - 图片     │          │
+│  │  - 消息表   │  │  - 未读数    │  │  - 文件     │          │
+│  │  - 关系表   │  │  - 在线状态  │  │  - 语音     │          │
+│  └──────────────┘  └──────────────┘  └──────────────┘          │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 消息流转时序图
+
+```
+┌──────┐          ┌──────┐          ┌──────┐          ┌──────┐
+│用户 A│          │ 网关 │          │ 服务 │          │用户 B│
+└──┬───┘          └──┬───┘          └──┬───┘          └──┬───┘
+   │                 │                 │                 │
+   │  1.发送消息     │                 │                 │
+   │────────────────>│                 │                 │
+   │                 │  2.转发消息     │                 │
+   │                 │────────────────>│                 │
+   │                 │                 │                 │
+   │  3.ACK(已发送)  │                 │                 │
+   │<────────────────│                 │                 │
+   │                 │                 │  4.查询B在线状态│
+   │                 │                 │────────────────>│
+   │                 │                 │                 │
+   │                 │  5.推送消息     │                 │
+   │                 │<────────────────│                 │
+   │                 │                 │                 │
+   │                 │  6.消息送达     │                 │
+   │                 │────────────────────────────────>│
+   │                 │                 │                 │
+   │                 │  7.送达确认     │                 │
+   │                 │<────────────────────────────────│
+   │                 │                 │                 │
+   │  8.状态更新     │                 │                 │
+   │  (已送达)       │                 │                 │
+   │<────────────────│                 │                 │
+```
+
+### 数据库设计
+
+```sql
+-- 用户表
+CREATE TABLE users (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    nickname VARCHAR(100),
+    avatar VARCHAR(255),
+    status TINYINT DEFAULT 0,  -- 0:离线 1:在线 2:忙碌
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 会话表
+CREATE TABLE conversations (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    type TINYINT NOT NULL,  -- 1:单聊 2:群聊
+    name VARCHAR(100),
+    avatar VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 会话成员表
+CREATE TABLE conversation_members (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    conversation_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    role TINYINT DEFAULT 0,  -- 0:成员 1:管理员 2:群主
+    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_conv_user (conversation_id, user_id)
+);
+
+-- 消息表 (按时间分表)
+CREATE TABLE messages_202401 (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    conversation_id BIGINT NOT NULL,
+    sender_id BIGINT NOT NULL,
+    type TINYINT NOT NULL,  -- 1:文本 2:图片 3:文件 4:语音
+    content TEXT,
+    extra JSON,  -- 扩展字段 {"width":100,"height":100}
+    status TINYINT DEFAULT 0,  -- 0:发送中 1:已发送 2:已送达 3:已读
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_conv_time (conversation_id, created_at)
+);
+
+-- 消息已读表
+CREATE TABLE message_reads (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    message_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    read_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_msg_user (message_id, user_id)
+);
+```
+
+### API 设计
+
+```typescript
+// RESTful API
+
+// 获取会话列表
+GET /api/conversations
+Response: {
+  conversations: [{
+    id: string,
+    type: 'single' | 'group',
+    name: string,
+    avatar: string,
+    lastMessage: Message,
+    unreadCount: number,
+    updatedAt: string
+  }]
+}
+
+// 获取历史消息
+GET /api/conversations/:id/messages?before=timestamp&limit=20
+Response: {
+  messages: Message[],
+  hasMore: boolean
+}
+
+// 发送消息
+POST /api/messages
+Body: {
+  conversationId: string,
+  type: 'text' | 'image' | 'file',
+  content: string,
+  extra?: object
+}
+Response: {
+  messageId: string,
+  timestamp: number
+}
+
+// WebSocket 消息格式
+interface WSMessage {
+  type: 'message' | 'ack' | 'read' | 'typing' | 'ping' | 'pong'
+  data: {
+    messageId?: string
+    conversationId?: string
+    content?: any
+    timestamp: number
+  }
+}
 ```
 
 ### 技术架构
@@ -495,6 +715,168 @@ watch(() => props.messages.length, (newLen, oldLen) => {
 </script>
 ```
 
+### 安全性设计
+
+```javascript
+// 1. 消息内容安全
+class MessageSecurity {
+  // XSS 防护 - 消息内容转义
+  sanitizeContent(content) {
+    const map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#x27;'
+    }
+    return content.replace(/[&<>"']/g, char => map[char])
+  }
+
+  // 敏感词过滤
+  filterSensitiveWords(content, sensitiveList) {
+    let result = content
+    sensitiveList.forEach(word => {
+      const regex = new RegExp(word, 'gi')
+      result = result.replace(regex, '*'.repeat(word.length))
+    })
+    return result
+  }
+
+  // 消息加密 (端到端加密)
+  async encryptMessage(content, publicKey) {
+    const encoder = new TextEncoder()
+    const data = encoder.encode(content)
+
+    const key = await crypto.subtle.importKey(
+      'spki',
+      publicKey,
+      { name: 'RSA-OAEP', hash: 'SHA-256' },
+      false,
+      ['encrypt']
+    )
+
+    return await crypto.subtle.encrypt(
+      { name: 'RSA-OAEP' },
+      key,
+      data
+    )
+  }
+}
+
+// 2. 防刷屏和频率限制
+class RateLimiter {
+  constructor(options = {}) {
+    this.maxMessages = options.maxMessages || 10
+    this.timeWindow = options.timeWindow || 10000  // 10秒
+    this.messageTimestamps = []
+  }
+
+  canSend() {
+    const now = Date.now()
+    // 移除过期记录
+    this.messageTimestamps = this.messageTimestamps.filter(
+      ts => now - ts < this.timeWindow
+    )
+
+    if (this.messageTimestamps.length >= this.maxMessages) {
+      return false
+    }
+
+    this.messageTimestamps.push(now)
+    return true
+  }
+}
+
+// 3. 身份验证
+class AuthManager {
+  // Token 刷新
+  async refreshToken() {
+    const response = await fetch('/api/auth/refresh', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.refreshToken}`
+      }
+    })
+    const { accessToken } = await response.json()
+    this.accessToken = accessToken
+  }
+
+  // WebSocket 鉴权
+  getAuthenticatedUrl() {
+    return `wss://im.example.com/ws?token=${this.accessToken}`
+  }
+}
+```
+
+### 扩展性设计
+
+```javascript
+/**
+ * 扩展性考虑：
+ *
+ * 1. 水平扩展
+ *    - WebSocket 网关无状态，可水平扩展
+ *    - 用户连接映射存储在 Redis 集群
+ *    - 消息通过 Kafka 异步处理
+ *
+ * 2. 数据库扩展
+ *    - 消息表按时间分表 (messages_202401, messages_202402...)
+ *    - 读写分离 (主库写，从库读历史消息)
+ *    - 热数据缓存到 Redis
+ *
+ * 3. 支持百万级在线
+ *    - 单机 WebSocket 连接数约 10万
+ *    - 10台网关服务器 = 100万在线
+ *    - 使用一致性哈希分配用户到网关
+ */
+
+// 消息分表策略
+class MessageSharding {
+  getTableName(timestamp) {
+    const date = new Date(timestamp)
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    return `messages_${year}${month}`
+  }
+
+  // 查询跨月消息
+  async queryMessages(conversationId, startTime, endTime) {
+    const tables = this.getTablesInRange(startTime, endTime)
+    const results = await Promise.all(
+      tables.map(table => this.queryFromTable(table, conversationId, startTime, endTime))
+    )
+    return results.flat().sort((a, b) => a.timestamp - b.timestamp)
+  }
+}
+
+// 群聊消息扇出优化
+class GroupMessageFanout {
+  // 小群：写扩散 (每个成员一份)
+  // 大群：读扩散 (只存一份，读取时合并)
+
+  async sendGroupMessage(groupId, message, memberCount) {
+    if (memberCount < 500) {
+      // 写扩散：给每个在线成员推送
+      return this.writeFanout(groupId, message)
+    } else {
+      // 读扩散：存储一份，用户拉取
+      return this.readFanout(groupId, message)
+    }
+  }
+}
+```
+
+### 性能优化要点
+
+| 优化点 | 方案 |
+|--------|------|
+| 消息列表渲染 | 虚拟滚动，只渲染可视区域 |
+| 图片消息 | 缩略图 + 懒加载 + CDN |
+| 离线消息 | IndexedDB 本地存储 |
+| 消息去重 | 客户端 ID + 服务端 ID 双重校验 |
+| 心跳优化 | 30秒间隔，断线指数退避重连 |
+| 批量操作 | 已读状态批量上报 |
+
 ---
 
 ## 二、在线文档协同编辑
@@ -511,6 +893,100 @@ watch(() => props.messages.length, (newLen, oldLen) => {
  * 5. 评论批注
  * 6. 权限控制
  */
+```
+
+### 系统架构图
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         协同编辑客户端                           │
+├─────────────────────────────────────────────────────────────────┤
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
+│  │   编辑器     │  │  协同管理    │  │   状态同步           │  │
+│  │  - 富文本   │  │  - OT/CRDT  │  │   - 光标位置         │  │
+│  │  - 选区     │  │  - 冲突解决  │  │   - 在线用户         │  │
+│  │  - 格式化   │  │  - 版本控制  │  │   - 操作感知         │  │
+│  └──────────────┘  └──────────────┘  └──────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                    WebSocket (双向实时通信)
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                        协同服务器                                │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │                    协同引擎                               │  │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐               │  │
+│  │  │ OT 转换  │  │ 版本管理 │  │ 冲突检测 │               │  │
+│  │  └──────────┘  └──────────┘  └──────────┘               │  │
+│  └──────────────────────────────────────────────────────────┘  │
+│                                                                 │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐         │
+│  │  会话管理   │  │  权限控制   │  │  评论服务   │         │
+│  └──────────────┘  └──────────────┘  └──────────────┘         │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                          数据存储                                │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐         │
+│  │   MongoDB    │  │    Redis     │  │     OSS      │         │
+│  │  - 文档内容 │  │  - 在线状态 │  │  - 历史快照 │         │
+│  │  - 操作日志 │  │  - 操作缓存 │  │  - 附件文件 │         │
+│  │  - 版本历史 │  │  - 锁机制   │  │              │         │
+│  └──────────────┘  └──────────────┘  └──────────────┘         │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### OT vs CRDT 技术选型
+
+```javascript
+/**
+ * OT (Operational Transformation) vs CRDT (Conflict-free Replicated Data Type)
+ *
+ * ┌─────────────────┬────────────────────────┬────────────────────────┐
+ * │     特性        │         OT             │         CRDT           │
+ * ├─────────────────┼────────────────────────┼────────────────────────┤
+ * │ 中心化要求      │ 需要中心服务器协调      │ 去中心化，点对点       │
+ * │ 操作复杂度      │ 转换函数复杂            │ 数据结构复杂           │
+ * │ 网络延迟       │ 对延迟敏感              │ 延迟容忍度高           │
+ * │ 一致性保证     │ 依赖服务器顺序          │ 数学证明最终一致       │
+ * │ 实现难度       │ 转换函数易出错          │ 数据结构设计复杂       │
+ * │ 存储开销       │ 只存储操作              │ 需要存储元数据         │
+ * │ 典型应用       │ Google Docs            │ Figma, Notion          │
+ * │ 适用场景       │ 强一致性要求            │ 离线编辑、P2P 协作     │
+ * └─────────────────┴────────────────────────┴────────────────────────┘
+ *
+ * 选择建议：
+ * - 10人以下协作 + 强一致性要求 → OT
+ * - 需要离线编辑 + 最终一致性可接受 → CRDT
+ * - 复杂富文本编辑器 → OT (更成熟)
+ * - 实时白板/画布 → CRDT (位置无关)
+ */
+
+// 选型决策函数
+function chooseAlgorithm(requirements) {
+  const {
+    maxConcurrentUsers,  // 最大并发用户数
+    needOfflineSupport,  // 是否需要离线支持
+    contentType,         // 内容类型: 'text' | 'richtext' | 'canvas'
+    consistencyLevel     // 一致性要求: 'strong' | 'eventual'
+  } = requirements
+
+  if (needOfflineSupport || contentType === 'canvas') {
+    return 'CRDT'
+  }
+
+  if (consistencyLevel === 'strong' && maxConcurrentUsers < 50) {
+    return 'OT'
+  }
+
+  if (contentType === 'richtext') {
+    return 'OT'  // 富文本 OT 更成熟
+  }
+
+  return 'CRDT'  // 默认选择 CRDT
+}
 ```
 
 ### OT 算法 (Operational Transformation)
@@ -1126,6 +1602,234 @@ router.beforeEach(async (to, from, next) => {
     }
   }
 })
+```
+
+### 数据权限设计
+
+```javascript
+/**
+ * 数据权限：控制用户能看到哪些数据
+ *
+ * 常见模式：
+ * 1. 全部数据 - 管理员
+ * 2. 部门数据 - 部门经理
+ * 3. 本人数据 - 普通员工
+ * 4. 自定义数据范围
+ */
+
+// 数据权限配置
+const DataScope = {
+  ALL: 1,           // 全部数据
+  DEPARTMENT: 2,    // 本部门数据
+  DEPARTMENT_AND_CHILD: 3,  // 本部门及下级
+  SELF: 4,          // 仅本人数据
+  CUSTOM: 5         // 自定义
+}
+
+// 数据权限 SQL 构建器
+class DataScopeBuilder {
+  constructor(user) {
+    this.user = user
+    this.userId = user.id
+    this.deptId = user.deptId
+    this.dataScope = user.dataScope
+  }
+
+  // 构建 WHERE 条件
+  buildCondition(tableAlias = '') {
+    const prefix = tableAlias ? `${tableAlias}.` : ''
+
+    switch (this.dataScope) {
+      case DataScope.ALL:
+        return '1=1'  // 无限制
+
+      case DataScope.DEPARTMENT:
+        return `${prefix}dept_id = ${this.deptId}`
+
+      case DataScope.DEPARTMENT_AND_CHILD:
+        return `${prefix}dept_id IN (
+          SELECT id FROM departments
+          WHERE id = ${this.deptId}
+          OR parent_id = ${this.deptId}
+        )`
+
+      case DataScope.SELF:
+        return `${prefix}creator_id = ${this.userId}`
+
+      case DataScope.CUSTOM:
+        // 从用户配置的部门列表中查询
+        const deptIds = this.user.customDeptIds.join(',')
+        return `${prefix}dept_id IN (${deptIds})`
+
+      default:
+        return `${prefix}creator_id = ${this.userId}`
+    }
+  }
+
+  // 前端数据过滤
+  filterData(dataList) {
+    switch (this.dataScope) {
+      case DataScope.ALL:
+        return dataList
+
+      case DataScope.DEPARTMENT:
+        return dataList.filter(item => item.deptId === this.deptId)
+
+      case DataScope.SELF:
+        return dataList.filter(item => item.creatorId === this.userId)
+
+      default:
+        return dataList.filter(item => item.creatorId === this.userId)
+    }
+  }
+}
+
+// 权限服务
+class PermissionService {
+  // 检查操作权限
+  checkPermission(user, resource, action) {
+    // 1. 检查功能权限
+    const hasPermission = user.permissions.includes(`${resource}:${action}`)
+    if (!hasPermission) return false
+
+    // 2. 检查数据权限
+    return this.checkDataScope(user, resource)
+  }
+
+  // 检查数据范围
+  checkDataScope(user, targetData) {
+    const builder = new DataScopeBuilder(user)
+
+    switch (user.dataScope) {
+      case DataScope.ALL:
+        return true
+
+      case DataScope.DEPARTMENT:
+        return targetData.deptId === user.deptId
+
+      case DataScope.SELF:
+        return targetData.creatorId === user.id
+
+      default:
+        return false
+    }
+  }
+}
+```
+
+### 权限系统数据库设计
+
+```sql
+-- 用户表
+CREATE TABLE sys_user (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    dept_id BIGINT,
+    status TINYINT DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 角色表
+CREATE TABLE sys_role (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL,
+    code VARCHAR(50) UNIQUE NOT NULL,
+    data_scope TINYINT DEFAULT 4,  -- 数据权限范围
+    status TINYINT DEFAULT 1
+);
+
+-- 权限表
+CREATE TABLE sys_permission (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL,
+    code VARCHAR(100) UNIQUE NOT NULL,  -- 如 user:add, user:edit
+    type TINYINT NOT NULL,  -- 1:菜单 2:按钮 3:API
+    parent_id BIGINT DEFAULT 0
+);
+
+-- 用户角色关联表
+CREATE TABLE sys_user_role (
+    user_id BIGINT NOT NULL,
+    role_id BIGINT NOT NULL,
+    PRIMARY KEY (user_id, role_id)
+);
+
+-- 角色权限关联表
+CREATE TABLE sys_role_permission (
+    role_id BIGINT NOT NULL,
+    permission_id BIGINT NOT NULL,
+    PRIMARY KEY (role_id, permission_id)
+);
+
+-- 部门表
+CREATE TABLE sys_department (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    parent_id BIGINT DEFAULT 0,
+    sort INT DEFAULT 0
+);
+
+-- 角色部门关联表 (自定义数据权限)
+CREATE TABLE sys_role_dept (
+    role_id BIGINT NOT NULL,
+    dept_id BIGINT NOT NULL,
+    PRIMARY KEY (role_id, dept_id)
+);
+```
+
+### 安全性考虑
+
+```javascript
+// 1. 前端权限校验只是体验优化，真正的安全在后端
+// 2. 所有敏感操作必须后端二次校验
+// 3. Token 安全存储和刷新机制
+
+class SecurityGuard {
+  // 防止越权访问
+  async checkAuthorization(userId, resourceId, action) {
+    // 1. 验证 Token
+    const user = await this.verifyToken()
+
+    // 2. 检查功能权限
+    const hasPermission = await this.checkFunctionPermission(user, action)
+    if (!hasPermission) {
+      throw new ForbiddenError('无操作权限')
+    }
+
+    // 3. 检查数据权限
+    const resource = await this.getResource(resourceId)
+    const hasDataAccess = await this.checkDataPermission(user, resource)
+    if (!hasDataAccess) {
+      throw new ForbiddenError('无数据访问权限')
+    }
+
+    return true
+  }
+
+  // 敏感操作二次验证
+  async sensitiveOperation(userId, operation) {
+    // 要求重新输入密码或短信验证
+    const verified = await this.requireSecondaryAuth(userId)
+    if (!verified) {
+      throw new UnauthorizedError('需要二次验证')
+    }
+  }
+
+  // 操作审计日志
+  async logOperation(user, action, resource, result) {
+    await AuditLog.create({
+      userId: user.id,
+      action,
+      resourceType: resource.type,
+      resourceId: resource.id,
+      result,
+      ip: this.getClientIP(),
+      userAgent: this.getUserAgent(),
+      timestamp: new Date()
+    })
+  }
+}
 ```
 
 ---
