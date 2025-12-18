@@ -12,7 +12,7 @@ export default defineConfig({
       { text: '基础', items: [{ text: 'HTML', link: '/html/' }, { text: 'CSS', link: '/css/' }, { text: 'JavaScript', link: '/javascript/' }, { text: 'TypeScript', link: '/typescript/' }] },
       { text: '框架', items: [{ text: 'Vue', link: '/vue/' }, { text: 'React', link: '/react/' }] },
       { text: '网络与浏览器', items: [{ text: '网络协议', link: '/network/' }, { text: '浏览器原理', link: '/browser/' }] },
-      { text: '工程化', items: [{ text: '构建工具', link: '/engineering/' }, { text: '性能优化', link: '/performance/' }, { text: '微前端', link: '/micro-frontend/' }] },
+      { text: '工程化', items: [{ text: '构建工具', link: '/engineering/' }, { text: '性能优化', link: '/performance/' }, { text: '微前端', link: '/micro-frontend/' }, { text: 'Node.js', link: '/nodejs/' }] },
       { text: '进阶', items: [{ text: '设计模式', link: '/design-patterns/' }, { text: '场景题', link: '/scenarios/' }, { text: '算法', link: '/algorithm/' }, { text: '跨端开发', link: '/cross-platform/' }] },
       { text: 'AI', link: '/ai/' }
     ],
@@ -29,6 +29,7 @@ export default defineConfig({
             { text: 'this 指向', link: '/javascript/this' },
             { text: '异步编程', link: '/javascript/async' },
             { text: 'ES6+ 新特性', link: '/javascript/es6' },
+            { text: '模块化', link: '/javascript/modules' },
             { text: '手写代码实现', link: '/javascript/handwriting' }
           ]
         }
@@ -134,7 +135,17 @@ export default defineConfig({
             { text: 'CI/CD', link: '/engineering/cicd' },
             { text: 'Monorepo', link: '/engineering/monorepo' },
             { text: '代码规范', link: '/engineering/code-style' },
+            { text: '前端测试', link: '/engineering/testing' },
             { text: '浏览器兼容性', link: '/engineering/compatibility' }
+          ]
+        }
+      ],
+
+      '/nodejs/': [
+        {
+          text: 'Node.js',
+          items: [
+            { text: 'Node.js 基础', link: '/nodejs/' }
           ]
         }
       ],
@@ -227,6 +238,7 @@ export default defineConfig({
             { text: '算法基础', link: '/algorithm/' },
             { text: '数据结构', link: '/algorithm/data-structure' },
             { text: '常见算法', link: '/algorithm/common' },
+            { text: '高频算法详解', link: '/algorithm/advanced' },
             { text: '前端算法题', link: '/algorithm/frontend' }
           ]
         }
