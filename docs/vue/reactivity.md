@@ -503,7 +503,473 @@ count.value = 10;
 
 ---
 
-## 4. Vue 2 vs Vue 3 响应式对比
+## 4. Vue 3 高级响应式 API
+
+Vue 3 提供了一系列高级 API，用于精细控制响应式行为和性能优化。
+
+### shallowRef 和 shallowReactive
+
+```javascript
+import { shallowRef, shallowReactive, triggerRef } from 'vue';
+
+// shallowRef - 只有 .value 的变化是响应式的
+const state = shallowRef({ count: 0, user: { name: 'Alice' } });
+
+// ❌ 不会触发更新
+state.value.count++;
+state.value.user.name = 'Bob';
+
+// ✅ 会触发更新 - 整体替换 .value
+state.value = { count: 1, user: { name: 'Bob' } };
+
+// 手动触发更新
+state.value.count++;
+triggerRef(state);  // 强制触发更新
+
+// shallowReactive - 只有第一层是响应式的
+const obj = shallowReactive({
+  name: 'Alice',
+  nested: { count: 0 }
+});
+
+obj.name = 'Bob';           // ✅ 触发更新
+obj.nested.count++;         // ❌ 不会触发更新
+obj.nested = { count: 1 };  // ✅ 触发更新
+```
+
+**使用场景**：
+- 大型对象，内部数据变化频繁但不需要细粒度响应
+- 性能敏感场景，手动控制更新时机
+- 只关心引用变化，不关心内部变化
+
+### markRaw - 跳过响应式转换
+
+```javascript
+import { markRaw, reactive, isReactive } from 'vue';
+
+// 标记为原始对象，永远不会被转换为响应式
+const rawData = markRaw({
+  largeArray: new Array(10000).fill(0),
+  complexObj: { /* 大型对象 */ }
+});
+
+const state = reactive({
+  data: rawData  // rawData 不会被转换为响应式
+});
+
+console.log(isReactive(state.data));  // false
+
+// 常见场景：第三方库实例
+import { Chart } from 'chart.js';
+
+const chartState = reactive({
+  chartInstance: markRaw(new Chart(/* ... */)),
+  options: { /* 这些会是响应式的 */ }
+});
+
+// 常见场景：大型不变数据
+const config = markRaw({
+  cities: [/* 几千个城市数据 */],
+  countries: [/* 国家数据 */]
+});
+```
+
+**什么时候用 markRaw**：
+- 第三方库实例（Chart.js、ECharts、地图实例）
+- 大型静态数据（城市列表、配置项）
+- 不需要响应式的复杂对象
+- class 实例（不希望被代理）
+
+### toRaw - 获取原始对象
+
+```javascript
+import { reactive, toRaw, isReactive } from 'vue';
+
+const original = { name: 'Alice', age: 25 };
+const proxy = reactive(original);
+
+// 获取原始对象
+const raw = toRaw(proxy);
+
+console.log(raw === original);  // true
+console.log(isReactive(raw));   // false
+
+// 使用场景1：传递给不支持 Proxy 的第三方库
+someThirdPartyLib.process(toRaw(proxy));
+
+// 使用场景2：性能优化 - 大量只读操作
+const largeList = reactive([/* 10000 个项目 */]);
+
+function processWithoutTracking() {
+  const rawList = toRaw(largeList);
+
+  // 遍历不会触发依赖收集，性能更好
+  rawList.forEach(item => {
+    // 只读操作
+  });
+}
+
+// 使用场景3：深拷贝时避免代理问题
+const state = reactive({ user: { name: 'Alice' } });
+const copied = JSON.parse(JSON.stringify(toRaw(state)));
+```
+
+### triggerRef - 手动触发更新
+
+```javascript
+import { shallowRef, triggerRef, watchEffect } from 'vue';
+
+const shallow = shallowRef({ count: 0 });
+
+watchEffect(() => {
+  console.log('count:', shallow.value.count);
+});
+// 输出: count: 0
+
+// 修改内部值不会触发更新
+shallow.value.count++;
+// 无输出
+
+// 手动触发更新
+triggerRef(shallow);
+// 输出: count: 1
+
+// 实际应用：批量更新后统一触发
+function batchUpdate() {
+  shallow.value.count++;
+  shallow.value.count++;
+  shallow.value.count++;
+
+  // 只触发一次更新
+  triggerRef(shallow);
+}
+```
+
+### 响应式工具函数
+
+```javascript
+import {
+  ref,
+  reactive,
+  readonly,
+  isRef,
+  isReactive,
+  isProxy,
+  isReadonly,
+  unref,
+  toRef,
+  toRefs
+} from 'vue';
+
+// ========== 类型检查 ==========
+
+const count = ref(0);
+const state = reactive({ name: 'Alice' });
+const frozen = readonly(state);
+
+// isRef - 检查是否为 ref
+console.log(isRef(count));       // true
+console.log(isRef(state));       // false
+
+// isReactive - 检查是否为 reactive
+console.log(isReactive(state));  // true
+console.log(isReactive(frozen)); // false (readonly 不是 reactive)
+
+// isProxy - 检查是否为 Proxy (包括 reactive 和 readonly)
+console.log(isProxy(state));     // true
+console.log(isProxy(frozen));    // true
+
+// isReadonly - 检查是否为只读
+console.log(isReadonly(frozen)); // true
+console.log(isReadonly(state));  // false
+
+// ========== unref - 解包 ref ==========
+
+// 如果是 ref 返回 .value，否则返回原值
+const maybeRef = ref(10);
+const notRef = 20;
+
+console.log(unref(maybeRef));  // 10
+console.log(unref(notRef));    // 20
+
+// 常用于组合式函数，接受 ref 或普通值
+function useDouble(value) {
+  return computed(() => unref(value) * 2);
+}
+
+useDouble(ref(5));   // 10
+useDouble(5);        // 10
+
+// ========== toRef - 创建单个属性的 ref ==========
+
+const obj = reactive({ name: 'Alice', age: 25 });
+
+// 创建一个与源属性同步的 ref
+const nameRef = toRef(obj, 'name');
+
+nameRef.value = 'Bob';
+console.log(obj.name);  // 'Bob'
+
+obj.name = 'Charlie';
+console.log(nameRef.value);  // 'Charlie'
+
+// 常用于组合式函数的 props
+function useName(props) {
+  const name = toRef(props, 'name');
+  // name 会与 props.name 保持同步
+  return { name };
+}
+
+// ========== toRefs - 解构保持响应式 ==========
+
+const state2 = reactive({
+  name: 'Alice',
+  age: 25,
+  email: 'alice@example.com'
+});
+
+// ❌ 直接解构会失去响应式
+const { name, age } = state2;
+// name 和 age 只是普通值
+
+// ✅ 使用 toRefs 解构
+const { name: nameRef2, age: ageRef } = toRefs(state2);
+
+nameRef2.value = 'Bob';
+console.log(state2.name);  // 'Bob'
+
+// 常用于组合式函数返回值
+function useUserState() {
+  const state = reactive({
+    name: '',
+    age: 0,
+    loading: false
+  });
+
+  // 返回时使用 toRefs，调用方可以解构
+  return {
+    ...toRefs(state),
+    updateName: (name) => state.name = name
+  };
+}
+
+// 使用方可以解构
+const { name, age, loading, updateName } = useUserState();
+```
+
+### customRef - 自定义 ref
+
+```javascript
+import { customRef } from 'vue';
+
+// 创建防抖 ref
+function useDebouncedRef(value, delay = 300) {
+  let timeout;
+
+  return customRef((track, trigger) => ({
+    get() {
+      track();  // 追踪依赖
+      return value;
+    },
+    set(newValue) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        value = newValue;
+        trigger();  // 触发更新
+      }, delay);
+    }
+  }));
+}
+
+// 使用
+const searchQuery = useDebouncedRef('', 500);
+
+// 输入时不会立即触发更新，500ms 后才触发
+searchQuery.value = 'hello';
+
+// 创建节流 ref
+function useThrottledRef(value, delay = 300) {
+  let lastTime = 0;
+
+  return customRef((track, trigger) => ({
+    get() {
+      track();
+      return value;
+    },
+    set(newValue) {
+      const now = Date.now();
+      if (now - lastTime >= delay) {
+        value = newValue;
+        lastTime = now;
+        trigger();
+      }
+    }
+  }));
+}
+
+// 创建验证 ref
+function useValidatedRef(value, validator) {
+  return customRef((track, trigger) => ({
+    get() {
+      track();
+      return value;
+    },
+    set(newValue) {
+      if (validator(newValue)) {
+        value = newValue;
+        trigger();
+      } else {
+        console.warn('验证失败:', newValue);
+      }
+    }
+  }));
+}
+
+// 使用：只接受正数
+const positiveNumber = useValidatedRef(1, (v) => v > 0);
+positiveNumber.value = 10;  // ✅ 更新
+positiveNumber.value = -5;  // ❌ 验证失败，不更新
+
+// 创建本地存储同步 ref
+function useLocalStorageRef(key, defaultValue) {
+  return customRef((track, trigger) => ({
+    get() {
+      track();
+      const stored = localStorage.getItem(key);
+      return stored ? JSON.parse(stored) : defaultValue;
+    },
+    set(newValue) {
+      localStorage.setItem(key, JSON.stringify(newValue));
+      trigger();
+    }
+  }));
+}
+
+// 使用：自动与 localStorage 同步
+const theme = useLocalStorageRef('theme', 'light');
+theme.value = 'dark';  // 自动保存到 localStorage
+```
+
+### effectScope - 副作用作用域
+
+```javascript
+import { effectScope, ref, computed, watch, watchEffect } from 'vue';
+
+// 创建一个作用域
+const scope = effectScope();
+
+scope.run(() => {
+  const count = ref(0);
+  const double = computed(() => count.value * 2);
+
+  watch(count, () => {
+    console.log('count changed');
+  });
+
+  watchEffect(() => {
+    console.log('double:', double.value);
+  });
+
+  // 所有响应式副作用都在这个作用域内
+});
+
+// 一次性停止所有副作用
+scope.stop();
+
+// 实际应用：组件外的响应式状态管理
+const store = effectScope(true);  // true 表示分离作用域
+
+const state = store.run(() => {
+  const user = ref(null);
+  const isLoggedIn = computed(() => !!user.value);
+
+  watchEffect(() => {
+    if (isLoggedIn.value) {
+      console.log('用户已登录:', user.value.name);
+    }
+  });
+
+  return { user, isLoggedIn };
+});
+
+// 组合式函数中使用
+function useFeature() {
+  const scope = effectScope();
+
+  const result = scope.run(() => {
+    const data = ref([]);
+    const loading = ref(false);
+
+    watchEffect(() => {
+      // 副作用
+    });
+
+    return { data, loading };
+  });
+
+  // 返回清理函数
+  return {
+    ...result,
+    dispose: () => scope.stop()
+  };
+}
+```
+
+### 高级 API 最佳实践
+
+```javascript
+// 1. 性能优化：大型列表使用 shallowRef
+const bigList = shallowRef([]);
+
+async function fetchData() {
+  const data = await api.fetchLargeList();
+  bigList.value = data;  // 整体替换，触发一次更新
+}
+
+// 2. 第三方库实例使用 markRaw
+const chartRef = ref(null);
+const chartInstance = shallowRef(null);
+
+onMounted(() => {
+  chartInstance.value = markRaw(new Chart(chartRef.value, options));
+});
+
+// 3. 组合式函数返回值使用 toRefs
+function useState(initialState) {
+  const state = reactive(initialState);
+
+  return {
+    ...toRefs(state),
+    reset: () => Object.assign(state, initialState)
+  };
+}
+
+// 4. 接受 ref 或普通值的函数使用 unref
+function useTitle(title) {
+  watchEffect(() => {
+    document.title = unref(title);
+  });
+}
+
+useTitle(ref('动态标题'));  // ✅
+useTitle('静态标题');       // ✅
+
+// 5. 避免不必要的响应式
+const config = {
+  apiUrl: 'https://api.example.com',
+  timeout: 5000
+};
+// 不需要响应式的配置，直接用普通对象
+
+const state = reactive({
+  user: null,
+  config: markRaw(config)  // 或者用 markRaw
+});
+```
+
+---
+
+## 5. Vue 2 vs Vue 3 响应式对比
 
 ### 实现对比
 
@@ -550,7 +1016,7 @@ delete state.user.name;
 
 ---
 
-## 5. 常见面试题
+## 6. 常见面试题
 
 ### 题目1: Vue 如何检测数组变化?
 
@@ -679,7 +1145,9 @@ this.message = 'new value';
 - 能手写简易的响应式系统
 - 理解 Proxy 的 13 种拦截操作
 - 了解 Vue 3 的 ref、reactive、computed 实现
-- 知道响应式的性能优化(shallowReactive、readonly)
+- 知道响应式的性能优化（shallowRef、shallowReactive、markRaw）
+- 掌握高级 API：toRaw、triggerRef、customRef、effectScope
+- 理解工具函数：isRef、isReactive、toRef、toRefs、unref
 - 理解 Vue 2 到 Vue 3 的升级动机
 
 ---

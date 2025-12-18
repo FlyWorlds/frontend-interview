@@ -33,7 +33,9 @@ export default defineConfig({
             { text: '异步编程', link: '/javascript/async' },
             { text: 'ES6+ 新特性', link: '/javascript/es6' },
             { text: '模块化', link: '/javascript/modules' },
-            { text: '手写代码实现', link: '/javascript/handwriting' }
+            { text: '手写代码实现', link: '/javascript/handwriting' },
+            { text: '正则表达式', link: '/javascript/regex' },
+            { text: 'Proxy 与 Reflect', link: '/javascript/proxy-reflect' }
           ]
         }
       ],
@@ -46,7 +48,8 @@ export default defineConfig({
             { text: '类型系统', link: '/typescript/type-system' },
             { text: '高级类型', link: '/typescript/advanced-types' },
             { text: '泛型', link: '/typescript/generics' },
-            { text: '工程实践', link: '/typescript/practice' }
+            { text: '工程实践', link: '/typescript/practice' },
+            { text: 'TypeScript + React', link: '/typescript/react' }
           ]
         }
       ],
@@ -64,7 +67,9 @@ export default defineConfig({
             { text: 'Vue Router', link: '/vue/router' },
             { text: 'Pinia/Vuex', link: '/vue/state-management' },
             { text: 'Vue 3 vs Vue 2', link: '/vue/vue3-vs-vue2' },
-            { text: 'Nuxt.js', link: '/vue/nuxt' }
+            { text: 'Nuxt.js', link: '/vue/nuxt' },
+            { text: '自定义指令', link: '/vue/directives' },
+            { text: '性能优化', link: '/vue/optimization' }
           ]
         }
       ],
@@ -80,7 +85,8 @@ export default defineConfig({
             { text: '状态管理方案对比', link: '/react/state-comparison' },
             { text: '性能优化', link: '/react/optimization' },
             { text: 'React Router', link: '/react/router' },
-            { text: 'Next.js', link: '/react/nextjs' }
+            { text: 'Next.js', link: '/react/nextjs' },
+            { text: 'React 18 并发特性', link: '/react/concurrent' }
           ]
         }
       ],
@@ -95,7 +101,8 @@ export default defineConfig({
             { text: 'WebSocket', link: '/network/websocket' },
             { text: 'SSE', link: '/network/sse' },
             { text: '跨域解决方案', link: '/network/cors' },
-            { text: '网络安全', link: '/network/security' }
+            { text: '网络安全', link: '/network/security' },
+            { text: 'DNS 解析', link: '/network/dns' }
           ]
         }
       ],
@@ -111,7 +118,9 @@ export default defineConfig({
             { text: '浏览器存储', link: '/browser/storage' },
             { text: 'Observer API', link: '/browser/observer-api' },
             { text: 'WebAssembly', link: '/browser/webassembly' },
-            { text: 'PWA 渐进式应用', link: '/browser/pwa' }
+            { text: 'PWA 渐进式应用', link: '/browser/pwa' },
+            { text: 'URL 到页面渲染', link: '/browser/url-to-render' },
+            { text: 'Web Workers', link: '/browser/web-workers' }
           ]
         }
       ],
@@ -124,7 +133,8 @@ export default defineConfig({
             { text: '加载性能优化', link: '/performance/loading' },
             { text: '运行时性能优化', link: '/performance/runtime' },
             { text: '构建优化', link: '/performance/build' },
-            { text: '性能监控', link: '/performance/monitoring' }
+            { text: '性能监控', link: '/performance/monitoring' },
+            { text: 'CDN 原理与优化', link: '/performance/cdn' }
           ]
         }
       ],
@@ -141,7 +151,9 @@ export default defineConfig({
             { text: 'Monorepo', link: '/engineering/monorepo' },
             { text: '代码规范', link: '/engineering/code-style' },
             { text: '前端测试', link: '/engineering/testing' },
-            { text: '浏览器兼容性', link: '/engineering/compatibility' }
+            { text: '浏览器兼容性', link: '/engineering/compatibility' },
+            { text: 'Git Hooks', link: '/engineering/git-hooks' },
+            { text: '单元测试', link: '/engineering/unit-testing' }
           ]
         }
       ],
@@ -219,12 +231,13 @@ export default defineConfig({
             { text: '前端监控体系', link: '/scenarios/monitoring' },
             { text: '前端国际化', link: '/scenarios/i18n' },
             { text: '数据可视化', link: '/scenarios/visualization' },
-            { text: '高频场景题', link: '/scenarios/common-questions' }
+            { text: '高频场景题', link: '/scenarios/common-questions' },
+            { text: '错误边界处理', link: '/scenarios/error-handling' }
           ]
         }
       ],
 
-      
+
       '/design-patterns/': [
         {
           text: '设计模式',
@@ -276,6 +289,7 @@ export default defineConfig({
             { text: '居中方案', link: '/css/center' },
             { text: '响应式设计', link: '/css/responsive' },
             { text: '主题切换', link: '/css/theme' },
+            { text: 'CSS 变量', link: '/css/variables' },
             { text: '原子化 CSS', link: '/css/atomic-css' },
             { text: 'CSS-in-JS', link: '/css/css-in-js' }
           ]
