@@ -5,6 +5,9 @@ export default defineConfig({
   description: '前端工程师面试知识体系',
   lang: 'zh-CN',
   base: '/frontend-interview/',  // 改为你的仓库名
+  head: [
+    ['link', { rel: 'icon', href: '/frontend-interview/favicon.png' }]
+  ],
 
   themeConfig: {
     nav: [
@@ -74,6 +77,7 @@ export default defineConfig({
             { text: 'Fiber 架构', link: '/react/fiber' },
             { text: 'Hooks 原理', link: '/react/hooks' },
             { text: '状态管理', link: '/react/state-management' },
+            { text: '状态管理方案对比', link: '/react/state-comparison' },
             { text: '性能优化', link: '/react/optimization' },
             { text: 'React Router', link: '/react/router' },
             { text: 'Next.js', link: '/react/nextjs' }
@@ -106,7 +110,8 @@ export default defineConfig({
             { text: '浏览器缓存', link: '/browser/cache' },
             { text: '浏览器存储', link: '/browser/storage' },
             { text: 'Observer API', link: '/browser/observer-api' },
-            { text: 'WebAssembly', link: '/browser/webassembly' }
+            { text: 'WebAssembly', link: '/browser/webassembly' },
+            { text: 'PWA 渐进式应用', link: '/browser/pwa' }
           ]
         }
       ],
@@ -145,7 +150,8 @@ export default defineConfig({
         {
           text: 'Node.js',
           items: [
-            { text: 'Node.js 基础', link: '/nodejs/' }
+            { text: 'Node.js 基础', link: '/nodejs/' },
+            { text: 'Web 框架对比', link: '/nodejs/frameworks' }
           ]
         }
       ],
@@ -210,6 +216,9 @@ export default defineConfig({
             { text: '拖拽排序', link: '/scenarios/drag-sort' },
             { text: '请求重试机制', link: '/scenarios/request-retry' },
             { text: 'HTTP 请求封装', link: '/scenarios/http-client' },
+            { text: '前端监控体系', link: '/scenarios/monitoring' },
+            { text: '前端国际化', link: '/scenarios/i18n' },
+            { text: '数据可视化', link: '/scenarios/visualization' },
             { text: '高频场景题', link: '/scenarios/common-questions' }
           ]
         }
@@ -267,7 +276,8 @@ export default defineConfig({
             { text: '居中方案', link: '/css/center' },
             { text: '响应式设计', link: '/css/responsive' },
             { text: '主题切换', link: '/css/theme' },
-            { text: '原子化 CSS', link: '/css/atomic-css' }
+            { text: '原子化 CSS', link: '/css/atomic-css' },
+            { text: 'CSS-in-JS', link: '/css/css-in-js' }
           ]
         }
       ]
