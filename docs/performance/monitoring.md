@@ -8,21 +8,21 @@
 
 Google 提出的核心 Web 指标，用于衡量用户体验：
 
-| 指标 | 全称 | 含义 | 良好标准 |
-|------|------|------|----------|
-| LCP | Largest Contentful Paint | 最大内容绘制 | ≤ 2.5s |
-| FID | First Input Delay | 首次输入延迟 | ≤ 100ms |
-| CLS | Cumulative Layout Shift | 累积布局偏移 | ≤ 0.1 |
-| INP | Interaction to Next Paint | 交互到下一次绘制 | ≤ 200ms |
+| 指标 | 全称                      | 含义             | 良好标准 |
+| ---- | ------------------------- | ---------------- | -------- |
+| LCP  | Largest Contentful Paint  | 最大内容绘制     | ≤ 2.5s   |
+| FID  | First Input Delay         | 首次输入延迟     | ≤ 100ms  |
+| CLS  | Cumulative Layout Shift   | 累积布局偏移     | ≤ 0.1    |
+| INP  | Interaction to Next Paint | 交互到下一次绘制 | ≤ 200ms  |
 
 ### 其他重要指标
 
-| 指标 | 含义 | 说明 |
-|------|------|------|
-| FCP | First Contentful Paint | 首次内容绘制 |
-| TTFB | Time to First Byte | 首字节时间 |
-| TTI | Time to Interactive | 可交互时间 |
-| TBT | Total Blocking Time | 总阻塞时间 |
+| 指标 | 含义                   | 说明         |
+| ---- | ---------------------- | ------------ |
+| FCP  | First Contentful Paint | 首次内容绘制 |
+| TTFB | Time to First Byte     | 首字节时间   |
+| TTI  | Time to Interactive    | 可交互时间   |
+| TBT  | Total Blocking Time    | 总阻塞时间   |
 
 ## Performance API
 
@@ -30,7 +30,7 @@ Google 提出的核心 Web 指标，用于衡量用户体验：
 
 ```javascript
 // 使用 PerformanceNavigationTiming (推荐)
-const [navigation] = performance.getEntriesByType('navigation')
+const [navigation] = performance.getEntriesByType("navigation");
 
 const metrics = {
   // DNS 查询时间
@@ -38,9 +38,10 @@ const metrics = {
   // TCP 连接时间
   tcp: navigation.connectEnd - navigation.connectStart,
   // SSL 握手时间
-  ssl: navigation.secureConnectionStart > 0
-    ? navigation.connectEnd - navigation.secureConnectionStart
-    : 0,
+  ssl:
+    navigation.secureConnectionStart > 0
+      ? navigation.connectEnd - navigation.secureConnectionStart
+      : 0,
   // TTFB
   ttfb: navigation.responseStart - navigation.requestStart,
   // 响应时间
@@ -48,38 +49,39 @@ const metrics = {
   // DOM 解析时间
   domParsing: navigation.domInteractive - navigation.responseEnd,
   // DOM 内容加载
-  domContentLoaded: navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart,
+  domContentLoaded:
+    navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart,
   // 页面完全加载
   load: navigation.loadEventEnd - navigation.loadEventStart,
   // 总加载时间
-  total: navigation.loadEventEnd - navigation.startTime
-}
+  total: navigation.loadEventEnd - navigation.startTime,
+};
 
-console.log('性能指标:', metrics)
+console.log("性能指标:", metrics);
 ```
 
 ### 获取资源加载性能
 
 ```javascript
 // 获取所有资源的加载性能
-const resources = performance.getEntriesByType('resource')
+const resources = performance.getEntriesByType("resource");
 
-resources.forEach(resource => {
+resources.forEach((resource) => {
   console.log({
     name: resource.name,
-    type: resource.initiatorType,  // script, css, img, fetch 等
+    type: resource.initiatorType, // script, css, img, fetch 等
     duration: resource.duration,
     size: resource.transferSize,
-    protocol: resource.nextHopProtocol
-  })
-})
+    protocol: resource.nextHopProtocol,
+  });
+});
 
 // 分析慢资源
 const slowResources = resources
-  .filter(r => r.duration > 1000)
-  .sort((a, b) => b.duration - a.duration)
+  .filter((r) => r.duration > 1000)
+  .sort((a, b) => b.duration - a.duration);
 
-console.log('慢资源:', slowResources)
+console.log("慢资源:", slowResources);
 ```
 
 ### 监听长任务
@@ -88,18 +90,18 @@ console.log('慢资源:', slowResources)
 // 监听超过 50ms 的长任务
 const observer = new PerformanceObserver((list) => {
   for (const entry of list.getEntries()) {
-    console.log('长任务:', {
+    console.log("长任务:", {
       duration: entry.duration,
       startTime: entry.startTime,
-      name: entry.name
-    })
+      name: entry.name,
+    });
 
     // 上报长任务
-    reportLongTask(entry)
+    reportLongTask(entry);
   }
-})
+});
 
-observer.observe({ type: 'longtask', buffered: true })
+observer.observe({ type: "longtask", buffered: true });
 ```
 
 ## Web Vitals 采集
@@ -107,75 +109,75 @@ observer.observe({ type: 'longtask', buffered: true })
 ### 使用 web-vitals 库
 
 ```javascript
-import { onLCP, onFID, onCLS, onINP, onFCP, onTTFB } from 'web-vitals'
+import { onLCP, onFID, onCLS, onINP, onFCP, onTTFB } from "web-vitals";
 
 function sendToAnalytics(metric) {
   const body = JSON.stringify({
     name: metric.name,
     value: metric.value,
-    rating: metric.rating,  // 'good' | 'needs-improvement' | 'poor'
+    rating: metric.rating, // 'good' | 'needs-improvement' | 'poor'
     delta: metric.delta,
     id: metric.id,
-    navigationType: metric.navigationType
-  })
+    navigationType: metric.navigationType,
+  });
 
   // 使用 sendBeacon 确保数据发送
   if (navigator.sendBeacon) {
-    navigator.sendBeacon('/analytics', body)
+    navigator.sendBeacon("/analytics", body);
   } else {
-    fetch('/analytics', { body, method: 'POST', keepalive: true })
+    fetch("/analytics", { body, method: "POST", keepalive: true });
   }
 }
 
 // 监听各项指标
-onLCP(sendToAnalytics)
-onFID(sendToAnalytics)
-onCLS(sendToAnalytics)
-onINP(sendToAnalytics)
-onFCP(sendToAnalytics)
-onTTFB(sendToAnalytics)
+onLCP(sendToAnalytics);
+onFID(sendToAnalytics);
+onCLS(sendToAnalytics);
+onINP(sendToAnalytics);
+onFCP(sendToAnalytics);
+onTTFB(sendToAnalytics);
 ```
 
 ### 手动采集 LCP
 
 ```javascript
 const observer = new PerformanceObserver((list) => {
-  const entries = list.getEntries()
+  const entries = list.getEntries();
   // LCP 可能会多次触发，取最后一个
-  const lastEntry = entries[entries.length - 1]
+  const lastEntry = entries[entries.length - 1];
 
-  console.log('LCP:', lastEntry.renderTime || lastEntry.loadTime)
-  console.log('LCP Element:', lastEntry.element)
-})
+  console.log("LCP:", lastEntry.renderTime || lastEntry.loadTime);
+  console.log("LCP Element:", lastEntry.element);
+});
 
-observer.observe({ type: 'largest-contentful-paint', buffered: true })
+observer.observe({ type: "largest-contentful-paint", buffered: true });
 ```
 
 ### 手动采集 CLS
 
 ```javascript
-let clsValue = 0
-let clsEntries = []
+let clsValue = 0;
+let clsEntries = [];
 
 const observer = new PerformanceObserver((list) => {
   for (const entry of list.getEntries()) {
     // 只计算非用户交互导致的布局偏移
     if (!entry.hadRecentInput) {
-      clsValue += entry.value
-      clsEntries.push(entry)
+      clsValue += entry.value;
+      clsEntries.push(entry);
     }
   }
-})
+});
 
-observer.observe({ type: 'layout-shift', buffered: true })
+observer.observe({ type: "layout-shift", buffered: true });
 
 // 页面卸载时上报
-window.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'hidden') {
-    console.log('CLS:', clsValue)
-    reportCLS(clsValue, clsEntries)
+window.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") {
+    console.log("CLS:", clsValue);
+    reportCLS(clsValue, clsEntries);
   }
-})
+});
 ```
 
 ## 错误监控
@@ -184,37 +186,41 @@ window.addEventListener('visibilitychange', () => {
 
 ```javascript
 // 全局错误捕获
-window.onerror = function(message, source, lineno, colno, error) {
+window.onerror = function (message, source, lineno, colno, error) {
   reportError({
-    type: 'js_error',
+    type: "js_error",
     message,
     source,
     lineno,
     colno,
-    stack: error?.stack
-  })
-  return false  // 不阻止默认处理
-}
+    stack: error?.stack,
+  });
+  return false; // 不阻止默认处理
+};
 
 // Promise 错误捕获
-window.addEventListener('unhandledrejection', (event) => {
+window.addEventListener("unhandledrejection", (event) => {
   reportError({
-    type: 'promise_error',
+    type: "promise_error",
     message: event.reason?.message || String(event.reason),
-    stack: event.reason?.stack
-  })
-})
+    stack: event.reason?.stack,
+  });
+});
 
 // 资源加载错误
-window.addEventListener('error', (event) => {
-  if (event.target !== window) {
-    reportError({
-      type: 'resource_error',
-      tagName: event.target.tagName,
-      src: event.target.src || event.target.href
-    })
-  }
-}, true)
+window.addEventListener(
+  "error",
+  (event) => {
+    if (event.target !== window) {
+      reportError({
+        type: "resource_error",
+        tagName: event.target.tagName,
+        src: event.target.src || event.target.href,
+      });
+    }
+  },
+  true
+);
 ```
 
 ### Vue 错误处理
@@ -223,51 +229,51 @@ window.addEventListener('error', (event) => {
 // Vue 3
 app.config.errorHandler = (err, instance, info) => {
   reportError({
-    type: 'vue_error',
+    type: "vue_error",
     message: err.message,
     stack: err.stack,
     info,
-    componentName: instance?.$options?.name
-  })
-}
+    componentName: instance?.$options?.name,
+  });
+};
 
 // 警告处理
 app.config.warnHandler = (msg, instance, trace) => {
-  console.warn('Vue Warning:', msg, trace)
-}
+  console.warn("Vue Warning:", msg, trace);
+};
 ```
 
 ### React 错误边界
 
 ```jsx
 class ErrorBoundary extends React.Component {
-  state = { hasError: false, error: null }
+  state = { hasError: false, error: null };
 
   static getDerivedStateFromError(error) {
-    return { hasError: true, error }
+    return { hasError: true, error };
   }
 
   componentDidCatch(error, errorInfo) {
     reportError({
-      type: 'react_error',
+      type: "react_error",
       message: error.message,
       stack: error.stack,
-      componentStack: errorInfo.componentStack
-    })
+      componentStack: errorInfo.componentStack,
+    });
   }
 
   render() {
     if (this.state.hasError) {
-      return <div>Something went wrong.</div>
+      return <div>Something went wrong.</div>;
     }
-    return this.props.children
+    return this.props.children;
   }
 }
 
 // 使用
 <ErrorBoundary>
   <App />
-</ErrorBoundary>
+</ErrorBoundary>;
 ```
 
 ## 用户行为监控
@@ -277,62 +283,66 @@ class ErrorBoundary extends React.Component {
 ```javascript
 function trackPageView() {
   const data = {
-    type: 'pv',
+    type: "pv",
     url: location.href,
     referrer: document.referrer,
     title: document.title,
     timestamp: Date.now(),
     // 用户标识
     userId: getUserId(),
-    sessionId: getSessionId()
-  }
+    sessionId: getSessionId(),
+  };
 
-  sendBeacon('/analytics/pv', data)
+  sendBeacon("/analytics/pv", data);
 }
 
 // 页面加载时
-trackPageView()
+trackPageView();
 
 // SPA 路由变化时
-window.addEventListener('popstate', trackPageView)
+window.addEventListener("popstate", trackPageView);
 // 或使用路由钩子
-router.afterEach(() => trackPageView())
+router.afterEach(() => trackPageView());
 ```
 
 ### 点击行为追踪
 
 ```javascript
-document.addEventListener('click', (event) => {
-  const target = event.target
+document.addEventListener(
+  "click",
+  (event) => {
+    const target = event.target;
 
-  // 获取元素路径
-  const path = getElementPath(target)
+    // 获取元素路径
+    const path = getElementPath(target);
 
-  sendBeacon('/analytics/click', {
-    type: 'click',
-    path,
-    tagName: target.tagName,
-    className: target.className,
-    id: target.id,
-    text: target.innerText?.slice(0, 50),
-    position: { x: event.clientX, y: event.clientY },
-    timestamp: Date.now()
-  })
-}, true)
+    sendBeacon("/analytics/click", {
+      type: "click",
+      path,
+      tagName: target.tagName,
+      className: target.className,
+      id: target.id,
+      text: target.innerText?.slice(0, 50),
+      position: { x: event.clientX, y: event.clientY },
+      timestamp: Date.now(),
+    });
+  },
+  true
+);
 
 function getElementPath(element) {
-  const path = []
+  const path = [];
   while (element && element !== document.body) {
-    let selector = element.tagName.toLowerCase()
+    let selector = element.tagName.toLowerCase();
     if (element.id) {
-      selector += `#${element.id}`
+      selector += `#${element.id}`;
     } else if (element.className) {
-      selector += `.${element.className.split(' ').join('.')}`
+      selector += `.${element.className.split(" ").join(".")}`;
     }
-    path.unshift(selector)
-    element = element.parentElement
+    path.unshift(selector);
+    element = element.parentElement;
   }
-  return path.join(' > ')
+  return path.join(" > ");
 }
 ```
 
@@ -342,127 +352,127 @@ function getElementPath(element) {
 class PerformanceMonitor {
   constructor(options = {}) {
     this.options = {
-      reportUrl: '/analytics',
-      sampleRate: 1,  // 采样率
-      ...options
-    }
+      reportUrl: "/analytics",
+      sampleRate: 1, // 采样率
+      ...options,
+    };
 
-    this.init()
+    this.init();
   }
 
   init() {
     // 采样判断
-    if (Math.random() > this.options.sampleRate) return
+    if (Math.random() > this.options.sampleRate) return;
 
-    this.observePerformance()
-    this.observeErrors()
-    this.observeResources()
-    this.observeLongTasks()
+    this.observePerformance();
+    this.observeErrors();
+    this.observeResources();
+    this.observeLongTasks();
   }
 
   observePerformance() {
     // 页面加载完成后采集
-    if (document.readyState === 'complete') {
-      this.collectNavigationMetrics()
+    if (document.readyState === "complete") {
+      this.collectNavigationMetrics();
     } else {
-      window.addEventListener('load', () => {
+      window.addEventListener("load", () => {
         // 延迟采集确保数据完整
-        setTimeout(() => this.collectNavigationMetrics(), 0)
-      })
+        setTimeout(() => this.collectNavigationMetrics(), 0);
+      });
     }
 
     // Web Vitals
-    this.observeWebVitals()
+    this.observeWebVitals();
   }
 
   observeWebVitals() {
     // LCP
     new PerformanceObserver((list) => {
-      const entries = list.getEntries()
-      const lastEntry = entries[entries.length - 1]
-      this.report('lcp', lastEntry.renderTime || lastEntry.loadTime)
-    }).observe({ type: 'largest-contentful-paint', buffered: true })
+      const entries = list.getEntries();
+      const lastEntry = entries[entries.length - 1];
+      this.report("lcp", lastEntry.renderTime || lastEntry.loadTime);
+    }).observe({ type: "largest-contentful-paint", buffered: true });
 
     // FID
     new PerformanceObserver((list) => {
-      const entry = list.getEntries()[0]
-      this.report('fid', entry.processingStart - entry.startTime)
-    }).observe({ type: 'first-input', buffered: true })
+      const entry = list.getEntries()[0];
+      this.report("fid", entry.processingStart - entry.startTime);
+    }).observe({ type: "first-input", buffered: true });
 
     // CLS
-    let clsValue = 0
+    let clsValue = 0;
     new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
         if (!entry.hadRecentInput) {
-          clsValue += entry.value
+          clsValue += entry.value;
         }
       }
-    }).observe({ type: 'layout-shift', buffered: true })
+    }).observe({ type: "layout-shift", buffered: true });
 
     // 页面隐藏时上报 CLS
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'hidden') {
-        this.report('cls', clsValue)
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") {
+        this.report("cls", clsValue);
       }
-    })
+    });
   }
 
   collectNavigationMetrics() {
-    const [navigation] = performance.getEntriesByType('navigation')
-    if (!navigation) return
+    const [navigation] = performance.getEntriesByType("navigation");
+    if (!navigation) return;
 
-    this.report('navigation', {
+    this.report("navigation", {
       dns: navigation.domainLookupEnd - navigation.domainLookupStart,
       tcp: navigation.connectEnd - navigation.connectStart,
       ttfb: navigation.responseStart - navigation.requestStart,
       domReady: navigation.domContentLoadedEventEnd - navigation.startTime,
-      load: navigation.loadEventEnd - navigation.startTime
-    })
+      load: navigation.loadEventEnd - navigation.startTime,
+    });
   }
 
   observeErrors() {
     window.onerror = (message, source, lineno, colno, error) => {
-      this.report('error', {
-        type: 'js',
+      this.report("error", {
+        type: "js",
         message,
         source,
         lineno,
         colno,
-        stack: error?.stack
-      })
-    }
+        stack: error?.stack,
+      });
+    };
 
-    window.addEventListener('unhandledrejection', (event) => {
-      this.report('error', {
-        type: 'promise',
-        message: String(event.reason)
-      })
-    })
+    window.addEventListener("unhandledrejection", (event) => {
+      this.report("error", {
+        type: "promise",
+        message: String(event.reason),
+      });
+    });
   }
 
   observeResources() {
     new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
         if (entry.duration > 3000) {
-          this.report('slow_resource', {
+          this.report("slow_resource", {
             name: entry.name,
             type: entry.initiatorType,
-            duration: entry.duration
-          })
+            duration: entry.duration,
+          });
         }
       }
-    }).observe({ type: 'resource', buffered: true })
+    }).observe({ type: "resource", buffered: true });
   }
 
   observeLongTasks() {
     new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
-        this.report('long_task', {
+        this.report("long_task", {
           duration: entry.duration,
-          startTime: entry.startTime
-        })
+          startTime: entry.startTime,
+        });
       }
-    }).observe({ type: 'longtask' })
+    }).observe({ type: "longtask" });
   }
 
   report(type, data) {
@@ -471,26 +481,26 @@ class PerformanceMonitor {
       data,
       url: location.href,
       userAgent: navigator.userAgent,
-      timestamp: Date.now()
-    }
+      timestamp: Date.now(),
+    };
 
     if (navigator.sendBeacon) {
-      navigator.sendBeacon(this.options.reportUrl, JSON.stringify(payload))
+      navigator.sendBeacon(this.options.reportUrl, JSON.stringify(payload));
     } else {
       fetch(this.options.reportUrl, {
-        method: 'POST',
+        method: "POST",
         body: JSON.stringify(payload),
-        keepalive: true
-      })
+        keepalive: true,
+      });
     }
   }
 }
 
 // 使用
 new PerformanceMonitor({
-  reportUrl: 'https://analytics.example.com/collect',
-  sampleRate: 0.1  // 10% 采样
-})
+  reportUrl: "https://analytics.example.com/collect",
+  sampleRate: 0.1, // 10% 采样
+});
 ```
 
 ## 数据上报策略
@@ -499,7 +509,7 @@ new PerformanceMonitor({
 
 ```javascript
 // 推荐：不阻塞页面卸载
-navigator.sendBeacon('/analytics', JSON.stringify(data))
+navigator.sendBeacon("/analytics", JSON.stringify(data));
 ```
 
 ### 批量上报
@@ -507,33 +517,33 @@ navigator.sendBeacon('/analytics', JSON.stringify(data))
 ```javascript
 class Reporter {
   constructor() {
-    this.queue = []
-    this.timer = null
+    this.queue = [];
+    this.timer = null;
   }
 
   add(data) {
-    this.queue.push(data)
+    this.queue.push(data);
 
     // 达到阈值立即上报
     if (this.queue.length >= 10) {
-      this.flush()
-      return
+      this.flush();
+      return;
     }
 
     // 定时上报
     if (!this.timer) {
-      this.timer = setTimeout(() => this.flush(), 5000)
+      this.timer = setTimeout(() => this.flush(), 5000);
     }
   }
 
   flush() {
-    if (this.queue.length === 0) return
+    if (this.queue.length === 0) return;
 
-    const data = this.queue.splice(0)
-    clearTimeout(this.timer)
-    this.timer = null
+    const data = this.queue.splice(0);
+    clearTimeout(this.timer);
+    this.timer = null;
 
-    navigator.sendBeacon('/analytics/batch', JSON.stringify(data))
+    navigator.sendBeacon("/analytics/batch", JSON.stringify(data));
   }
 }
 ```
@@ -542,25 +552,47 @@ class Reporter {
 
 ```javascript
 // 监听页面隐藏
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'hidden') {
-    reporter.flush()
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") {
+    reporter.flush();
   }
-})
+});
 
 // 监听页面卸载
-window.addEventListener('pagehide', () => {
-  reporter.flush()
-})
+window.addEventListener("pagehide", () => {
+  reporter.flush();
+});
 ```
+
+## INP 优化策略
+
+INP (Interaction to Next Paint) 衡量的是从用户交互（点击、按键）到页面更新下一帧的延迟。要优化 INP，需要减少主线程阻塞。
+
+1. **减少长任务 (Long Tasks)**：
+
+   - 使用 `setTimeout` 或 `requestIdleCallback` 将长任务拆分为小块。
+   - 使用 `Scheduler.postTask()` (如果支持) 甚至 `isInputPending()`。
+
+2. **优化事件回调**：
+
+   - 避免在事件处理函数中运行复杂的逻辑。
+   - 只在事件中处理必要的 UI 更新，其余逻辑推迟执行。
+
+3. **使用 Web Worker**：
+
+   - 将非 UI 相关的繁重计算（如数据处理、加密）移至 Web Worker，避免阻塞主线程。
+
+4. **避免过度渲染**：
+   - React 中使用 `useTransition` 将非紧急更新标记为可中断，优先响应用户输入。
 
 ## 常见面试题
 
 ### 1. 什么是 LCP、FID、CLS？
 
 - **LCP（最大内容绘制）**：页面最大元素渲染完成的时间，反映加载性能
-- **FID（首次输入延迟）**：用户首次交互到浏览器响应的时间，反映交互性
 - **CLS（累积布局偏移）**：页面布局偏移的累积分数，反映视觉稳定性
+- **INP（交互到下一次绘制）**：取代 FID，衡量所有交互的延迟（不仅仅是首次），反映页面的响应能力
+- **FID（首次输入延迟）**：(已废弃) 用户首次交互到浏览器响应的时间
 
 ### 2. 如何采集前端性能数据？
 

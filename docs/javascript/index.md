@@ -29,15 +29,15 @@ JavaScript 是前端开发的核心语言，不仅要会用，更要深入理解
 // 基本类型: 存储在栈内存,按值访问
 // 引用类型: 存储在堆内存,按引用访问
 
-let a = 1
-let b = a  // 复制值
-b = 2
-console.log(a)  // 1 (不受影响)
+let a = 1;
+let b = a; // 复制值
+b = 2;
+console.log(a); // 1 (不受影响)
 
-let obj1 = { name: 'Alice' }
-let obj2 = obj1  // 复制引用
-obj2.name = 'Bob'
-console.log(obj1.name)  // 'Bob' (被修改)
+let obj1 = { name: "Alice" };
+let obj2 = obj1; // 复制引用
+obj2.name = "Bob";
+console.log(obj1.name); // 'Bob' (被修改)
 ```
 
 ### 2. 类型判断
@@ -205,16 +205,16 @@ console.log(a == 1 && a == 2 && a == 3)  // true
 
 // 执行上下文栈 (调用栈)
 function foo() {
-  console.log('foo')
-  bar()
-  console.log('foo end')
+  console.log("foo");
+  bar();
+  console.log("foo end");
 }
 
 function bar() {
-  console.log('bar')
+  console.log("bar");
 }
 
-foo()
+foo();
 // 调用栈变化:
 // 1. [全局]
 // 2. [全局, foo]
@@ -232,28 +232,28 @@ foo()
  * function: 整体提升,包括函数体
  */
 
-console.log(a)  // undefined
-var a = 1
+console.log(a); // undefined
+var a = 1;
 
-console.log(b)  // ReferenceError: Cannot access 'b' before initialization
-let b = 2
+console.log(b); // ReferenceError: Cannot access 'b' before initialization
+let b = 2;
 
 // 函数提升优先于变量提升
-console.log(foo)  // [Function: foo]
-var foo = 1
+console.log(foo); // [Function: foo]
+var foo = 1;
 function foo() {}
 
 // 等价于:
 function foo() {}
-var foo
-console.log(foo)  // [Function: foo]
-foo = 1
+var foo;
+console.log(foo); // [Function: foo]
+foo = 1;
 
 // TDZ (暂时性死区)
-var x = 1
+var x = 1;
 {
-  console.log(x)  // ReferenceError
-  let x = 2
+  console.log(x); // ReferenceError
+  let x = 2;
 }
 // let x 的声明会被提升到块作用域顶部
 // 但在声明前的区域就是 TDZ,访问会报错
@@ -272,47 +272,47 @@ var x = 1
  * 查找变量时沿作用域链向上查找
  */
 
-var globalVar = 'global'
+var globalVar = "global";
 
 function outer() {
-  var outerVar = 'outer'
+  var outerVar = "outer";
 
   function inner() {
-    var innerVar = 'inner'
+    var innerVar = "inner";
 
-    console.log(innerVar)   // 'inner' (当前作用域)
-    console.log(outerVar)   // 'outer' (父作用域)
-    console.log(globalVar)  // 'global' (全局作用域)
+    console.log(innerVar); // 'inner' (当前作用域)
+    console.log(outerVar); // 'outer' (父作用域)
+    console.log(globalVar); // 'global' (全局作用域)
   }
 
-  inner()
+  inner();
 }
 
-outer()
+outer();
 
 // 作用域链在函数定义时确定,不是调用时
-var x = 10
+var x = 10;
 
 function foo() {
-  console.log(x)
+  console.log(x);
 }
 
 function bar() {
-  var x = 20
-  foo()
+  var x = 20;
+  foo();
 }
 
-bar()  // 10 (foo 的作用域链在定义时确定)
+bar(); // 10 (foo 的作用域链在定义时确定)
 
 // 块级作用域
 {
-  let a = 1
-  const b = 2
-  var c = 3
+  let a = 1;
+  const b = 2;
+  var c = 3;
 }
 // console.log(a)  // ReferenceError
 // console.log(b)  // ReferenceError
-console.log(c)    // 3 (var 不受块级作用域限制)
+console.log(c); // 3 (var 不受块级作用域限制)
 ```
 
 ---
@@ -332,18 +332,18 @@ console.log(c)    // 3 (var 不受块级作用域限制)
  */
 
 function outer() {
-  let count = 0
+  let count = 0;
 
   return function inner() {
-    count++
-    console.log(count)
-  }
+    count++;
+    console.log(count);
+  };
 }
 
-const counter = outer()
-counter()  // 1
-counter()  // 2
-counter()  // 3
+const counter = outer();
+counter(); // 1
+counter(); // 2
+counter(); // 3
 // count 变量被闭包保持,不会被回收
 ```
 
@@ -351,99 +351,99 @@ counter()  // 3
 
 ```javascript
 // 1. 模块化 (IIFE)
-const module = (function() {
-  let privateVar = 0
+const module = (function () {
+  let privateVar = 0;
 
   function privateMethod() {
-    return privateVar++
+    return privateVar++;
   }
 
   return {
-    publicMethod: function() {
-      return privateMethod()
+    publicMethod: function () {
+      return privateMethod();
     },
-    getPrivateVar: function() {
-      return privateVar
-    }
-  }
-})()
+    getPrivateVar: function () {
+      return privateVar;
+    },
+  };
+})();
 
-module.publicMethod()  // 0
-module.publicMethod()  // 1
+module.publicMethod(); // 0
+module.publicMethod(); // 1
 // privateVar 无法直接访问
 
 // 2. 柯里化
 function curry(fn) {
   return function curried(...args) {
     if (args.length >= fn.length) {
-      return fn.apply(this, args)
+      return fn.apply(this, args);
     }
-    return function(...moreArgs) {
-      return curried.apply(this, args.concat(moreArgs))
-    }
-  }
+    return function (...moreArgs) {
+      return curried.apply(this, args.concat(moreArgs));
+    };
+  };
 }
 
-const add = (a, b, c) => a + b + c
-const curriedAdd = curry(add)
+const add = (a, b, c) => a + b + c;
+const curriedAdd = curry(add);
 
-curriedAdd(1)(2)(3)  // 6
-curriedAdd(1, 2)(3)  // 6
-curriedAdd(1)(2, 3)  // 6
+curriedAdd(1)(2)(3); // 6
+curriedAdd(1, 2)(3); // 6
+curriedAdd(1)(2, 3); // 6
 
 // 3. 防抖节流
 function debounce(fn, delay) {
-  let timer = null  // 闭包保存 timer
+  let timer = null; // 闭包保存 timer
 
-  return function(...args) {
-    clearTimeout(timer)
+  return function (...args) {
+    clearTimeout(timer);
     timer = setTimeout(() => {
-      fn.apply(this, args)
-    }, delay)
-  }
+      fn.apply(this, args);
+    }, delay);
+  };
 }
 
 // 4. 缓存 (Memoization)
 function memoize(fn) {
-  const cache = {}  // 闭包保存缓存
+  const cache = {}; // 闭包保存缓存
 
-  return function(...args) {
-    const key = JSON.stringify(args)
+  return function (...args) {
+    const key = JSON.stringify(args);
 
     if (key in cache) {
-      return cache[key]
+      return cache[key];
     }
 
-    const result = fn.apply(this, args)
-    cache[key] = result
-    return result
-  }
+    const result = fn.apply(this, args);
+    cache[key] = result;
+    return result;
+  };
 }
 
 const expensiveFn = memoize((n) => {
-  console.log('Computing...')
-  return n * 2
-})
+  console.log("Computing...");
+  return n * 2;
+});
 
-expensiveFn(5)  // Computing... 10
-expensiveFn(5)  // 10 (from cache)
+expensiveFn(5); // Computing... 10
+expensiveFn(5); // 10 (from cache)
 
 // 5. 私有变量
 function Person(name) {
-  let _name = name  // 私有变量
+  let _name = name; // 私有变量
 
-  this.getName = function() {
-    return _name
-  }
+  this.getName = function () {
+    return _name;
+  };
 
-  this.setName = function(newName) {
-    _name = newName
-  }
+  this.setName = function (newName) {
+    _name = newName;
+  };
 }
 
-const person = new Person('Alice')
-console.log(person._name)     // undefined
-console.log(person.getName()) // 'Alice'
+const person = new Person("Alice");
+console.log(person._name); // undefined
+console.log(person.getName()); // 'Alice'
 ```
 
 ### 3. 闭包经典问题
@@ -451,36 +451,40 @@ console.log(person.getName()) // 'Alice'
 ```javascript
 // 问题: 输出什么?
 for (var i = 0; i < 5; i++) {
-  setTimeout(function() {
-    console.log(i)
-  }, 1000)
+  setTimeout(function () {
+    console.log(i);
+  }, 1000);
 }
 // 输出: 5 5 5 5 5
 // 原因: var 是函数作用域,循环结束后 i = 5
 
 // 解决方案 1: 使用 let
 for (let i = 0; i < 5; i++) {
-  setTimeout(function() {
-    console.log(i)
-  }, 1000)
+  setTimeout(function () {
+    console.log(i);
+  }, 1000);
 }
 // 输出: 0 1 2 3 4
 
 // 解决方案 2: 闭包
 for (var i = 0; i < 5; i++) {
-  (function(j) {
-    setTimeout(function() {
-      console.log(j)
-    }, 1000)
-  })(i)
+  (function (j) {
+    setTimeout(function () {
+      console.log(j);
+    }, 1000);
+  })(i);
 }
 // 输出: 0 1 2 3 4
 
 // 解决方案 3: setTimeout 第三个参数
 for (var i = 0; i < 5; i++) {
-  setTimeout(function(j) {
-    console.log(j)
-  }, 1000, i)
+  setTimeout(
+    function (j) {
+      console.log(j);
+    },
+    1000,
+    i
+  );
 }
 // 输出: 0 1 2 3 4
 ```
@@ -502,127 +506,127 @@ for (var i = 0; i < 5; i++) {
 
 // 1. 默认绑定
 function foo() {
-  console.log(this)
+  console.log(this);
 }
-foo()  // window (严格模式下是 undefined)
+foo(); // window (严格模式下是 undefined)
 
 // 2. 隐式绑定
 const obj = {
-  name: 'Alice',
+  name: "Alice",
   sayName() {
-    console.log(this.name)
-  }
-}
-obj.sayName()  // 'Alice'
+    console.log(this.name);
+  },
+};
+obj.sayName(); // 'Alice'
 
 // 隐式绑定丢失
-const fn = obj.sayName
-fn()  // undefined (默认绑定)
+const fn = obj.sayName;
+fn(); // undefined (默认绑定)
 
 // 3. 显式绑定
 function greet(greeting) {
-  console.log(`${greeting}, ${this.name}`)
+  console.log(`${greeting}, ${this.name}`);
 }
 
-const user = { name: 'Bob' }
+const user = { name: "Bob" };
 
-greet.call(user, 'Hello')      // 'Hello, Bob'
-greet.apply(user, ['Hi'])      // 'Hi, Bob'
+greet.call(user, "Hello"); // 'Hello, Bob'
+greet.apply(user, ["Hi"]); // 'Hi, Bob'
 
-const boundGreet = greet.bind(user)
-boundGreet('Hey')              // 'Hey, Bob'
+const boundGreet = greet.bind(user);
+boundGreet("Hey"); // 'Hey, Bob'
 
 // 4. new 绑定
 function Person(name) {
-  this.name = name
+  this.name = name;
 }
 
-const person = new Person('Charlie')
-console.log(person.name)  // 'Charlie'
+const person = new Person("Charlie");
+console.log(person.name); // 'Charlie'
 
 // 箭头函数没有自己的 this
 const arrow = {
-  name: 'Dave',
+  name: "Dave",
   sayName: () => {
-    console.log(this.name)  // undefined (继承外层 this)
+    console.log(this.name); // undefined (继承外层 this)
   },
   sayNameRegular() {
     const inner = () => {
-      console.log(this.name)  // 'Dave' (继承 sayNameRegular 的 this)
-    }
-    inner()
-  }
-}
+      console.log(this.name); // 'Dave' (继承 sayNameRegular 的 this)
+    };
+    inner();
+  },
+};
 
-arrow.sayName()        // undefined
-arrow.sayNameRegular() // 'Dave'
+arrow.sayName(); // undefined
+arrow.sayNameRegular(); // 'Dave'
 ```
 
 ### 2. 手写 call/apply/bind
 
 ```javascript
 // 手写 call
-Function.prototype.myCall = function(context, ...args) {
+Function.prototype.myCall = function (context, ...args) {
   // 处理 null/undefined
-  context = context ?? window
+  context = context ?? window;
 
   // 将函数设为对象的方法
-  const key = Symbol('fn')
-  context[key] = this
+  const key = Symbol("fn");
+  context[key] = this;
 
   // 调用方法
-  const result = context[key](...args)
+  const result = context[key](...args);
 
   // 删除临时方法
-  delete context[key]
+  delete context[key];
 
-  return result
-}
+  return result;
+};
 
 // 手写 apply
-Function.prototype.myApply = function(context, args = []) {
-  context = context ?? window
+Function.prototype.myApply = function (context, args = []) {
+  context = context ?? window;
 
-  const key = Symbol('fn')
-  context[key] = this
+  const key = Symbol("fn");
+  context[key] = this;
 
-  const result = context[key](...args)
+  const result = context[key](...args);
 
-  delete context[key]
+  delete context[key];
 
-  return result
-}
+  return result;
+};
 
 // 手写 bind
-Function.prototype.myBind = function(context, ...args) {
-  const fn = this
+Function.prototype.myBind = function (context, ...args) {
+  const fn = this;
 
-  const bound = function(...moreArgs) {
+  const bound = function (...moreArgs) {
     // 如果是 new 调用,this 指向实例
     return fn.apply(
       this instanceof bound ? this : context,
       args.concat(moreArgs)
-    )
-  }
+    );
+  };
 
   // 继承原型
   if (fn.prototype) {
-    bound.prototype = Object.create(fn.prototype)
+    bound.prototype = Object.create(fn.prototype);
   }
 
-  return bound
-}
+  return bound;
+};
 
 // 测试
 function greet(greeting, punctuation) {
-  return `${greeting}, ${this.name}${punctuation}`
+  return `${greeting}, ${this.name}${punctuation}`;
 }
 
-const user = { name: 'Alice' }
+const user = { name: "Alice" };
 
-console.log(greet.myCall(user, 'Hello', '!'))  // 'Hello, Alice!'
-console.log(greet.myApply(user, ['Hi', '?']))  // 'Hi, Alice?'
-console.log(greet.myBind(user, 'Hey')('...'))  // 'Hey, Alice...'
+console.log(greet.myCall(user, "Hello", "!")); // 'Hello, Alice!'
+console.log(greet.myApply(user, ["Hi", "?"])); // 'Hi, Alice?'
+console.log(greet.myBind(user, "Hey")("...")); // 'Hey, Alice...'
 ```
 
 ---
@@ -638,28 +642,28 @@ console.log(greet.myBind(user, 'Hey')('...'))  // 'Hey, Alice...'
  */
 
 function Person(name) {
-  this.name = name
+  this.name = name;
 }
 
-Person.prototype.sayHello = function() {
-  console.log(`Hello, I'm ${this.name}`)
-}
+Person.prototype.sayHello = function () {
+  console.log(`Hello, I'm ${this.name}`);
+};
 
-const person = new Person('Alice')
+const person = new Person("Alice");
 
 // 原型链关系
-console.log(person.__proto__ === Person.prototype)          // true
-console.log(Person.prototype.__proto__ === Object.prototype) // true
-console.log(Object.prototype.__proto__ === null)             // true
+console.log(person.__proto__ === Person.prototype); // true
+console.log(Person.prototype.__proto__ === Object.prototype); // true
+console.log(Object.prototype.__proto__ === null); // true
 
 // 属性查找
-person.sayHello()              // 'Hello, I'm Alice' (原型上)
-console.log(person.toString()) // '[object Object]' (Object.prototype)
+person.sayHello(); // 'Hello, I'm Alice' (原型上)
+console.log(person.toString()); // '[object Object]' (Object.prototype)
 
 // 判断属性来源
-console.log(person.hasOwnProperty('name'))     // true (自身属性)
-console.log(person.hasOwnProperty('sayHello')) // false (原型属性)
-console.log('sayHello' in person)              // true (包括原型)
+console.log(person.hasOwnProperty("name")); // true (自身属性)
+console.log(person.hasOwnProperty("sayHello")); // false (原型属性)
+console.log("sayHello" in person); // true (包括原型)
 ```
 
 ### 2. 继承方式
@@ -667,93 +671,93 @@ console.log('sayHello' in person)              // true (包括原型)
 ```javascript
 // 1. 原型链继承
 function Parent() {
-  this.colors = ['red', 'blue']
+  this.colors = ["red", "blue"];
 }
 
 function Child() {}
-Child.prototype = new Parent()
+Child.prototype = new Parent();
 
 // 问题: 引用类型共享
-const c1 = new Child()
-const c2 = new Child()
-c1.colors.push('green')
-console.log(c2.colors)  // ['red', 'blue', 'green']
+const c1 = new Child();
+const c2 = new Child();
+c1.colors.push("green");
+console.log(c2.colors); // ['red', 'blue', 'green']
 
 // 2. 构造函数继承
 function Parent(name) {
-  this.name = name
-  this.colors = ['red', 'blue']
+  this.name = name;
+  this.colors = ["red", "blue"];
 }
 
 function Child(name) {
-  Parent.call(this, name)
+  Parent.call(this, name);
 }
 
 // 问题: 无法继承原型方法
 
 // 3. 组合继承
 function Parent(name) {
-  this.name = name
-  this.colors = ['red', 'blue']
+  this.name = name;
+  this.colors = ["red", "blue"];
 }
 
-Parent.prototype.sayName = function() {
-  console.log(this.name)
-}
+Parent.prototype.sayName = function () {
+  console.log(this.name);
+};
 
 function Child(name, age) {
-  Parent.call(this, name)  // 第一次调用 Parent
-  this.age = age
+  Parent.call(this, name); // 第一次调用 Parent
+  this.age = age;
 }
 
-Child.prototype = new Parent()  // 第二次调用 Parent
-Child.prototype.constructor = Child
+Child.prototype = new Parent(); // 第二次调用 Parent
+Child.prototype.constructor = Child;
 
 // 问题: Parent 构造函数被调用两次
 
 // 4. 寄生组合继承 (最优)
 function Parent(name) {
-  this.name = name
-  this.colors = ['red', 'blue']
+  this.name = name;
+  this.colors = ["red", "blue"];
 }
 
-Parent.prototype.sayName = function() {
-  console.log(this.name)
-}
+Parent.prototype.sayName = function () {
+  console.log(this.name);
+};
 
 function Child(name, age) {
-  Parent.call(this, name)
-  this.age = age
+  Parent.call(this, name);
+  this.age = age;
 }
 
 // 关键: 使用 Object.create
-Child.prototype = Object.create(Parent.prototype)
-Child.prototype.constructor = Child
+Child.prototype = Object.create(Parent.prototype);
+Child.prototype.constructor = Child;
 
-const child = new Child('Alice', 18)
-child.sayName()  // 'Alice'
-console.log(child.colors)  // ['red', 'blue']
+const child = new Child("Alice", 18);
+child.sayName(); // 'Alice'
+console.log(child.colors); // ['red', 'blue']
 
 // 5. ES6 Class 继承
 class Parent {
   constructor(name) {
-    this.name = name
+    this.name = name;
   }
 
   sayName() {
-    console.log(this.name)
+    console.log(this.name);
   }
 }
 
 class Child extends Parent {
   constructor(name, age) {
-    super(name)  // 必须先调用 super
-    this.age = age
+    super(name); // 必须先调用 super
+    this.age = age;
   }
 }
 
-const c = new Child('Bob', 20)
-c.sayName()  // 'Bob'
+const c = new Child("Bob", 20);
+c.sayName(); // 'Bob'
 ```
 
 ### 3. 手写 new 和 Object.create
@@ -762,44 +766,44 @@ c.sayName()  // 'Bob'
 // 手写 new
 function myNew(constructor, ...args) {
   // 1. 创建新对象,原型指向构造函数的 prototype
-  const obj = Object.create(constructor.prototype)
+  const obj = Object.create(constructor.prototype);
 
   // 2. 执行构造函数,绑定 this
-  const result = constructor.apply(obj, args)
+  const result = constructor.apply(obj, args);
 
   // 3. 如果构造函数返回对象,则返回该对象
-  return result instanceof Object ? result : obj
+  return result instanceof Object ? result : obj;
 }
 
 // 手写 Object.create
 function myCreate(proto, propertiesObject) {
-  if (typeof proto !== 'object' && typeof proto !== 'function') {
-    throw new TypeError('Object prototype may only be an Object or null')
+  if (typeof proto !== "object" && typeof proto !== "function") {
+    throw new TypeError("Object prototype may only be an Object or null");
   }
 
   function F() {}
-  F.prototype = proto
+  F.prototype = proto;
 
-  const obj = new F()
+  const obj = new F();
 
   if (propertiesObject !== undefined) {
-    Object.defineProperties(obj, propertiesObject)
+    Object.defineProperties(obj, propertiesObject);
   }
 
-  return obj
+  return obj;
 }
 
 // 测试
 function Person(name) {
-  this.name = name
+  this.name = name;
 }
 
-Person.prototype.sayHello = function() {
-  console.log('Hello')
-}
+Person.prototype.sayHello = function () {
+  console.log("Hello");
+};
 
-const p = myNew(Person, 'Alice')
-p.sayHello()  // 'Hello'
+const p = myNew(Person, "Alice");
+p.sayHello(); // 'Hello'
 ```
 
 ---
@@ -823,37 +827,35 @@ const promise = new Promise((resolve, reject) => {
   // 异步操作
   setTimeout(() => {
     if (Math.random() > 0.5) {
-      resolve('success')
+      resolve("success");
     } else {
-      reject(new Error('failed'))
+      reject(new Error("failed"));
     }
-  }, 1000)
-})
+  }, 1000);
+});
 
 promise
-  .then(result => console.log(result))
-  .catch(error => console.error(error))
-  .finally(() => console.log('done'))
+  .then((result) => console.log(result))
+  .catch((error) => console.error(error))
+  .finally(() => console.log("done"));
 
 // Promise 链式调用
 Promise.resolve(1)
-  .then(x => x + 1)
-  .then(x => x * 2)
-  .then(x => console.log(x))  // 4
+  .then((x) => x + 1)
+  .then((x) => x * 2)
+  .then((x) => console.log(x)); // 4
 
 // Promise.all (全部成功才成功)
-Promise.all([
-  Promise.resolve(1),
-  Promise.resolve(2),
-  Promise.resolve(3)
-]).then(results => console.log(results))  // [1, 2, 3]
+Promise.all([Promise.resolve(1), Promise.resolve(2), Promise.resolve(3)]).then(
+  (results) => console.log(results)
+); // [1, 2, 3]
 
 // Promise.allSettled (全部完成)
 Promise.allSettled([
   Promise.resolve(1),
-  Promise.reject(new Error('failed')),
-  Promise.resolve(3)
-]).then(results => console.log(results))
+  Promise.reject(new Error("failed")),
+  Promise.resolve(3),
+]).then((results) => console.log(results));
 // [
 //   { status: 'fulfilled', value: 1 },
 //   { status: 'rejected', reason: Error: failed },
@@ -862,16 +864,16 @@ Promise.allSettled([
 
 // Promise.race (最快的)
 Promise.race([
-  new Promise(resolve => setTimeout(() => resolve(1), 100)),
-  new Promise(resolve => setTimeout(() => resolve(2), 50))
-]).then(result => console.log(result))  // 2
+  new Promise((resolve) => setTimeout(() => resolve(1), 100)),
+  new Promise((resolve) => setTimeout(() => resolve(2), 50)),
+]).then((result) => console.log(result)); // 2
 
 // Promise.any (第一个成功的)
 Promise.any([
-  Promise.reject(new Error('1')),
+  Promise.reject(new Error("1")),
   Promise.resolve(2),
-  Promise.resolve(3)
-]).then(result => console.log(result))  // 2
+  Promise.resolve(3),
+]).then((result) => console.log(result)); // 2
 ```
 
 ### 2. 手写 Promise
@@ -879,174 +881,179 @@ Promise.any([
 ```javascript
 class MyPromise {
   constructor(executor) {
-    this.state = 'pending'
-    this.value = undefined
-    this.reason = undefined
-    this.onFulfilledCallbacks = []
-    this.onRejectedCallbacks = []
+    this.state = "pending";
+    this.value = undefined;
+    this.reason = undefined;
+    this.onFulfilledCallbacks = [];
+    this.onRejectedCallbacks = [];
 
     const resolve = (value) => {
-      if (this.state === 'pending') {
-        this.state = 'fulfilled'
-        this.value = value
-        this.onFulfilledCallbacks.forEach(fn => fn())
+      if (this.state === "pending") {
+        this.state = "fulfilled";
+        this.value = value;
+        this.onFulfilledCallbacks.forEach((fn) => fn());
       }
-    }
+    };
 
     const reject = (reason) => {
-      if (this.state === 'pending') {
-        this.state = 'rejected'
-        this.reason = reason
-        this.onRejectedCallbacks.forEach(fn => fn())
+      if (this.state === "pending") {
+        this.state = "rejected";
+        this.reason = reason;
+        this.onRejectedCallbacks.forEach((fn) => fn());
       }
-    }
+    };
 
     try {
-      executor(resolve, reject)
+      executor(resolve, reject);
     } catch (error) {
-      reject(error)
+      reject(error);
     }
   }
 
   then(onFulfilled, onRejected) {
-    onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : v => v
-    onRejected = typeof onRejected === 'function' ? onRejected : e => { throw e }
+    onFulfilled = typeof onFulfilled === "function" ? onFulfilled : (v) => v;
+    onRejected =
+      typeof onRejected === "function"
+        ? onRejected
+        : (e) => {
+            throw e;
+          };
 
     const promise2 = new MyPromise((resolve, reject) => {
-      if (this.state === 'fulfilled') {
+      if (this.state === "fulfilled") {
         queueMicrotask(() => {
           try {
-            const x = onFulfilled(this.value)
-            resolvePromise(promise2, x, resolve, reject)
+            const x = onFulfilled(this.value);
+            resolvePromise(promise2, x, resolve, reject);
           } catch (error) {
-            reject(error)
+            reject(error);
           }
-        })
+        });
       }
 
-      if (this.state === 'rejected') {
+      if (this.state === "rejected") {
         queueMicrotask(() => {
           try {
-            const x = onRejected(this.reason)
-            resolvePromise(promise2, x, resolve, reject)
+            const x = onRejected(this.reason);
+            resolvePromise(promise2, x, resolve, reject);
           } catch (error) {
-            reject(error)
+            reject(error);
           }
-        })
+        });
       }
 
-      if (this.state === 'pending') {
+      if (this.state === "pending") {
         this.onFulfilledCallbacks.push(() => {
           queueMicrotask(() => {
             try {
-              const x = onFulfilled(this.value)
-              resolvePromise(promise2, x, resolve, reject)
+              const x = onFulfilled(this.value);
+              resolvePromise(promise2, x, resolve, reject);
             } catch (error) {
-              reject(error)
+              reject(error);
             }
-          })
-        })
+          });
+        });
 
         this.onRejectedCallbacks.push(() => {
           queueMicrotask(() => {
             try {
-              const x = onRejected(this.reason)
-              resolvePromise(promise2, x, resolve, reject)
+              const x = onRejected(this.reason);
+              resolvePromise(promise2, x, resolve, reject);
             } catch (error) {
-              reject(error)
+              reject(error);
             }
-          })
-        })
+          });
+        });
       }
-    })
+    });
 
-    return promise2
+    return promise2;
   }
 
   catch(onRejected) {
-    return this.then(null, onRejected)
+    return this.then(null, onRejected);
   }
 
   finally(callback) {
     return this.then(
-      value => MyPromise.resolve(callback()).then(() => value),
-      reason => MyPromise.resolve(callback()).then(() => { throw reason })
-    )
+      (value) => MyPromise.resolve(callback()).then(() => value),
+      (reason) =>
+        MyPromise.resolve(callback()).then(() => {
+          throw reason;
+        })
+    );
   }
 
   static resolve(value) {
-    if (value instanceof MyPromise) return value
-    return new MyPromise(resolve => resolve(value))
+    if (value instanceof MyPromise) return value;
+    return new MyPromise((resolve) => resolve(value));
   }
 
   static reject(reason) {
-    return new MyPromise((_, reject) => reject(reason))
+    return new MyPromise((_, reject) => reject(reason));
   }
 
   static all(promises) {
     return new MyPromise((resolve, reject) => {
-      const results = []
-      let count = 0
+      const results = [];
+      let count = 0;
 
       promises.forEach((promise, index) => {
-        MyPromise.resolve(promise).then(
-          value => {
-            results[index] = value
-            if (++count === promises.length) {
-              resolve(results)
-            }
-          },
-          reject
-        )
-      })
-    })
+        MyPromise.resolve(promise).then((value) => {
+          results[index] = value;
+          if (++count === promises.length) {
+            resolve(results);
+          }
+        }, reject);
+      });
+    });
   }
 
   static race(promises) {
     return new MyPromise((resolve, reject) => {
-      promises.forEach(promise => {
-        MyPromise.resolve(promise).then(resolve, reject)
-      })
-    })
+      promises.forEach((promise) => {
+        MyPromise.resolve(promise).then(resolve, reject);
+      });
+    });
   }
 }
 
 function resolvePromise(promise2, x, resolve, reject) {
   if (promise2 === x) {
-    return reject(new TypeError('Chaining cycle detected'))
+    return reject(new TypeError("Chaining cycle detected"));
   }
 
   if (x instanceof MyPromise) {
-    x.then(resolve, reject)
-  } else if (x !== null && (typeof x === 'object' || typeof x === 'function')) {
-    let called = false
+    x.then(resolve, reject);
+  } else if (x !== null && (typeof x === "object" || typeof x === "function")) {
+    let called = false;
     try {
-      const then = x.then
+      const then = x.then;
 
-      if (typeof then === 'function') {
+      if (typeof then === "function") {
         then.call(
           x,
-          y => {
-            if (called) return
-            called = true
-            resolvePromise(promise2, y, resolve, reject)
+          (y) => {
+            if (called) return;
+            called = true;
+            resolvePromise(promise2, y, resolve, reject);
           },
-          r => {
-            if (called) return
-            called = true
-            reject(r)
+          (r) => {
+            if (called) return;
+            called = true;
+            reject(r);
           }
-        )
+        );
       } else {
-        resolve(x)
+        resolve(x);
       }
     } catch (error) {
-      if (called) return
-      called = true
-      reject(error)
+      if (called) return;
+      called = true;
+      reject(error);
     }
   } else {
-    resolve(x)
+    resolve(x);
   }
 }
 ```
@@ -1057,55 +1064,55 @@ function resolvePromise(promise2, x, resolve, reject) {
 // async/await 是 Generator + Promise 的语法糖
 async function fetchData() {
   try {
-    const response = await fetch('/api/data')
-    const data = await response.json()
-    return data
+    const response = await fetch("/api/data");
+    const data = await response.json();
+    return data;
   } catch (error) {
-    console.error(error)
-    throw error
+    console.error(error);
+    throw error;
   }
 }
 
 // 并行执行
 async function fetchAll() {
   const [user, posts] = await Promise.all([
-    fetch('/api/user'),
-    fetch('/api/posts')
-  ])
-  return { user, posts }
+    fetch("/api/user"),
+    fetch("/api/posts"),
+  ]);
+  return { user, posts };
 }
 
 // 串行执行
 async function fetchSequentially(urls) {
-  const results = []
+  const results = [];
   for (const url of urls) {
-    const response = await fetch(url)
-    results.push(await response.json())
+    const response = await fetch(url);
+    results.push(await response.json());
   }
-  return results
+  return results;
 }
 
 // 错误处理
 async function withErrorHandling() {
   try {
-    const data = await fetchData()
-    return data
+    const data = await fetchData();
+    return data;
   } catch (error) {
     // 处理错误
-    return null
+    return null;
   }
 }
 
 // async 函数返回 Promise
 async function foo() {
-  return 'hello'
+  return "hello";
 }
-foo().then(console.log)  // 'hello'
+foo().then(console.log); // 'hello'
 
 async function bar() {
-  throw new Error('failed')
+  throw new Error("failed");
 }
-bar().catch(console.error)  // Error: failed
+bar().catch(console.error); // Error: failed
 ```
 
 ---
@@ -1137,53 +1144,53 @@ bar().catch(console.error)  // Error: failed
  * 4. 回到步骤 1
  */
 
-console.log('1')
+console.log("1");
 
 setTimeout(() => {
-  console.log('2')
+  console.log("2");
   Promise.resolve().then(() => {
-    console.log('3')
-  })
-}, 0)
+    console.log("3");
+  });
+}, 0);
 
 Promise.resolve().then(() => {
-  console.log('4')
+  console.log("4");
   setTimeout(() => {
-    console.log('5')
-  }, 0)
-})
+    console.log("5");
+  }, 0);
+});
 
-console.log('6')
+console.log("6");
 
 // 输出: 1, 6, 4, 2, 3, 5
 
 // 复杂示例
 async function async1() {
-  console.log('async1 start')
-  await async2()
-  console.log('async1 end')
+  console.log("async1 start");
+  await async2();
+  console.log("async1 end");
 }
 
 async function async2() {
-  console.log('async2')
+  console.log("async2");
 }
 
-console.log('script start')
+console.log("script start");
 
 setTimeout(() => {
-  console.log('setTimeout')
-}, 0)
+  console.log("setTimeout");
+}, 0);
 
-async1()
+async1();
 
-new Promise(resolve => {
-  console.log('promise1')
-  resolve()
+new Promise((resolve) => {
+  console.log("promise1");
+  resolve();
 }).then(() => {
-  console.log('promise2')
-})
+  console.log("promise2");
+});
 
-console.log('script end')
+console.log("script end");
 
 // 输出:
 // script start
@@ -1211,25 +1218,25 @@ console.log('script end')
  * process.nextTick 优先级最高,在每个阶段之间执行
  */
 
-console.log('start')
+console.log("start");
 
 setTimeout(() => {
-  console.log('setTimeout')
-}, 0)
+  console.log("setTimeout");
+}, 0);
 
 setImmediate(() => {
-  console.log('setImmediate')
-})
+  console.log("setImmediate");
+});
 
 process.nextTick(() => {
-  console.log('nextTick')
-})
+  console.log("nextTick");
+});
 
 Promise.resolve().then(() => {
-  console.log('Promise')
-})
+  console.log("Promise");
+});
 
-console.log('end')
+console.log("end");
 
 // 输出:
 // start
@@ -1264,18 +1271,18 @@ console.log('end')
 
 // 循环引用示例
 function circularReference() {
-  const obj1 = {}
-  const obj2 = {}
-  obj1.ref = obj2
-  obj2.ref = obj1
+  const obj1 = {};
+  const obj2 = {};
+  obj1.ref = obj2;
+  obj2.ref = obj1;
   // 引用计数无法回收
   // 标记清除可以回收 (函数执行完后,从根无法到达)
 }
 
 // 手动解除引用
-let bigData = new Array(1000000).fill('x')
+let bigData = new Array(1000000).fill("x");
 // 使用完后
-bigData = null  // 帮助 GC
+bigData = null; // 帮助 GC
 ```
 
 ### 2. 内存泄漏场景
@@ -1283,46 +1290,46 @@ bigData = null  // 帮助 GC
 ```javascript
 // 1. 全局变量
 function leak() {
-  leakedVar = 'global'  // 忘记 var/let/const
+  leakedVar = "global"; // 忘记 var/let/const
 }
 
 // 2. 闭包
 function createLeak() {
-  const hugeData = new Array(1000000)
-  return function() {
+  const hugeData = new Array(1000000);
+  return function () {
     // hugeData 被保留
-    console.log(hugeData.length)
-  }
+    console.log(hugeData.length);
+  };
 }
 
 // 3. 定时器
 const timer = setInterval(() => {
-  const dom = document.getElementById('xxx')
+  const dom = document.getElementById("xxx");
   if (dom) {
-    dom.innerHTML = Date.now()
+    dom.innerHTML = Date.now();
   }
-}, 1000)
+}, 1000);
 // 忘记 clearInterval
 
 // 4. DOM 引用
 const elements = {
-  button: document.getElementById('button')
-}
+  button: document.getElementById("button"),
+};
 
-document.body.removeChild(elements.button)
+document.body.removeChild(elements.button);
 // elements.button 仍然引用着 DOM
 
 // 5. 事件监听
-element.addEventListener('click', handler)
+element.addEventListener("click", handler);
 // 忘记 removeEventListener
 
 // 6. Map/Set
-const cache = new Map()
-cache.set(key, value)  // key 一直被引用
+const cache = new Map();
+cache.set(key, value); // key 一直被引用
 
 // 使用 WeakMap 解决
-const weakCache = new WeakMap()
-weakCache.set(obj, value)  // obj 可被回收
+const weakCache = new WeakMap();
+weakCache.set(obj, value); // obj 可被回收
 ```
 
 ---
@@ -1335,11 +1342,13 @@ weakCache.set(obj, value)  // obj 可被回收
 <summary>点击查看答案</summary>
 
 **typeof:**
+
 - 返回字符串,表示类型
 - 可以判断基本类型 (除 null)
 - 无法区分引用类型 (除 function)
 
 **instanceof:**
+
 - 返回布尔值
 - 检查原型链
 - 只能判断引用类型
@@ -1350,6 +1359,7 @@ typeof []             // 'object'
 [] instanceof Array   // true
 [] instanceof Object  // true
 ```
+
 </details>
 
 ### 2. == 和 === 的区别?
@@ -1358,22 +1368,25 @@ typeof []             // 'object'
 <summary>点击查看答案</summary>
 
 **===** 严格相等:
+
 - 不进行类型转换
 - 类型不同直接返回 false
 
 **==** 宽松相等:
+
 - 会进行类型转换
 - 转换规则复杂
 
 ```javascript
-1 === '1'    // false
-1 == '1'     // true
-null == undefined  // true
-null === undefined // false
-NaN == NaN   // false
+1 === "1"; // false
+1 == "1"; // true
+null == undefined; // true
+null === undefined; // false
+NaN == NaN; // false
 ```
 
 **建议: 始终使用 ===**
+
 </details>
 
 ### 3. var/let/const 的区别?
@@ -1381,23 +1394,24 @@ NaN == NaN   // false
 <details>
 <summary>点击查看答案</summary>
 
-| 特性 | var | let | const |
-|------|-----|-----|-------|
-| 作用域 | 函数作用域 | 块级作用域 | 块级作用域 |
-| 变量提升 | 是 | TDZ | TDZ |
-| 重复声明 | 允许 | 不允许 | 不允许 |
-| 重新赋值 | 允许 | 允许 | 不允许 |
-| 全局属性 | 是 | 否 | 否 |
+| 特性     | var        | let        | const      |
+| -------- | ---------- | ---------- | ---------- |
+| 作用域   | 函数作用域 | 块级作用域 | 块级作用域 |
+| 变量提升 | 是         | TDZ        | TDZ        |
+| 重复声明 | 允许       | 不允许     | 不允许     |
+| 重新赋值 | 允许       | 允许       | 不允许     |
+| 全局属性 | 是         | 否         | 否         |
 
 ```javascript
 // var 挂载到 window
-var a = 1
-window.a  // 1
+var a = 1;
+window.a; // 1
 
 // let/const 不挂载
-let b = 2
-window.b  // undefined
+let b = 2;
+window.b; // undefined
 ```
+
 </details>
 
 ### 4. 箭头函数和普通函数的区别?
@@ -1413,15 +1427,16 @@ window.b  // undefined
 
 ```javascript
 const obj = {
-  name: 'Alice',
+  name: "Alice",
   regular() {
-    console.log(this.name)  // 'Alice'
+    console.log(this.name); // 'Alice'
   },
   arrow: () => {
-    console.log(this.name)  // undefined
-  }
-}
+    console.log(this.name); // undefined
+  },
+};
 ```
+
 </details>
 
 ### 5. 深拷贝和浅拷贝的区别?
@@ -1430,6 +1445,7 @@ const obj = {
 <summary>点击查看答案</summary>
 
 **浅拷贝**: 只复制第一层
+
 ```javascript
 Object.assign({}, obj)
 { ...obj }
@@ -1438,29 +1454,31 @@ Object.assign({}, obj)
 ```
 
 **深拷贝**: 递归复制所有层
+
 ```javascript
-JSON.parse(JSON.stringify(obj))  // 有限制
+JSON.parse(JSON.stringify(obj)); // 有限制
 // 无法处理: undefined, function, Symbol, 循环引用
 
 // 完整深拷贝
 function deepClone(obj, map = new WeakMap()) {
-  if (obj === null || typeof obj !== 'object') return obj
-  if (obj instanceof Date) return new Date(obj)
-  if (obj instanceof RegExp) return new RegExp(obj)
-  if (map.has(obj)) return map.get(obj)
+  if (obj === null || typeof obj !== "object") return obj;
+  if (obj instanceof Date) return new Date(obj);
+  if (obj instanceof RegExp) return new RegExp(obj);
+  if (map.has(obj)) return map.get(obj);
 
-  const clone = Array.isArray(obj) ? [] : {}
-  map.set(obj, clone)
+  const clone = Array.isArray(obj) ? [] : {};
+  map.set(obj, clone);
 
   for (const key in obj) {
     if (obj.hasOwnProperty(key)) {
-      clone[key] = deepClone(obj[key], map)
+      clone[key] = deepClone(obj[key], map);
     }
   }
 
-  return clone
+  return clone;
 }
 ```
+
 </details>
 
 ---
@@ -1482,3 +1500,76 @@ function deepClone(obj, map = new WeakMap()) {
 2. 结合实际项目经验
 3. 展示深入理解 (原理、底层)
 4. 主动提及相关知识点
+
+---
+
+## 十三、ECMAScript 新特性 (ES2023/2024)
+
+### 1. 数组非破坏性方法 (ES2023)
+
+以前的 `sort`, `reverse`, `splice` 都会修改原数组，现在有了对应的不可变版本。
+
+```javascript
+/* 1. toSorted() */
+const arr = [3, 1, 2];
+const sorted = arr.toSorted();
+console.log(arr); // [3, 1, 2] (原数组不变)
+console.log(sorted); // [1, 2, 3]
+
+/* 2. toReversed() */
+const reversed = arr.toReversed();
+
+/* 3. toSpliced() */
+// 索引 1 开始，删除 1 个，插入 'a'
+const spliced = arr.toSpliced(1, 1, "a");
+
+/* 4. with() */
+// 替换指定索引的值
+const newArr = arr.with(1, "b"); // [3, 'b', 2]
+```
+
+### 2. Object.groupBy (ES2024)
+
+原生分组功能，终于不用手写 `reduce` 或引入 lodash 了。
+
+```javascript
+const inventory = [
+  { name: "asparagus", type: "vegetables", quantity: 5 },
+  { name: "bananas", type: "fruit", quantity: 0 },
+  { name: "goat", type: "meat", quantity: 23 },
+  { name: "cherries", type: "fruit", quantity: 5 },
+  { name: "fish", type: "meat", quantity: 22 },
+];
+
+const result = Object.groupBy(inventory, ({ type }) => type);
+
+/* 结果:
+{
+  vegetables: [{ name: "asparagus", type: "vegetables", quantity: 5 }],
+  fruit: [
+    { name: "bananas", type: "fruit", quantity: 0 },
+    { name: "cherries", type: "fruit", quantity: 5 }
+  ],
+  meat: [
+    { name: "goat", type: "meat", quantity: 23 },
+    { name: "fish", type: "meat", quantity: 22 }
+  ]
+}
+*/
+```
+
+### 3. Promise.withResolvers (ES2024)
+
+简化 Promise 的创建，直接获取 resolve 和 reject 函数。
+
+```javascript
+// 以前
+let resolve, reject;
+const promise = new Promise((res, rej) => {
+  resolve = res;
+  reject = rej;
+});
+
+// 现在
+const { promise, resolve, reject } = Promise.withResolvers();
+```
