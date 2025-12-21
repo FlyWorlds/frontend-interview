@@ -10,28 +10,28 @@ ES6（ECMAScript 2015）是 JavaScript 语言的重大更新，此后每年都�
 
 ```javascript
 // var - 函数作用域，存在变量提升
-console.log(a) // undefined（变量提升）
-var a = 1
-var a = 2 // 允许重复声明
+console.log(a); // undefined（变量提升）
+var a = 1;
+var a = 2; // 允许重复声明
 
 // let - 块级作用域，暂时性死区
 // console.log(b) // ReferenceError（TDZ）
-let b = 1
+let b = 1;
 // let b = 2 // 不允许重复声明
 
 // const - 块级作用域，必须初始化，不能重新赋值
-const c = 1
+const c = 1;
 // c = 2 // TypeError
 // const d // SyntaxError: Missing initializer
 
 // const 对于对象/数组，可以修改内部属性
-const obj = { name: 'Alice' }
-obj.name = 'Bob' // 允许
+const obj = { name: "Alice" };
+obj.name = "Bob"; // 允许
 // obj = {} // 不允许
 
 // 冻结对象
-const frozen = Object.freeze({ name: 'Alice' })
-frozen.name = 'Bob' // 静默失败（严格模式报错）
+const frozen = Object.freeze({ name: "Alice" });
+frozen.name = "Bob"; // 静默失败（严格模式报错）
 ```
 
 ### 暂时性死区（TDZ）
@@ -40,26 +40,26 @@ frozen.name = 'Bob' // 静默失败（严格模式报错）
 // TDZ - 从块作用域开始到变量声明之间的区域
 {
   // TDZ 开始
-  console.log(typeof x) // ReferenceError
-  let x = 1
+  console.log(typeof x); // ReferenceError
+  let x = 1;
   // TDZ 结束
 }
 
 // 经典面试题
-var x = 1
+var x = 1;
 function foo() {
-  console.log(x) // ReferenceError，不是 1
-  let x = 2
+  console.log(x); // ReferenceError，不是 1
+  let x = 2;
 }
 
 // for 循环中的 let
 for (let i = 0; i < 3; i++) {
-  setTimeout(() => console.log(i), 0)
+  setTimeout(() => console.log(i), 0);
 }
 // 输出: 0, 1, 2
 
 for (var j = 0; j < 3; j++) {
-  setTimeout(() => console.log(j), 0)
+  setTimeout(() => console.log(j), 0);
 }
 // 输出: 3, 3, 3
 ```
@@ -70,63 +70,69 @@ for (var j = 0; j < 3; j++) {
 
 ```javascript
 // 基本解构
-const [a, b, c] = [1, 2, 3]
+const [a, b, c] = [1, 2, 3];
 
 // 默认值
-const [x = 1, y = 2] = [undefined, null]
+const [x = 1, y = 2] = [undefined, null];
 // x = 1, y = null (null !== undefined)
 
 // 跳过元素
-const [, , third] = [1, 2, 3] // third = 3
+const [, , third] = [1, 2, 3]; // third = 3
 
 // 剩余元素
-const [first, ...rest] = [1, 2, 3, 4]
+const [first, ...rest] = [1, 2, 3, 4];
 // first = 1, rest = [2, 3, 4]
 
 // 嵌套解构
-const [a, [b, c]] = [1, [2, 3]]
+const [a, [b, c]] = [1, [2, 3]];
 
 // 交换变量
-let m = 1, n = 2
-;[m, n] = [n, m]
+let m = 1,
+  n = 2;
+[m, n] = [n, m];
 
 // 函数返回值解构
 function getCoords() {
-  return [10, 20]
+  return [10, 20];
 }
-const [x, y] = getCoords()
+const [x, y] = getCoords();
 ```
 
 ### 对象解构
 
 ```javascript
 // 基本解构
-const { name, age } = { name: 'Alice', age: 25 }
+const { name, age } = { name: "Alice", age: 25 };
 
 // 重命名
-const { name: userName } = { name: 'Alice' }
+const { name: userName } = { name: "Alice" };
 
 // 默认值
-const { name = 'Unknown', age = 0 } = { name: 'Alice' }
+const { name = "Unknown", age = 0 } = { name: "Alice" };
 
 // 嵌套解构
-const { address: { city } } = { address: { city: 'Beijing' } }
+const {
+  address: { city },
+} = { address: { city: "Beijing" } };
 
 // 剩余属性
-const { name, ...others } = { name: 'Alice', age: 25, email: 'a@b.com' }
+const { name, ...others } = { name: "Alice", age: 25, email: "a@b.com" };
 // others = { age: 25, email: 'a@b.com' }
 
 // 函数参数解构
-function greet({ name, greeting = 'Hello' }) {
-  return `${greeting}, ${name}!`
+function greet({ name, greeting = "Hello" }) {
+  return `${greeting}, ${name}!`;
 }
 
 // 复杂解构
 const {
-  user: { name, profile: { avatar = 'default.png' } }
+  user: {
+    name,
+    profile: { avatar = "default.png" },
+  },
 } = {
-  user: { name: 'Alice', profile: {} }
-}
+  user: { name: "Alice", profile: {} },
+};
 ```
 
 ## 字符串扩展
@@ -135,8 +141,8 @@ const {
 
 ```javascript
 // 基本用法
-const name = 'Alice'
-const greeting = `Hello, ${name}!`
+const name = "Alice";
+const greeting = `Hello, ${name}!`;
 
 // 多行字符串
 const html = `
@@ -144,31 +150,31 @@ const html = `
     <h1>${title}</h1>
     <p>${content}</p>
   </div>
-`
+`;
 
 // 嵌套模板
-const items = ['a', 'b', 'c']
+const items = ["a", "b", "c"];
 const list = `
   <ul>
-    ${items.map(item => `<li>${item}</li>`).join('')}
+    ${items.map((item) => `<li>${item}</li>`).join("")}
   </ul>
-`
+`;
 
 // 表达式
-const price = 10
-const quantity = 5
-console.log(`Total: $${price * quantity}`)
+const price = 10;
+const quantity = 5;
+console.log(`Total: $${price * quantity}`);
 
 // 标签模板
 function highlight(strings, ...values) {
   return strings.reduce((result, str, i) => {
-    return result + str + (values[i] ? `<mark>${values[i]}</mark>` : '')
-  }, '')
+    return result + str + (values[i] ? `<mark>${values[i]}</mark>` : "");
+  }, "");
 }
 
-const name = 'Alice'
-const age = 25
-highlight`Name: ${name}, Age: ${age}`
+const name = "Alice";
+const age = 25;
+highlight`Name: ${name}, Age: ${age}`;
 // "Name: <mark>Alice</mark>, Age: <mark>25</mark>"
 ```
 
@@ -176,28 +182,28 @@ highlight`Name: ${name}, Age: ${age}`
 
 ```javascript
 // includes, startsWith, endsWith
-const str = 'Hello World'
-str.includes('World') // true
-str.startsWith('Hello') // true
-str.endsWith('World') // true
+const str = "Hello World";
+str.includes("World"); // true
+str.startsWith("Hello"); // true
+str.endsWith("World"); // true
 
 // repeat
-'ab'.repeat(3) // 'ababab'
+"ab".repeat(3); // 'ababab'
 
 // padStart, padEnd (ES2017)
-'5'.padStart(3, '0') // '005'
-'5'.padEnd(3, '0') // '500'
+"5".padStart(3, "0"); // '005'
+"5".padEnd(3, "0"); // '500'
 
 // trim, trimStart, trimEnd (ES2019)
-'  hello  '.trim() // 'hello'
-'  hello  '.trimStart() // 'hello  '
-'  hello  '.trimEnd() // '  hello'
+"  hello  ".trim(); // 'hello'
+"  hello  ".trimStart(); // 'hello  '
+"  hello  ".trimEnd(); // '  hello'
 
 // replaceAll (ES2021)
-'aabbcc'.replaceAll('b', 'x') // 'aaxxcc'
+"aabbcc".replaceAll("b", "x"); // 'aaxxcc'
 
 // at (ES2022)
-'hello'.at(-1) // 'o'
+"hello".at(-1); // 'o'
 ```
 
 ## 数组扩展
@@ -206,72 +212,82 @@ str.endsWith('World') // true
 
 ```javascript
 // 展开数组
-const arr1 = [1, 2, 3]
-const arr2 = [...arr1, 4, 5] // [1, 2, 3, 4, 5]
+const arr1 = [1, 2, 3];
+const arr2 = [...arr1, 4, 5]; // [1, 2, 3, 4, 5]
 
 // 合并数组
-const merged = [...arr1, ...arr2]
+const merged = [...arr1, ...arr2];
 
 // 复制数组（浅拷贝）
-const copy = [...arr1]
+const copy = [...arr1];
 
 // 字符串转数组
-const chars = [...'hello'] // ['h', 'e', 'l', 'l', 'o']
+const chars = [..."hello"]; // ['h', 'e', 'l', 'l', 'o']
 
 // 类数组转数组
-const nodeList = document.querySelectorAll('div')
-const divs = [...nodeList]
+const nodeList = document.querySelectorAll("div");
+const divs = [...nodeList];
 
 // 解构中的剩余元素
-const [first, ...rest] = [1, 2, 3, 4]
+const [first, ...rest] = [1, 2, 3, 4];
 ```
 
 ### 新增方法
 
 ```javascript
 // Array.from - 类数组转数组
-Array.from('abc') // ['a', 'b', 'c']
-Array.from({ length: 3 }, (_, i) => i) // [0, 1, 2]
-Array.from(new Set([1, 2, 2, 3])) // [1, 2, 3]
+Array.from("abc"); // ['a', 'b', 'c']
+Array.from({ length: 3 }, (_, i) => i); // [0, 1, 2]
+Array.from(new Set([1, 2, 2, 3])); // [1, 2, 3]
 
 // Array.of - 创建数组
-Array.of(1, 2, 3) // [1, 2, 3]
-Array.of(3) // [3]  vs Array(3) // [, , ,]
+Array.of(1, 2, 3); // [1, 2, 3]
+Array.of(3); // [3]  vs Array(3) // [, , ,]
 
 // find, findIndex
-const users = [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }]
-users.find(u => u.id === 1) // { id: 1, name: 'Alice' }
-users.findIndex(u => u.id === 1) // 0
+const users = [
+  { id: 1, name: "Alice" },
+  { id: 2, name: "Bob" },
+];
+users.find((u) => u.id === 1); // { id: 1, name: 'Alice' }
+users
+  .findIndex((u) => u.id === 1) // 0
 
-// findLast, findLastIndex (ES2023)
-[1, 2, 3, 2, 1].findLast(x => x === 2) // 2 (index 3)
-[1, 2, 3, 2, 1].findLastIndex(x => x === 2) // 3
+  [
+    // findLast, findLastIndex (ES2023)
+    (1, 2, 3, 2, 1)
+  ].findLast((x) => x === 2) // 2 (index 3)
+  [(1, 2, 3, 2, 1)].findLastIndex((x) => x === 2) // 3
 
-// includes (ES2016)
-[1, 2, 3].includes(2) // true
-[1, 2, NaN].includes(NaN) // true (indexOf 不行)
+  [
+    // includes (ES2016)
+    (1, 2, 3)
+  ].includes(2) // true
+  [(1, 2, NaN)].includes(NaN) // true (indexOf 不行)
 
-// flat, flatMap (ES2019)
-[1, [2, [3]]].flat() // [1, 2, [3]]
-[1, [2, [3]]].flat(2) // [1, 2, 3]
-[1, [2, [3]]].flat(Infinity) // [1, 2, 3]
-[1, 2, 3].flatMap(x => [x, x * 2]) // [1, 2, 2, 4, 3, 6]
+  [
+    // flat, flatMap (ES2019)
+    (1, [2, [3]])
+  ].flat() // [1, 2, [3]]
+  [(1, [2, [3]])].flat(2) // [1, 2, 3]
+  [(1, [2, [3]])].flat(Infinity) // [1, 2, 3]
+  [(1, 2, 3)].flatMap((x) => [x, x * 2]); // [1, 2, 2, 4, 3, 6]
 
 // at (ES2022)
-const arr = [1, 2, 3, 4, 5]
-arr.at(-1) // 5
-arr.at(-2) // 4
+const arr = [1, 2, 3, 4, 5];
+arr.at(-1); // 5
+arr.at(-2); // 4
 
 // toReversed, toSorted, toSpliced (ES2023) - 不改变原数组
-const nums = [3, 1, 2]
-nums.toReversed() // [2, 1, 3]
-nums.toSorted() // [1, 2, 3]
-nums.toSpliced(1, 1, 99) // [3, 99, 2]
-console.log(nums) // [3, 1, 2] 原数组不变
+const nums = [3, 1, 2];
+nums.toReversed(); // [2, 1, 3]
+nums.toSorted(); // [1, 2, 3]
+nums.toSpliced(1, 1, 99); // [3, 99, 2]
+console.log(nums); // [3, 1, 2] 原数组不变
 
 // with (ES2023) - 不改变原数组的索引更新
-const arr = [1, 2, 3]
-arr.with(1, 99) // [1, 99, 3]
+const arr = [1, 2, 3];
+arr.with(1, 99); // [1, 99, 3]
 ```
 
 ## 对象扩展
@@ -280,64 +296,67 @@ arr.with(1, 99) // [1, 99, 3]
 
 ```javascript
 // 属性简写
-const name = 'Alice'
-const age = 25
-const user = { name, age }
+const name = "Alice";
+const age = 25;
+const user = { name, age };
 
 // 方法简写
 const obj = {
   sayHi() {
-    console.log('Hi')
+    console.log("Hi");
   },
   // 等同于
-  sayHello: function() {
-    console.log('Hello')
-  }
-}
+  sayHello: function () {
+    console.log("Hello");
+  },
+};
 
 // 计算属性名
-const key = 'name'
+const key = "name";
 const obj = {
-  [key]: 'Alice',
-  ['get' + key.charAt(0).toUpperCase() + key.slice(1)]() {
-    return this.name
-  }
-}
+  [key]: "Alice",
+  ["get" + key.charAt(0).toUpperCase() + key.slice(1)]() {
+    return this.name;
+  },
+};
 // { name: 'Alice', getName: function }
 
 // Symbol 作为属性名
-const sym = Symbol('id')
+const sym = Symbol("id");
 const obj = {
-  [sym]: 123
-}
+  [sym]: 123,
+};
 ```
 
 ### Object 新方法
 
 ```javascript
 // Object.assign - 浅拷贝/合并
-const target = { a: 1 }
-const source = { b: 2 }
-Object.assign(target, source) // { a: 1, b: 2 }
+const target = { a: 1 };
+const source = { b: 2 };
+Object.assign(target, source); // { a: 1, b: 2 }
 
 // 浅拷贝
-const copy = Object.assign({}, original)
+const copy = Object.assign({}, original);
 
 // Object.keys, values, entries
-const obj = { a: 1, b: 2 }
-Object.keys(obj) // ['a', 'b']
-Object.values(obj) // [1, 2]
-Object.entries(obj) // [['a', 1], ['b', 2]]
+const obj = { a: 1, b: 2 };
+Object.keys(obj); // ['a', 'b']
+Object.values(obj); // [1, 2]
+Object.entries(obj); // [['a', 1], ['b', 2]]
 
 // Object.fromEntries (ES2019)
-const entries = [['a', 1], ['b', 2]]
-Object.fromEntries(entries) // { a: 1, b: 2 }
+const entries = [
+  ["a", 1],
+  ["b", 2],
+];
+Object.fromEntries(entries); // { a: 1, b: 2 }
 // Map 转对象
-Object.fromEntries(new Map([['a', 1]]))
+Object.fromEntries(new Map([["a", 1]]));
 
 // Object.getOwnPropertyDescriptors (ES2017)
-const obj = { name: 'Alice' }
-Object.getOwnPropertyDescriptors(obj)
+const obj = { name: "Alice" };
+Object.getOwnPropertyDescriptors(obj);
 /*
 {
   name: {
@@ -350,27 +369,27 @@ Object.getOwnPropertyDescriptors(obj)
 */
 
 // Object.hasOwn (ES2022) - 推荐替代 hasOwnProperty
-const obj = { name: 'Alice' }
-Object.hasOwn(obj, 'name') // true
-Object.hasOwn(obj, 'age') // false
+const obj = { name: "Alice" };
+Object.hasOwn(obj, "name"); // true
+Object.hasOwn(obj, "age"); // false
 ```
 
 ### 扩展运算符（对象）
 
 ```javascript
 // 浅拷贝
-const obj = { a: 1, b: 2 }
-const copy = { ...obj }
+const obj = { a: 1, b: 2 };
+const copy = { ...obj };
 
 // 合并对象
-const merged = { ...obj1, ...obj2 }
+const merged = { ...obj1, ...obj2 };
 
 // 覆盖属性
-const user = { name: 'Alice', age: 25 }
-const updated = { ...user, age: 26 }
+const user = { name: "Alice", age: 25 };
+const updated = { ...user, age: 26 };
 
 // 剩余属性
-const { a, ...rest } = { a: 1, b: 2, c: 3 }
+const { a, ...rest } = { a: 1, b: 2, c: 3 };
 // rest = { b: 2, c: 3 }
 ```
 
@@ -380,23 +399,23 @@ const { a, ...rest } = { a: 1, b: 2, c: 3 }
 
 ```javascript
 // 基本语法
-const add = (a, b) => a + b
+const add = (a, b) => a + b;
 
 // 单参数可省略括号
-const square = x => x * x
+const square = (x) => x * x;
 
 // 返回对象需要括号
-const getUser = () => ({ name: 'Alice' })
+const getUser = () => ({ name: "Alice" });
 
 // 箭头函数特点
 const obj = {
-  name: 'Alice',
+  name: "Alice",
 
   // 1. 没有自己的 this，继承外层
-  greet: function() {
+  greet: function () {
     setTimeout(() => {
-      console.log(this.name) // 'Alice'
-    }, 100)
+      console.log(this.name); // 'Alice'
+    }, 100);
   },
 
   // 2. 没有 arguments
@@ -409,36 +428,36 @@ const obj = {
 
   // 4. 没有 prototype
   // (() => {}).prototype // undefined
-}
+};
 ```
 
 ### 默认参数
 
 ```javascript
 // 基本用法
-function greet(name = 'World') {
-  return `Hello, ${name}!`
+function greet(name = "World") {
+  return `Hello, ${name}!`;
 }
 
 // 表达式作为默认值
 function createUser(name, id = Date.now()) {
-  return { name, id }
+  return { name, id };
 }
 
 // 解构 + 默认值
-function request({ url, method = 'GET', headers = {} } = {}) {
-  console.log(url, method, headers)
+function request({ url, method = "GET", headers = {} } = {}) {
+  console.log(url, method, headers);
 }
 
 // 默认值会影响 length
 function foo(a, b = 1, c) {}
-foo.length // 1 (只计算没有默认值的参数)
+foo.length; // 1 (只计算没有默认值的参数)
 
 // 默认值是惰性求值
-let x = 1
+let x = 1;
 function foo(a = x++) {}
-foo() // x = 2
-foo() // x = 3
+foo(); // x = 2
+foo(); // x = 3
 ```
 
 ### 剩余参数
@@ -446,14 +465,14 @@ foo() // x = 3
 ```javascript
 // 剩余参数
 function sum(...numbers) {
-  return numbers.reduce((a, b) => a + b, 0)
+  return numbers.reduce((a, b) => a + b, 0);
 }
 
-sum(1, 2, 3, 4) // 10
+sum(1, 2, 3, 4); // 10
 
 // 与其他参数结合
 function log(first, second, ...rest) {
-  console.log(first, second, rest)
+  console.log(first, second, rest);
 }
 
 // 必须是最后一个参数
@@ -467,53 +486,53 @@ function log(first, second, ...rest) {
 ```javascript
 class Person {
   // 私有字段 (ES2022)
-  #id
+  #id;
 
   // 公共字段
-  name = ''
+  name = "";
 
   // 静态字段
-  static count = 0
+  static count = 0;
 
   constructor(name, id) {
-    this.name = name
-    this.#id = id
-    Person.count++
+    this.name = name;
+    this.#id = id;
+    Person.count++;
   }
 
   // 实例方法
   greet() {
-    return `Hello, ${this.name}`
+    return `Hello, ${this.name}`;
   }
 
   // 私有方法 (ES2022)
   #generateId() {
-    return Math.random()
+    return Math.random();
   }
 
   // Getter/Setter
   get id() {
-    return this.#id
+    return this.#id;
   }
 
   set id(value) {
-    this.#id = value
+    this.#id = value;
   }
 
   // 静态方法
   static create(name) {
-    return new Person(name, Date.now())
+    return new Person(name, Date.now());
   }
 
   // 静态块 (ES2022)
   static {
-    console.log('Class initialized')
+    console.log("Class initialized");
   }
 }
 
-const p = new Person('Alice', 1)
-console.log(p.greet())
-console.log(Person.count)
+const p = new Person("Alice", 1);
+console.log(p.greet());
+console.log(Person.count);
 ```
 
 ### 继承
@@ -521,90 +540,90 @@ console.log(Person.count)
 ```javascript
 class Animal {
   constructor(name) {
-    this.name = name
+    this.name = name;
   }
 
   speak() {
-    console.log(`${this.name} makes a sound`)
+    console.log(`${this.name} makes a sound`);
   }
 }
 
 class Dog extends Animal {
   constructor(name, breed) {
-    super(name) // 必须先调用 super
-    this.breed = breed
+    super(name); // 必须先调用 super
+    this.breed = breed;
   }
 
   // 重写父类方法
   speak() {
-    console.log(`${this.name} barks`)
+    console.log(`${this.name} barks`);
   }
 
   // 调用父类方法
   speakLoud() {
-    super.speak()
-    console.log('LOUD!')
+    super.speak();
+    console.log("LOUD!");
   }
 }
 
-const dog = new Dog('Max', 'Labrador')
-dog.speak() // 'Max barks'
-dog instanceof Dog // true
-dog instanceof Animal // true
+const dog = new Dog("Max", "Labrador");
+dog.speak(); // 'Max barks'
+dog instanceof Dog; // true
+dog instanceof Animal; // true
 ```
 
 ## Symbol
 
 ```javascript
 // 创建唯一标识符
-const sym1 = Symbol('description')
-const sym2 = Symbol('description')
-sym1 === sym2 // false
+const sym1 = Symbol("description");
+const sym2 = Symbol("description");
+sym1 === sym2; // false
 
 // 作为对象属性键
-const id = Symbol('id')
+const id = Symbol("id");
 const user = {
-  name: 'Alice',
-  [id]: 123
-}
+  name: "Alice",
+  [id]: 123,
+};
 
 // Symbol 属性不会被枚举
-Object.keys(user) // ['name']
-Object.getOwnPropertySymbols(user) // [Symbol(id)]
-Reflect.ownKeys(user) // ['name', Symbol(id)]
+Object.keys(user); // ['name']
+Object.getOwnPropertySymbols(user); // [Symbol(id)]
+Reflect.ownKeys(user); // ['name', Symbol(id)]
 
 // 全局 Symbol 注册表
-const globalSym = Symbol.for('app.id')
-const same = Symbol.for('app.id')
-globalSym === same // true
-Symbol.keyFor(globalSym) // 'app.id'
+const globalSym = Symbol.for("app.id");
+const same = Symbol.for("app.id");
+globalSym === same; // true
+Symbol.keyFor(globalSym); // 'app.id'
 
 // 内置 Symbol
-Symbol.iterator // 定义迭代器
-Symbol.toStringTag // 定义 Object.prototype.toString 结果
-Symbol.hasInstance // 定义 instanceof 行为
-Symbol.toPrimitive // 定义类型转换行为
+Symbol.iterator; // 定义迭代器
+Symbol.toStringTag; // 定义 Object.prototype.toString 结果
+Symbol.hasInstance; // 定义 instanceof 行为
+Symbol.toPrimitive; // 定义类型转换行为
 
 // 实现迭代器
 const range = {
   from: 1,
   to: 5,
   [Symbol.iterator]() {
-    let current = this.from
-    const last = this.to
+    let current = this.from;
+    const last = this.to;
     return {
       next() {
         if (current <= last) {
-          return { value: current++, done: false }
+          return { value: current++, done: false };
         }
-        return { done: true }
-      }
-    }
-  }
-}
+        return { done: true };
+      },
+    };
+  },
+};
 
 for (const num of range) {
-  console.log(num) // 1, 2, 3, 4, 5
+  console.log(num); // 1, 2, 3, 4, 5
 }
 ```
 
@@ -614,66 +633,66 @@ for (const num of range) {
 
 ```javascript
 // 创建
-const set = new Set([1, 2, 3, 2, 1])
-console.log(set) // Set(3) { 1, 2, 3 }
+const set = new Set([1, 2, 3, 2, 1]);
+console.log(set); // Set(3) { 1, 2, 3 }
 
 // 方法
-set.add(4) // 添加
-set.delete(1) // 删除
-set.has(2) // 检查
-set.clear() // 清空
-set.size // 大小
+set.add(4); // 添加
+set.delete(1); // 删除
+set.has(2); // 检查
+set.clear(); // 清空
+set.size; // 大小
 
 // 遍历
 for (const value of set) {
-  console.log(value)
+  console.log(value);
 }
 
-set.forEach(value => console.log(value))
+set.forEach((value) => console.log(value));
 
 // 转数组
-const arr = [...set]
-const arr2 = Array.from(set)
+const arr = [...set];
+const arr2 = Array.from(set);
 
 // 应用：数组去重
-const unique = [...new Set([1, 2, 2, 3, 3, 3])]
+const unique = [...new Set([1, 2, 2, 3, 3, 3])];
 
 // 应用：交集、并集、差集
-const a = new Set([1, 2, 3])
-const b = new Set([2, 3, 4])
+const a = new Set([1, 2, 3]);
+const b = new Set([2, 3, 4]);
 
 // 并集
-const union = new Set([...a, ...b])
+const union = new Set([...a, ...b]);
 
 // 交集
-const intersection = new Set([...a].filter(x => b.has(x)))
+const intersection = new Set([...a].filter((x) => b.has(x)));
 
 // 差集
-const difference = new Set([...a].filter(x => !b.has(x)))
+const difference = new Set([...a].filter((x) => !b.has(x)));
 ```
 
 ### WeakSet
 
 ```javascript
 // 只能存储对象引用
-const ws = new WeakSet()
+const ws = new WeakSet();
 
-let obj = { name: 'Alice' }
-ws.add(obj)
-ws.has(obj) // true
+let obj = { name: "Alice" };
+ws.add(obj);
+ws.has(obj); // true
 
-obj = null // 对象会被垃圾回收
+obj = null; // 对象会被垃圾回收
 // WeakSet 中的引用也会自动删除
 
 // 用途：标记对象
-const processedObjects = new WeakSet()
+const processedObjects = new WeakSet();
 
 function process(obj) {
   if (processedObjects.has(obj)) {
-    return // 已处理过
+    return; // 已处理过
   }
   // 处理对象
-  processedObjects.add(obj)
+  processedObjects.add(obj);
 }
 ```
 
@@ -682,33 +701,33 @@ function process(obj) {
 ```javascript
 // 创建
 const map = new Map([
-  ['name', 'Alice'],
-  ['age', 25]
-])
+  ["name", "Alice"],
+  ["age", 25],
+]);
 
 // 任何类型都可以作为键
-const objKey = { id: 1 }
-map.set(objKey, 'value')
-map.get(objKey) // 'value'
+const objKey = { id: 1 };
+map.set(objKey, "value");
+map.get(objKey); // 'value'
 
 // 方法
-map.set('key', 'value')
-map.get('key')
-map.has('key')
-map.delete('key')
-map.clear()
-map.size
+map.set("key", "value");
+map.get("key");
+map.has("key");
+map.delete("key");
+map.clear();
+map.size;
 
 // 遍历
 for (const [key, value] of map) {
-  console.log(key, value)
+  console.log(key, value);
 }
 
-map.forEach((value, key) => console.log(key, value))
+map.forEach((value, key) => console.log(key, value));
 
 // 转换
-const obj = Object.fromEntries(map)
-const arr = [...map]
+const obj = Object.fromEntries(map);
+const arr = [...map];
 
 // Map vs Object
 /*
@@ -731,37 +750,37 @@ Object:
 
 ```javascript
 // 键必须是对象
-const wm = new WeakMap()
+const wm = new WeakMap();
 
-let obj = { name: 'Alice' }
-wm.set(obj, 'metadata')
-wm.get(obj) // 'metadata'
+let obj = { name: "Alice" };
+wm.set(obj, "metadata");
+wm.get(obj); // 'metadata'
 
-obj = null // 键被回收后，值也会被回收
+obj = null; // 键被回收后，值也会被回收
 
 // 用途1：存储私有数据
-const privateData = new WeakMap()
+const privateData = new WeakMap();
 
 class Person {
   constructor(name) {
-    privateData.set(this, { name })
+    privateData.set(this, { name });
   }
 
   getName() {
-    return privateData.get(this).name
+    return privateData.get(this).name;
   }
 }
 
 // 用途2：缓存计算结果
-const cache = new WeakMap()
+const cache = new WeakMap();
 
 function expensive(obj) {
   if (cache.has(obj)) {
-    return cache.get(obj)
+    return cache.get(obj);
   }
-  const result = /* 复杂计算 */ obj.value * 2
-  cache.set(obj, result)
-  return result
+  const result = /* 复杂计算 */ obj.value * 2;
+  cache.set(obj, result);
+  return result;
 }
 ```
 
@@ -773,77 +792,158 @@ function expensive(obj) {
 // 创建 Promise
 const promise = new Promise((resolve, reject) => {
   setTimeout(() => {
-    const success = true
+    const success = true;
     if (success) {
-      resolve('成功')
+      resolve("成功");
     } else {
-      reject(new Error('失败'))
+      reject(new Error("失败"));
     }
-  }, 1000)
-})
+  }, 1000);
+});
 
 // 使用
 promise
-  .then(result => console.log(result))
-  .catch(error => console.error(error))
-  .finally(() => console.log('完成'))
+  .then((result) => console.log(result))
+  .catch((error) => console.error(error))
+  .finally(() => console.log("完成"));
 
 // 链式调用
-fetch('/api/user')
-  .then(res => res.json())
-  .then(user => fetch(`/api/posts/${user.id}`))
-  .then(res => res.json())
-  .then(posts => console.log(posts))
-  .catch(error => console.error(error))
+fetch("/api/user")
+  .then((res) => res.json())
+  .then((user) => fetch(`/api/posts/${user.id}`))
+  .then((res) => res.json())
+  .then((posts) => console.log(posts))
+  .catch((error) => console.error(error));
 ```
 
-### 静态方法
+## ES2024+ 新特性
+
+### Promise.withResolvers() (ES2024)
+
+简化 Promise 创建,无需在 executor 中提取 resolve/reject。
+
+```javascript
+// 旧写法
+let resolve, reject;
+const p = new Promise((res, rej) => {
+  resolve = res;
+  reject = rej;
+});
+
+// 新写法
+const { promise, resolve, reject } = Promise.withResolvers();
+```
+
+### Object.groupBy() (ES2024)
+
+原生数组分组。
+
+```javascript
+const items = [
+  { name: "芦笋", type: "蔬菜" },
+  { name: "香蕉", type: "水果" },
+  { name: "山羊", type: "肉" },
+  { name: "樱桃", type: "水果" },
+];
+
+const result = Object.groupBy(items, ({ type }) => type);
+/*
+{
+  蔬菜: [{ name: '芦笋', ... }],
+  水果: [{ name: '香蕉', ... }, { name: '樱桃', ... }],
+  肉: [{ name: '山羊', ... }]
+}
+*/
+```
+
+## 进阶内存管理
+
+### WeakRef & FinalizationRegistry
+
+- **WeakRef**: 持有对象的弱引用,不阻止 GC 回收。
+- **FinalizationRegistry**: 对象被 GC 回收后的回调。
+
+```javascript
+let target = { id: 1 };
+const weakRef = new WeakRef(target);
+
+const registry = new FinalizationRegistry((heldValue) => {
+  console.log("对象被回收了:", heldValue);
+});
+registry.register(target, "id-1");
+
+target = null; // 解除强引用,等待 GC
+// ...一段时间后...
+// weakRef.deref() 可能返回 undefined
+```
+
+## 装饰器 (Decorators - Stage 3)
+
+装饰器是一种特殊的声明,可以附加到类、方法、属性或参数上。
+
+```javascript
+function readonly(target, name, descriptor) {
+  descriptor.writable = false;
+  return descriptor;
+}
+
+class Person {
+  @readonly
+  name() {
+    return "Alice";
+  }
+}
+
+const p = new Person();
+// p.name = () => 'Bob'; // Error: Cannot assign to read only property
+```
 
 ```javascript
 // Promise.resolve / Promise.reject
-Promise.resolve(42).then(console.log) // 42
-Promise.reject(new Error('失败')).catch(console.error)
+Promise.resolve(42).then(console.log); // 42
+Promise.reject(new Error("失败")).catch(console.error);
 
 // Promise.all - 所有都成功才成功
-Promise.all([
-  fetch('/api/users'),
-  fetch('/api/posts')
-]).then(([users, posts]) => {
-  console.log(users, posts)
-}).catch(error => {
-  console.error('有一个失败了', error)
-})
+Promise.all([fetch("/api/users"), fetch("/api/posts")])
+  .then(([users, posts]) => {
+    console.log(users, posts);
+  })
+  .catch((error) => {
+    console.error("有一个失败了", error);
+  });
 
 // Promise.race - 第一个完成的结果
 Promise.race([
-  fetch('/api/data'),
-  new Promise((_, reject) => setTimeout(() => reject('timeout'), 5000))
-])
+  fetch("/api/data"),
+  new Promise((_, reject) => setTimeout(() => reject("timeout"), 5000)),
+]);
 
 // Promise.allSettled (ES2020) - 等待所有完成，无论成功失败
 Promise.allSettled([
   Promise.resolve(1),
-  Promise.reject('error'),
-  Promise.resolve(3)
-]).then(results => {
-  console.log(results)
+  Promise.reject("error"),
+  Promise.resolve(3),
+]).then((results) => {
+  console.log(results);
   // [
   //   { status: 'fulfilled', value: 1 },
   //   { status: 'rejected', reason: 'error' },
   //   { status: 'fulfilled', value: 3 }
   // ]
-})
+});
 
 // Promise.any (ES2021) - 第一个成功的结果
 Promise.any([
-  Promise.reject('error1'),
-  Promise.resolve('success'),
-  Promise.reject('error2')
-]).then(result => {
-  console.log(result) // 'success'
-}).catch(error => {
-  // AggregateError: 所有都失败时
-})
+  Promise.reject("error1"),
+  Promise.resolve("success"),
+  Promise.reject("error2"),
+])
+  .then((result) => {
+    console.log(result); // 'success'
+  })
+  .catch((error) => {
+    // AggregateError: 所有都失败时
+  });
 ```
 
 ## async/await
@@ -851,48 +951,45 @@ Promise.any([
 ```javascript
 // 基本用法
 async function fetchUser(id) {
-  const response = await fetch(`/api/users/${id}`)
-  const user = await response.json()
-  return user
+  const response = await fetch(`/api/users/${id}`);
+  const user = await response.json();
+  return user;
 }
 
 // 错误处理
 async function fetchData() {
   try {
-    const data = await fetch('/api/data')
-    return await data.json()
+    const data = await fetch("/api/data");
+    return await data.json();
   } catch (error) {
-    console.error('请求失败:', error)
-    throw error
+    console.error("请求失败:", error);
+    throw error;
   }
 }
 
 // 并发执行
 async function fetchAll() {
   // 串行（慢）
-  const user = await fetchUser(1)
-  const posts = await fetchPosts(1)
+  const user = await fetchUser(1);
+  const posts = await fetchPosts(1);
 
   // 并行（快）
-  const [user, posts] = await Promise.all([
-    fetchUser(1),
-    fetchPosts(1)
-  ])
+  const [user, posts] = await Promise.all([fetchUser(1), fetchPosts(1)]);
 }
 
 // 顶层 await (ES2022)
 // 在模块顶层直接使用
-const response = await fetch('/api/config')
-export const config = await response.json()
+const response = await fetch("/api/config");
+export const config = await response.json();
 
 // for-await-of (ES2018)
 async function* asyncGenerator() {
-  yield await Promise.resolve(1)
-  yield await Promise.resolve(2)
+  yield await Promise.resolve(1);
+  yield await Promise.resolve(2);
 }
 
 for await (const value of asyncGenerator()) {
-  console.log(value)
+  console.log(value);
 }
 ```
 
@@ -901,54 +998,54 @@ for await (const value of asyncGenerator()) {
 ### Proxy
 
 ```javascript
-const target = { name: 'Alice', age: 25 }
+const target = { name: "Alice", age: 25 };
 
 const proxy = new Proxy(target, {
   // 拦截读取
   get(target, prop, receiver) {
-    console.log(`读取 ${prop}`)
-    return Reflect.get(target, prop, receiver)
+    console.log(`读取 ${prop}`);
+    return Reflect.get(target, prop, receiver);
   },
 
   // 拦截设置
   set(target, prop, value, receiver) {
-    console.log(`设置 ${prop} = ${value}`)
-    return Reflect.set(target, prop, value, receiver)
+    console.log(`设置 ${prop} = ${value}`);
+    return Reflect.set(target, prop, value, receiver);
   },
 
   // 拦截 in 操作符
   has(target, prop) {
-    return prop in target
+    return prop in target;
   },
 
   // 拦截删除
   deleteProperty(target, prop) {
-    return Reflect.deleteProperty(target, prop)
+    return Reflect.deleteProperty(target, prop);
   },
 
   // 拦截 Object.keys
   ownKeys(target) {
-    return Reflect.ownKeys(target)
-  }
-})
+    return Reflect.ownKeys(target);
+  },
+});
 
-proxy.name // 读取 name -> 'Alice'
-proxy.name = 'Bob' // 设置 name = Bob
+proxy.name; // 读取 name -> 'Alice'
+proxy.name = "Bob"; // 设置 name = Bob
 
 // Vue 3 响应式原理
 function reactive(obj) {
   return new Proxy(obj, {
     get(target, key, receiver) {
-      track(target, key) // 收集依赖
-      const result = Reflect.get(target, key, receiver)
-      return typeof result === 'object' ? reactive(result) : result
+      track(target, key); // 收集依赖
+      const result = Reflect.get(target, key, receiver);
+      return typeof result === "object" ? reactive(result) : result;
     },
     set(target, key, value, receiver) {
-      const result = Reflect.set(target, key, value, receiver)
-      trigger(target, key) // 触发更新
-      return result
-    }
-  })
+      const result = Reflect.set(target, key, value, receiver);
+      trigger(target, key); // 触发更新
+      return result;
+    },
+  });
 }
 ```
 
@@ -958,28 +1055,28 @@ function reactive(obj) {
 // Reflect 提供了与 Proxy 处理器方法对应的方法
 
 // 调用函数
-Reflect.apply(Math.max, null, [1, 2, 3]) // 3
+Reflect.apply(Math.max, null, [1, 2, 3]); // 3
 
 // 创建实例
-Reflect.construct(Date, [2023, 0, 1])
+Reflect.construct(Date, [2023, 0, 1]);
 
 // 定义属性
-Reflect.defineProperty(obj, 'name', { value: 'Alice' })
+Reflect.defineProperty(obj, "name", { value: "Alice" });
 
 // 删除属性
-Reflect.deleteProperty(obj, 'name')
+Reflect.deleteProperty(obj, "name");
 
 // 获取属性
-Reflect.get(obj, 'name')
+Reflect.get(obj, "name");
 
 // 设置属性
-Reflect.set(obj, 'name', 'Bob')
+Reflect.set(obj, "name", "Bob");
 
 // 检查属性
-Reflect.has(obj, 'name')
+Reflect.has(obj, "name");
 
 // 获取所有键
-Reflect.ownKeys(obj)
+Reflect.ownKeys(obj);
 ```
 
 ## 模块化（ES Module）
@@ -1020,40 +1117,40 @@ export { default } from './main.js'
 
 ```javascript
 // 可选链 (ES2020)
-const user = { profile: { avatar: 'url' } }
+const user = { profile: { avatar: "url" } };
 
 // 属性访问
-user?.profile?.avatar // 'url'
-user?.settings?.theme // undefined (不会报错)
+user?.profile?.avatar; // 'url'
+user?.settings?.theme; // undefined (不会报错)
 
 // 方法调用
-user.greet?.() // 如果方法存在则调用
+user.greet?.(); // 如果方法存在则调用
 
 // 数组索引
-const arr = [1, 2, 3]
-arr?.[0] // 1
+const arr = [1, 2, 3];
+arr?.[0]; // 1
 
 // 空值合并 (ES2020)
-const value = null ?? 'default' // 'default'
-const value2 = 0 ?? 'default' // 0 (只有 null/undefined 才使用默认值)
-const value3 = '' ?? 'default' // ''
+const value = null ?? "default"; // 'default'
+const value2 = 0 ?? "default"; // 0 (只有 null/undefined 才使用默认值)
+const value3 = "" ?? "default"; // ''
 
 // 对比 ||
-const value4 = 0 || 'default' // 'default' (0 是假值)
-const value5 = '' || 'default' // 'default' ('' 是假值)
+const value4 = 0 || "default"; // 'default' (0 是假值)
+const value5 = "" || "default"; // 'default' ('' 是假值)
 
 // 组合使用
-const theme = user?.settings?.theme ?? 'light'
+const theme = user?.settings?.theme ?? "light";
 
 // 逻辑赋值运算符 (ES2021)
-let a = null
-a ??= 'default' // a = 'default'
+let a = null;
+a ??= "default"; // a = 'default'
 
-let b = 1
-b ||= 2 // b = 1 (因为 b 是真值)
+let b = 1;
+b ||= 2; // b = 1 (因为 b 是真值)
 
-let c = 1
-c &&= 2 // c = 2 (因为 c 是真值)
+let c = 1;
+c &&= 2; // c = 2 (因为 c 是真值)
 ```
 
 ## 高频面试题
@@ -1064,55 +1161,55 @@ c &&= 2 // c = 2 (因为 c 是真值)
 
 **详细解答**：
 
-| 特性 | var | let | const |
-|------|-----|-----|-------|
-| 作用域 | 函数作用域 | 块级作用域 | 块级作用域 |
-| 变量提升 | 是（提升且初始化为 undefined） | 否（暂时性死区） | 否（暂时性死区） |
-| 重复声明 | 允许 | 不允许 | 不允许 |
-| 重新赋值 | 允许 | 允许 | 不允许 |
-| 全局对象属性 | 是（挂载到 window） | 否 | 否 |
-| 必须初始化 | 否 | 否 | 是 |
+| 特性         | var                            | let              | const            |
+| ------------ | ------------------------------ | ---------------- | ---------------- |
+| 作用域       | 函数作用域                     | 块级作用域       | 块级作用域       |
+| 变量提升     | 是（提升且初始化为 undefined） | 否（暂时性死区） | 否（暂时性死区） |
+| 重复声明     | 允许                           | 不允许           | 不允许           |
+| 重新赋值     | 允许                           | 允许             | 不允许           |
+| 全局对象属性 | 是（挂载到 window）            | 否               | 否               |
+| 必须初始化   | 否                             | 否               | 是               |
 
 ```javascript
 // 1. 作用域差异
 {
-  var a = 1
-  let b = 2
-  const c = 3
+  var a = 1;
+  let b = 2;
+  const c = 3;
 }
-console.log(a) // 1 (var 无块级作用域)
-console.log(b) // ReferenceError (let 有块级作用域)
-console.log(c) // ReferenceError (const 有块级作用域)
+console.log(a); // 1 (var 无块级作用域)
+console.log(b); // ReferenceError (let 有块级作用域)
+console.log(c); // ReferenceError (const 有块级作用域)
 
 // 2. 变量提升差异
-console.log(x) // undefined (var 提升)
-var x = 1
+console.log(x); // undefined (var 提升)
+var x = 1;
 
-console.log(y) // ReferenceError (暂时性死区)
-let y = 2
+console.log(y); // ReferenceError (暂时性死区)
+let y = 2;
 
 // 3. 经典闭包问题
 for (var i = 0; i < 3; i++) {
-  setTimeout(() => console.log(i), 0)
+  setTimeout(() => console.log(i), 0);
 }
 // 输出: 3, 3, 3 (只有一个 i)
 
 for (let j = 0; j < 3; j++) {
-  setTimeout(() => console.log(j), 0)
+  setTimeout(() => console.log(j), 0);
 }
 // 输出: 0, 1, 2 (每次循环都有独立的 j)
 
 // 4. const 特性
-const PI = 3.14
-PI = 3.14159 // TypeError: Assignment to constant variable
+const PI = 3.14;
+PI = 3.14159; // TypeError: Assignment to constant variable
 
-const obj = { name: 'Alice' }
-obj.name = 'Bob' // 允许（修改对象属性）
-obj = {} // TypeError（不能重新赋值）
+const obj = { name: "Alice" };
+obj.name = "Bob"; // 允许（修改对象属性）
+obj = {}; // TypeError（不能重新赋值）
 
 // 完全冻结对象
-const frozen = Object.freeze({ name: 'Alice' })
-frozen.name = 'Bob' // 静默失败（严格模式下报错）
+const frozen = Object.freeze({ name: "Alice" });
+frozen.name = "Bob"; // 静默失败（严格模式下报错）
 ```
 
 **面试口语化回答模板**：
@@ -1142,73 +1239,73 @@ frozen.name = 'Bob' // 静默失败（严格模式下报错）
 ```javascript
 // 1. this 指向差异
 const obj = {
-  name: 'Alice',
+  name: "Alice",
 
   // 普通函数：this 指向调用者
-  sayHi: function() {
-    console.log(this.name) // 'Alice'
+  sayHi: function () {
+    console.log(this.name); // 'Alice'
 
-    setTimeout(function() {
-      console.log(this.name) // undefined (this 指向 window/global)
-    }, 100)
+    setTimeout(function () {
+      console.log(this.name); // undefined (this 指向 window/global)
+    }, 100);
   },
 
   // 箭头函数：this 继承外层
-  sayHello: function() {
-    console.log(this.name) // 'Alice'
+  sayHello: function () {
+    console.log(this.name); // 'Alice'
 
     setTimeout(() => {
-      console.log(this.name) // 'Alice' (继承外层的 this)
-    }, 100)
+      console.log(this.name); // 'Alice' (继承外层的 this)
+    }, 100);
   },
 
   // 对象方法不应该用箭头函数
   greet: () => {
-    console.log(this.name) // undefined (this 指向外层，不是 obj)
-  }
-}
+    console.log(this.name); // undefined (this 指向外层，不是 obj)
+  },
+};
 
 // 2. call/apply/bind 无法改变箭头函数的 this
-const normalFunc = function() {
-  console.log(this.name)
-}
+const normalFunc = function () {
+  console.log(this.name);
+};
 const arrowFunc = () => {
-  console.log(this.name)
-}
+  console.log(this.name);
+};
 
-normalFunc.call({ name: 'Bob' }) // 'Bob'
-arrowFunc.call({ name: 'Bob' }) // undefined (无法改变)
+normalFunc.call({ name: "Bob" }); // 'Bob'
+arrowFunc.call({ name: "Bob" }); // undefined (无法改变)
 
 // 3. arguments 对象
 function normalFunc() {
-  console.log(arguments) // [1, 2, 3]
+  console.log(arguments); // [1, 2, 3]
 }
-normalFunc(1, 2, 3)
+normalFunc(1, 2, 3);
 
 const arrowFunc = () => {
-  console.log(arguments) // ReferenceError
-}
+  console.log(arguments); // ReferenceError
+};
 
 // 使用剩余参数代替
 const arrowFunc2 = (...args) => {
-  console.log(args) // [1, 2, 3]
-}
-arrowFunc2(1, 2, 3)
+  console.log(args); // [1, 2, 3]
+};
+arrowFunc2(1, 2, 3);
 
 // 4. 不能作为构造函数
 function Person(name) {
-  this.name = name
+  this.name = name;
 }
-const p1 = new Person('Alice') // 正常
+const p1 = new Person("Alice"); // 正常
 
 const Person2 = (name) => {
-  this.name = name
-}
-const p2 = new Person2('Bob') // TypeError: Person2 is not a constructor
+  this.name = name;
+};
+const p2 = new Person2("Bob"); // TypeError: Person2 is not a constructor
 
 // 5. 没有 prototype
-console.log(Person.prototype) // { constructor: f }
-console.log(Person2.prototype) // undefined
+console.log(Person.prototype); // { constructor: f }
+console.log(Person2.prototype); // undefined
 ```
 
 **适用场景**：
@@ -1216,44 +1313,44 @@ console.log(Person2.prototype) // undefined
 ```javascript
 // ✅ 适合用箭头函数
 // 1. 数组方法回调
-const numbers = [1, 2, 3, 4, 5]
-const doubled = numbers.map(n => n * 2)
+const numbers = [1, 2, 3, 4, 5];
+const doubled = numbers.map((n) => n * 2);
 
 // 2. 异步回调（需要保持 this）
 class Button {
   constructor() {
-    this.count = 0
+    this.count = 0;
   }
 
   click() {
     setTimeout(() => {
-      this.count++ // 正确访问实例的 this
-    }, 100)
+      this.count++; // 正确访问实例的 this
+    }, 100);
   }
 }
 
 // 3. Promise/async 链式调用
 fetchUser()
-  .then(user => fetchPosts(user.id))
-  .then(posts => posts.filter(p => p.published))
+  .then((user) => fetchPosts(user.id))
+  .then((posts) => posts.filter((p) => p.published));
 
 // ❌ 不适合用箭头函数
 // 1. 对象方法
 const user = {
-  name: 'Alice',
-  sayHi: () => console.log(this.name) // this 不是 user
-}
+  name: "Alice",
+  sayHi: () => console.log(this.name), // this 不是 user
+};
 
 // 2. 动态 this 的场景
-const button = document.querySelector('button')
-button.addEventListener('click', () => {
-  console.log(this) // window，不是 button
-})
+const button = document.querySelector("button");
+button.addEventListener("click", () => {
+  console.log(this); // window，不是 button
+});
 
 // 3. 需要 arguments 的场景
 const sum = () => {
   // arguments 不存在
-}
+};
 ```
 
 **面试口语化回答模板**：
@@ -1276,94 +1373,100 @@ const sum = () => {
 
 ```javascript
 // 1. 基本用法
-const [a, b, c] = [1, 2, 3]
-console.log(a, b, c) // 1 2 3
+const [a, b, c] = [1, 2, 3];
+console.log(a, b, c); // 1 2 3
 
 // 2. 跳过元素
-const [first, , third] = [1, 2, 3]
-console.log(first, third) // 1 3
+const [first, , third] = [1, 2, 3];
+console.log(first, third); // 1 3
 
 // 3. 默认值
-const [x = 1, y = 2] = [100]
-console.log(x, y) // 100 2
+const [x = 1, y = 2] = [100];
+console.log(x, y); // 100 2
 
-const [m = 1, n = 2] = [undefined, null]
-console.log(m, n) // 1 null (null 不会触发默认值)
+const [m = 1, n = 2] = [undefined, null];
+console.log(m, n); // 1 null (null 不会触发默认值)
 
 // 4. 剩余元素
-const [head, ...tail] = [1, 2, 3, 4, 5]
-console.log(head) // 1
-console.log(tail) // [2, 3, 4, 5]
+const [head, ...tail] = [1, 2, 3, 4, 5];
+console.log(head); // 1
+console.log(tail); // [2, 3, 4, 5]
 
 // 5. 嵌套解构
-const [a, [b, c]] = [1, [2, 3]]
-console.log(a, b, c) // 1 2 3
+const [a, [b, c]] = [1, [2, 3]];
+console.log(a, b, c); // 1 2 3
 
 // 6. 交换变量
-let x = 1, y = 2
-;[x, y] = [y, x]
-console.log(x, y) // 2 1
+let x = 1,
+  y = 2;
+[x, y] = [y, x];
+console.log(x, y); // 2 1
 
 // 7. 函数返回值
 function getCoords() {
-  return [10, 20]
+  return [10, 20];
 }
-const [x, y] = getCoords()
+const [x, y] = getCoords();
 
 // 8. 字符串解构
-const [a, b, c] = 'abc'
-console.log(a, b, c) // 'a' 'b' 'c'
+const [a, b, c] = "abc";
+console.log(a, b, c); // 'a' 'b' 'c'
 ```
 
 **对象解构**：
 
 ```javascript
 // 1. 基本用法
-const { name, age } = { name: 'Alice', age: 25 }
-console.log(name, age) // 'Alice' 25
+const { name, age } = { name: "Alice", age: 25 };
+console.log(name, age); // 'Alice' 25
 
 // 2. 重命名（别名）
-const { name: userName, age: userAge } = { name: 'Alice', age: 25 }
-console.log(userName, userAge) // 'Alice' 25
+const { name: userName, age: userAge } = { name: "Alice", age: 25 };
+console.log(userName, userAge); // 'Alice' 25
 
 // 3. 默认值
-const { name = 'Unknown', age = 0 } = { name: 'Alice' }
-console.log(name, age) // 'Alice' 0
+const { name = "Unknown", age = 0 } = { name: "Alice" };
+console.log(name, age); // 'Alice' 0
 
 // 4. 重命名 + 默认值
-const { name: userName = 'Guest' } = {}
-console.log(userName) // 'Guest'
+const { name: userName = "Guest" } = {};
+console.log(userName); // 'Guest'
 
 // 5. 嵌套解构
 const user = {
-  name: 'Alice',
+  name: "Alice",
   address: {
-    city: 'Beijing',
-    zip: '100000'
-  }
-}
-const { address: { city, zip } } = user
-console.log(city, zip) // 'Beijing' '100000'
+    city: "Beijing",
+    zip: "100000",
+  },
+};
+const {
+  address: { city, zip },
+} = user;
+console.log(city, zip); // 'Beijing' '100000'
 
 // 注意：address 本身没有被解构出来
-console.log(address) // ReferenceError
+console.log(address); // ReferenceError
 
 // 同时解构 address 和 city
-const { address, address: { city } } = user
+const {
+  address,
+  address: { city },
+} = user;
 
 // 6. 剩余属性
-const { name, ...rest } = { name: 'Alice', age: 25, email: 'a@b.com' }
-console.log(name) // 'Alice'
-console.log(rest) // { age: 25, email: 'a@b.com' }
+const { name, ...rest } = { name: "Alice", age: 25, email: "a@b.com" };
+console.log(name); // 'Alice'
+console.log(rest); // { age: 25, email: 'a@b.com' }
 
 // 7. 动态属性名
-const key = 'name'
-const { [key]: value } = { name: 'Alice' }
-console.log(value) // 'Alice'
+const key = "name";
+const { [key]: value } = { name: "Alice" };
+console.log(value); // 'Alice'
 
 // 8. 已声明变量的解构（需要括号）
-let x, y
-({ x, y } = { x: 1, y: 2 }) // 必须用括号包裹
+let x, y;
+({ x, y } = { x: 1, y: 2 }); // 必须用括号包裹
 ```
 
 **函数参数解构**：
@@ -1371,58 +1474,55 @@ let x, y
 ```javascript
 // 1. 基本用法
 function greet({ name, age }) {
-  console.log(`${name} is ${age} years old`)
+  console.log(`${name} is ${age} years old`);
 }
-greet({ name: 'Alice', age: 25 })
+greet({ name: "Alice", age: 25 });
 
 // 2. 默认值
-function request({ url, method = 'GET', headers = {} }) {
-  console.log(url, method, headers)
+function request({ url, method = "GET", headers = {} }) {
+  console.log(url, method, headers);
 }
-request({ url: '/api' }) // '/api' 'GET' {}
+request({ url: "/api" }); // '/api' 'GET' {}
 
 // 3. 参数默认值 + 解构默认值
-function ajax({ url, method = 'GET' } = {}) {
-  console.log(url, method)
+function ajax({ url, method = "GET" } = {}) {
+  console.log(url, method);
 }
-ajax() // undefined 'GET' (不会报错)
-ajax({ url: '/api' }) // '/api' 'GET'
+ajax(); // undefined 'GET' (不会报错)
+ajax({ url: "/api" }); // '/api' 'GET'
 
 // 4. 嵌套解构
-function displayUser({
-  name,
-  address: { city, zip }
-}) {
-  console.log(`${name} lives in ${city}`)
+function displayUser({ name, address: { city, zip } }) {
+  console.log(`${name} lives in ${city}`);
 }
 
 displayUser({
-  name: 'Alice',
-  address: { city: 'Beijing', zip: '100000' }
-})
+  name: "Alice",
+  address: { city: "Beijing", zip: "100000" },
+});
 
 // 5. 剩余参数
 function log({ level, message, ...meta }) {
-  console.log(`[${level}] ${message}`, meta)
+  console.log(`[${level}] ${message}`, meta);
 }
 log({
-  level: 'INFO',
-  message: 'User logged in',
+  level: "INFO",
+  message: "User logged in",
   userId: 123,
-  timestamp: Date.now()
-})
+  timestamp: Date.now(),
+});
 
 // 6. 数组参数解构
 function sum([a, b]) {
-  return a + b
+  return a + b;
 }
-sum([1, 2]) // 3
+sum([1, 2]); // 3
 
 // 7. 混合解构
 function process([first, ...rest], { debug = false }) {
-  console.log(first, rest, debug)
+  console.log(first, rest, debug);
 }
-process([1, 2, 3], { debug: true })
+process([1, 2, 3], { debug: true });
 ```
 
 **实际应用场景**：
@@ -1430,42 +1530,41 @@ process([1, 2, 3], { debug: true })
 ```javascript
 // 1. React Props 解构
 function UserCard({ name, avatar, bio }) {
-  return <div>{name}</div>
+  return <div>{name}</div>;
 }
 
 // 2. 导入模块
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react";
 
 // 3. API 响应处理
-const { data, status, message } = await fetchUser()
+const { data, status, message } = await fetchUser();
 
 // 4. 配置对象
-function createServer({
-  port = 3000,
-  host = 'localhost',
-  ssl = false
-}) {
+function createServer({ port = 3000, host = "localhost", ssl = false }) {
   // ...
 }
 
 // 5. 循环中使用
 const users = [
-  { id: 1, name: 'Alice' },
-  { id: 2, name: 'Bob' }
-]
+  { id: 1, name: "Alice" },
+  { id: 2, name: "Bob" },
+];
 
 for (const { id, name } of users) {
-  console.log(id, name)
+  console.log(id, name);
 }
 
 // 6. Map 遍历
-const map = new Map([['a', 1], ['b', 2]])
+const map = new Map([
+  ["a", 1],
+  ["b", 2],
+]);
 for (const [key, value] of map) {
-  console.log(key, value)
+  console.log(key, value);
 }
 
 // 7. 正则匹配
-const [, year, month, day] = '2024-01-15'.match(/(\d{4})-(\d{2})-(\d{2})/)
+const [, year, month, day] = "2024-01-15".match(/(\d{4})-(\d{2})-(\d{2})/);
 ```
 
 **面试口语化回答模板**：
@@ -1574,128 +1673,131 @@ const copy = matrix.map(row => [...row])
 
 ```javascript
 // 1. 对象浅拷贝
-const obj1 = { name: 'Alice', age: 25 }
-const obj2 = { ...obj1 }
-obj2.age = 26
-console.log(obj1.age) // 25
+const obj1 = { name: "Alice", age: 25 };
+const obj2 = { ...obj1 };
+obj2.age = 26;
+console.log(obj1.age); // 25
 
 // 2. 合并对象
-const obj1 = { a: 1, b: 2 }
-const obj2 = { c: 3, d: 4 }
-const merged = { ...obj1, ...obj2 } // { a: 1, b: 2, c: 3, d: 4 }
+const obj1 = { a: 1, b: 2 };
+const obj2 = { c: 3, d: 4 };
+const merged = { ...obj1, ...obj2 }; // { a: 1, b: 2, c: 3, d: 4 }
 
 // 后面的属性会覆盖前面的
-const obj3 = { a: 1, b: 2 }
-const obj4 = { b: 99, c: 3 }
-const merged2 = { ...obj3, ...obj4 } // { a: 1, b: 99, c: 3 }
+const obj3 = { a: 1, b: 2 };
+const obj4 = { b: 99, c: 3 };
+const merged2 = { ...obj3, ...obj4 }; // { a: 1, b: 99, c: 3 }
 
 // 3. 修改对象属性（不可变更新）
-const user = { name: 'Alice', age: 25, email: 'a@b.com' }
-const updated = { ...user, age: 26 } // 只改 age，其他不变
+const user = { name: "Alice", age: 25, email: "a@b.com" };
+const updated = { ...user, age: 26 }; // 只改 age，其他不变
 
 // 4. 添加属性
-const user = { name: 'Alice' }
-const withId = { id: 1, ...user } // { id: 1, name: 'Alice' }
+const user = { name: "Alice" };
+const withId = { id: 1, ...user }; // { id: 1, name: 'Alice' }
 
 // 5. 条件属性
-const includeAge = true
+const includeAge = true;
 const user = {
-  name: 'Alice',
-  ...(includeAge && { age: 25 }) // 条件添加
-}
+  name: "Alice",
+  ...(includeAge && { age: 25 }), // 条件添加
+};
 
 // 6. 剩余属性（解构）
-const user = { id: 1, name: 'Alice', age: 25, email: 'a@b.com' }
-const { id, ...userInfo } = user
-console.log(userInfo) // { name: 'Alice', age: 25, email: 'a@b.com' }
+const user = { id: 1, name: "Alice", age: 25, email: "a@b.com" };
+const { id, ...userInfo } = user;
+console.log(userInfo); // { name: 'Alice', age: 25, email: 'a@b.com' }
 
 // 7. 移除属性
-const user = { id: 1, name: 'Alice', password: '123456' }
-const { password, ...publicUser } = user
-console.log(publicUser) // { id: 1, name: 'Alice' }
+const user = { id: 1, name: "Alice", password: "123456" };
+const { password, ...publicUser } = user;
+console.log(publicUser); // { id: 1, name: 'Alice' }
 
 // 8. 默认配置 + 自定义配置
 const defaultConfig = {
   port: 3000,
-  host: 'localhost',
-  debug: false
-}
+  host: "localhost",
+  debug: false,
+};
 
 const userConfig = {
   port: 8080,
-  debug: true
-}
+  debug: true,
+};
 
-const config = { ...defaultConfig, ...userConfig }
+const config = { ...defaultConfig, ...userConfig };
 // { port: 8080, host: 'localhost', debug: true }
 
 // 9. 函数参数传递
 function updateUser(id, updates) {
-  const user = getUser(id)
-  return { ...user, ...updates, updatedAt: Date.now() }
+  const user = getUser(id);
+  return { ...user, ...updates, updatedAt: Date.now() };
 }
 
-updateUser(1, { age: 26 })
+updateUser(1, { age: 26 });
 
 // 10. React/Redux 中的不可变更新
 // Redux reducer
 function todosReducer(state = [], action) {
   switch (action.type) {
-    case 'ADD_TODO':
-      return [...state, action.payload]
+    case "ADD_TODO":
+      return [...state, action.payload];
 
-    case 'UPDATE_TODO':
-      return state.map(todo =>
-        todo.id === action.id
-          ? { ...todo, ...action.updates }
-          : todo
-      )
+    case "UPDATE_TODO":
+      return state.map((todo) =>
+        todo.id === action.id ? { ...todo, ...action.updates } : todo
+      );
 
     default:
-      return state
+      return state;
   }
 }
 
 // React state 更新
-const [user, setUser] = useState({ name: 'Alice', age: 25 })
-setUser(prev => ({ ...prev, age: 26 }))
+const [user, setUser] = useState({ name: "Alice", age: 25 });
+setUser((prev) => ({ ...prev, age: 26 }));
 ```
 
 **注意事项**：
 
 ```javascript
 // 1. 只是浅拷贝
-const obj = { a: { b: 1 } }
-const copy = { ...obj }
-copy.a.b = 2
-console.log(obj.a.b) // 2 (内层对象共享)
+const obj = { a: { b: 1 } };
+const copy = { ...obj };
+copy.a.b = 2;
+console.log(obj.a.b); // 2 (内层对象共享)
 
 // 深拷贝需要递归或其他方法
-const deepCopy = JSON.parse(JSON.stringify(obj)) // 简单场景
+const deepCopy = JSON.parse(JSON.stringify(obj)); // 简单场景
 // 或使用 structuredClone (现代浏览器)
-const deepCopy2 = structuredClone(obj)
+const deepCopy2 = structuredClone(obj);
 
 // 2. 只拷贝可枚举属性
-const obj = Object.create({ inherited: 1 }, {
-  own: { value: 2, enumerable: true },
-  nonEnum: { value: 3, enumerable: false }
-})
-const copy = { ...obj }
-console.log(copy) // { own: 2 } (不包含继承和不可枚举属性)
+const obj = Object.create(
+  { inherited: 1 },
+  {
+    own: { value: 2, enumerable: true },
+    nonEnum: { value: 3, enumerable: false },
+  }
+);
+const copy = { ...obj };
+console.log(copy); // { own: 2 } (不包含继承和不可枚举属性)
 
 // 3. 特殊值处理
-const obj = { a: undefined, b: null }
-const copy = { ...obj } // { a: undefined, b: null }
+const obj = { a: undefined, b: null };
+const copy = { ...obj }; // { a: undefined, b: null }
 
 // 4. Symbol 键也会被拷贝
-const sym = Symbol('key')
-const obj = { [sym]: 'value' }
-const copy = { ...obj }
-console.log(copy[sym]) // 'value'
+const sym = Symbol("key");
+const obj = { [sym]: "value" };
+const copy = { ...obj };
+console.log(copy[sym]); // 'value'
 
 // 5. 性能考虑
 // 大对象频繁拷贝可能影响性能
-const largeObj = { /* 很多属性 */ }
+const largeObj = {
+  /* 很多属性 */
+};
 // 考虑是否真的需要拷贝，或者用其他方式
 ```
 
@@ -1719,82 +1821,85 @@ const largeObj = { /* 很多属性 */ }
 
 **核心区别对比**：
 
-| 特性 | for...in | for...of |
-|------|----------|----------|
-| 遍历内容 | 键名（key） | 值（value） |
-| 适用对象 | 所有对象 | 可迭代对象（Array, String, Map, Set, arguments 等） |
-| 遍历顺序 | 不保证顺序 | 保证顺序（按迭代器定义） |
-| 原型链 | 会遍历继承的可枚举属性 | 不涉及 |
-| 数组索引 | 字符串类型 | 不涉及（直接是值） |
-| 能否遍历对象 | 能 | 不能（除非实现迭代器） |
-| break/continue | 支持 | 支持 |
+| 特性           | for...in               | for...of                                            |
+| -------------- | ---------------------- | --------------------------------------------------- |
+| 遍历内容       | 键名（key）            | 值（value）                                         |
+| 适用对象       | 所有对象               | 可迭代对象（Array, String, Map, Set, arguments 等） |
+| 遍历顺序       | 不保证顺序             | 保证顺序（按迭代器定义）                            |
+| 原型链         | 会遍历继承的可枚举属性 | 不涉及                                              |
+| 数组索引       | 字符串类型             | 不涉及（直接是值）                                  |
+| 能否遍历对象   | 能                     | 不能（除非实现迭代器）                              |
+| break/continue | 支持                   | 支持                                                |
 
 **for...in 详解**：
 
 ```javascript
 // 1. 遍历对象属性
-const obj = { a: 1, b: 2, c: 3 }
+const obj = { a: 1, b: 2, c: 3 };
 for (const key in obj) {
-  console.log(key, obj[key])
+  console.log(key, obj[key]);
 }
 // 'a' 1
 // 'b' 2
 // 'c' 3
 
 // 2. 遍历数组（不推荐！）
-const arr = ['a', 'b', 'c']
+const arr = ["a", "b", "c"];
 for (const index in arr) {
-  console.log(index, typeof index, arr[index])
+  console.log(index, typeof index, arr[index]);
 }
 // '0' 'string' 'a'
 // '1' 'string' 'b'
 // '2' 'string' 'c'
 
 // ❌ 问题：索引是字符串，且会遍历数组的额外属性
-arr.foo = 'bar'
+arr.foo = "bar";
 for (const key in arr) {
-  console.log(key) // '0', '1', '2', 'foo' (包括 foo!)
+  console.log(key); // '0', '1', '2', 'foo' (包括 foo!)
 }
 
 // 3. 遍历原型链属性
-const parent = { inherited: 'value' }
-const child = Object.create(parent)
-child.own = 'own value'
+const parent = { inherited: "value" };
+const child = Object.create(parent);
+child.own = "own value";
 
 for (const key in child) {
-  console.log(key) // 'own', 'inherited' (包括继承的属性!)
+  console.log(key); // 'own', 'inherited' (包括继承的属性!)
 }
 
 // 过滤掉继承属性
 for (const key in child) {
   if (child.hasOwnProperty(key)) {
-    console.log(key) // 只有 'own'
+    console.log(key); // 只有 'own'
   }
 }
 
 // 推荐：使用 Object.hasOwn (ES2022)
 for (const key in child) {
   if (Object.hasOwn(child, key)) {
-    console.log(key)
+    console.log(key);
   }
 }
 
 // 4. 不遍历不可枚举属性
-const obj = Object.defineProperties({}, {
-  a: { value: 1, enumerable: true },
-  b: { value: 2, enumerable: false }
-})
+const obj = Object.defineProperties(
+  {},
+  {
+    a: { value: 1, enumerable: true },
+    b: { value: 2, enumerable: false },
+  }
+);
 
 for (const key in obj) {
-  console.log(key) // 只有 'a'
+  console.log(key); // 只有 'a'
 }
 
 // 5. 不遍历 Symbol 属性
-const sym = Symbol('key')
-const obj = { a: 1, [sym]: 2 }
+const sym = Symbol("key");
+const obj = { a: 1, [sym]: 2 };
 
 for (const key in obj) {
-  console.log(key) // 只有 'a'
+  console.log(key); // 只有 'a'
 }
 ```
 
@@ -1802,87 +1907,87 @@ for (const key in obj) {
 
 ```javascript
 // 1. 遍历数组（推荐）
-const arr = ['a', 'b', 'c']
+const arr = ["a", "b", "c"];
 for (const value of arr) {
-  console.log(value) // 'a', 'b', 'c'
+  console.log(value); // 'a', 'b', 'c'
 }
 
 // 需要索引时
 for (const [index, value] of arr.entries()) {
-  console.log(index, value)
+  console.log(index, value);
 }
 
 // 2. 遍历字符串
-const str = 'hello'
+const str = "hello";
 for (const char of str) {
-  console.log(char) // 'h', 'e', 'l', 'l', 'o'
+  console.log(char); // 'h', 'e', 'l', 'l', 'o'
 }
 
 // 正确处理 Unicode
-const emoji = '😀😃😄'
+const emoji = "😀😃😄";
 for (const char of emoji) {
-  console.log(char) // 正确输出每个 emoji
+  console.log(char); // 正确输出每个 emoji
 }
 
 // 3. 遍历 Set
-const set = new Set([1, 2, 3])
+const set = new Set([1, 2, 3]);
 for (const value of set) {
-  console.log(value) // 1, 2, 3
+  console.log(value); // 1, 2, 3
 }
 
 // 4. 遍历 Map
 const map = new Map([
-  ['a', 1],
-  ['b', 2]
-])
+  ["a", 1],
+  ["b", 2],
+]);
 
 // 遍历键值对
 for (const [key, value] of map) {
-  console.log(key, value)
+  console.log(key, value);
 }
 
 // 只遍历键
 for (const key of map.keys()) {
-  console.log(key)
+  console.log(key);
 }
 
 // 只遍历值
 for (const value of map.values()) {
-  console.log(value)
+  console.log(value);
 }
 
 // 5. 遍历 arguments
 function foo() {
   for (const arg of arguments) {
-    console.log(arg)
+    console.log(arg);
   }
 }
-foo(1, 2, 3) // 1, 2, 3
+foo(1, 2, 3); // 1, 2, 3
 
 // 6. 遍历 NodeList
-const divs = document.querySelectorAll('div')
+const divs = document.querySelectorAll("div");
 for (const div of divs) {
-  console.log(div)
+  console.log(div);
 }
 
 // 7. ❌ 不能直接遍历普通对象
-const obj = { a: 1, b: 2 }
+const obj = { a: 1, b: 2 };
 // for (const value of obj) {} // TypeError: obj is not iterable
 
 // 解决方案
 // 方案1：遍历键
 for (const key of Object.keys(obj)) {
-  console.log(key, obj[key])
+  console.log(key, obj[key]);
 }
 
 // 方案2：遍历值
 for (const value of Object.values(obj)) {
-  console.log(value)
+  console.log(value);
 }
 
 // 方案3：遍历键值对
 for (const [key, value] of Object.entries(obj)) {
-  console.log(key, value)
+  console.log(key, value);
 }
 
 // 方案4：实现迭代器
@@ -1891,30 +1996,30 @@ const obj = {
   b: 2,
   c: 3,
   [Symbol.iterator]() {
-    const keys = Object.keys(this)
-    let index = 0
+    const keys = Object.keys(this);
+    let index = 0;
     return {
       next: () => {
         if (index < keys.length) {
-          const key = keys[index++]
-          return { value: [key, this[key]], done: false }
+          const key = keys[index++];
+          return { value: [key, this[key]], done: false };
         }
-        return { done: true }
-      }
-    }
-  }
-}
+        return { done: true };
+      },
+    };
+  },
+};
 
 for (const [key, value] of obj) {
-  console.log(key, value) // 现在可以遍历了
+  console.log(key, value); // 现在可以遍历了
 }
 
 // 8. break/continue
-const arr = [1, 2, 3, 4, 5]
+const arr = [1, 2, 3, 4, 5];
 for (const num of arr) {
-  if (num === 3) continue
-  if (num === 4) break
-  console.log(num) // 1, 2
+  if (num === 3) continue;
+  if (num === 4) break;
+  console.log(num); // 1, 2
 }
 ```
 
@@ -1924,71 +2029,74 @@ for (const num of arr) {
 // ✅ for...of 适用场景
 
 // 1. 遍历数组
-const users = [{ name: 'Alice' }, { name: 'Bob' }]
+const users = [{ name: "Alice" }, { name: "Bob" }];
 for (const user of users) {
-  console.log(user.name)
+  console.log(user.name);
 }
 
 // 2. 异步迭代
 async function processFiles(files) {
   for (const file of files) {
-    await processFile(file) // 串行处理
+    await processFile(file); // 串行处理
   }
 }
 
 // 3. 遍历生成器
 function* fibonacci() {
-  let [a, b] = [0, 1]
+  let [a, b] = [0, 1];
   while (true) {
-    yield a
-    ;[a, b] = [b, a + b]
+    yield a;
+    [a, b] = [b, a + b];
   }
 }
 
 for (const num of fibonacci()) {
-  if (num > 100) break
-  console.log(num)
+  if (num > 100) break;
+  console.log(num);
 }
 
 // ✅ for...in 适用场景（少用）
 
 // 1. 检查对象属性
-const obj = { a: 1, b: 2, c: 3 }
+const obj = { a: 1, b: 2, c: 3 };
 for (const key in obj) {
   if (Object.hasOwn(obj, key)) {
-    console.log(key)
+    console.log(key);
   }
 }
 
 // 2. 动态属性处理
-const fields = { name: '', age: 0, email: '' }
+const fields = { name: "", age: 0, email: "" };
 for (const field in fields) {
   if (!formData[field]) {
-    errors[field] = `${field} is required`
+    errors[field] = `${field} is required`;
   }
 }
 
 // ❌ 避免的写法
 
 // 不要用 for...in 遍历数组
-const arr = [1, 2, 3]
-for (const i in arr) { // ❌
-  console.log(arr[i])
+const arr = [1, 2, 3];
+for (const i in arr) {
+  // ❌
+  console.log(arr[i]);
 }
 
 // 应该用 for...of
-for (const item of arr) { // ✅
-  console.log(item)
+for (const item of arr) {
+  // ✅
+  console.log(item);
 }
 
 // 不要忘记 hasOwnProperty 检查
 for (const key in obj) {
-  console.log(obj[key]) // ❌ 可能包括原型链属性
+  console.log(obj[key]); // ❌ 可能包括原型链属性
 }
 
 for (const key in obj) {
-  if (Object.hasOwn(obj, key)) { // ✅
-    console.log(obj[key])
+  if (Object.hasOwn(obj, key)) {
+    // ✅
+    console.log(obj[key]);
   }
 }
 ```
@@ -1996,30 +2104,30 @@ for (const key in obj) {
 **其他遍历方法对比**：
 
 ```javascript
-const arr = [1, 2, 3, 4, 5]
+const arr = [1, 2, 3, 4, 5];
 
 // 1. forEach - 无法 break/continue
-arr.forEach(item => {
-  console.log(item)
+arr.forEach((item) => {
+  console.log(item);
   // break // ❌ SyntaxError
-})
+});
 
 // 2. for 循环 - 最灵活
 for (let i = 0; i < arr.length; i++) {
-  console.log(arr[i])
-  if (arr[i] === 3) break // ✅
+  console.log(arr[i]);
+  if (arr[i] === 3) break; // ✅
 }
 
 // 3. for...of - 简洁，可 break
 for (const item of arr) {
-  console.log(item)
-  if (item === 3) break // ✅
+  console.log(item);
+  if (item === 3) break; // ✅
 }
 
 // 4. map/filter/reduce - 函数式，无法 break
-const doubled = arr.map(x => x * 2)
-const evens = arr.filter(x => x % 2 === 0)
-const sum = arr.reduce((acc, x) => acc + x, 0)
+const doubled = arr.map((x) => x * 2);
+const evens = arr.filter((x) => x % 2 === 0);
+const sum = arr.reduce((acc, x) => acc + x, 0);
 ```
 
 **面试口语化回答模板**：
@@ -2042,197 +2150,207 @@ const sum = arr.reduce((acc, x) => acc + x, 0)
 
 **Map vs Object**：
 
-| 特性 | Map | Object |
-|------|-----|--------|
-| 键的类型 | 任意类型（对象、函数、基本类型） | 字符串或 Symbol |
-| 键的顺序 | 保持插入顺序 | 有序但复杂（整数键 → 字符串键 → Symbol 键） |
-| 大小获取 | map.size | Object.keys(obj).length |
-| 性能 | 频繁增删性能更好 | 少量固定属性时更快 |
-| 原型链 | 干净，没有默认键 | 有原型链（可能有 toString 等默认属性） |
-| 迭代 | 原生可迭代（for...of） | 需要 Object.keys/entries |
-| JSON 支持 | 不支持（需要转换） | 原生支持 JSON.stringify/parse |
-| 语法 | map.set/get/has/delete | obj.key 或 obj[key] |
-| 使用场景 | 大量增删、任意类型键、需要迭代 | 固定结构、JSON 交互、简单配置 |
+| 特性      | Map                              | Object                                      |
+| --------- | -------------------------------- | ------------------------------------------- |
+| 键的类型  | 任意类型（对象、函数、基本类型） | 字符串或 Symbol                             |
+| 键的顺序  | 保持插入顺序                     | 有序但复杂（整数键 → 字符串键 → Symbol 键） |
+| 大小获取  | map.size                         | Object.keys(obj).length                     |
+| 性能      | 频繁增删性能更好                 | 少量固定属性时更快                          |
+| 原型链    | 干净，没有默认键                 | 有原型链（可能有 toString 等默认属性）      |
+| 迭代      | 原生可迭代（for...of）           | 需要 Object.keys/entries                    |
+| JSON 支持 | 不支持（需要转换）               | 原生支持 JSON.stringify/parse               |
+| 语法      | map.set/get/has/delete           | obj.key 或 obj[key]                         |
+| 使用场景  | 大量增删、任意类型键、需要迭代   | 固定结构、JSON 交互、简单配置               |
 
 ```javascript
 // Map 的优势
 // 1. 任意类型作为键
-const map = new Map()
+const map = new Map();
 
 // 对象作为键
-const objKey = { id: 1 }
-map.set(objKey, 'value1')
-console.log(map.get(objKey)) // 'value1'
+const objKey = { id: 1 };
+map.set(objKey, "value1");
+console.log(map.get(objKey)); // 'value1'
 
 // 函数作为键
-const funcKey = () => {}
-map.set(funcKey, 'value2')
+const funcKey = () => {};
+map.set(funcKey, "value2");
 
 // 原始类型作为键
-map.set(1, 'number key')
-map.set('1', 'string key')
-console.log(map.get(1)) // 'number key'
-console.log(map.get('1')) // 'string key' (严格区分)
+map.set(1, "number key");
+map.set("1", "string key");
+console.log(map.get(1)); // 'number key'
+console.log(map.get("1")); // 'string key' (严格区分)
 
 // Object 的限制
-const obj = {}
-const objKey = { id: 1 }
-obj[objKey] = 'value' // 键会被转为字符串 "[object Object]"
-console.log(Object.keys(obj)) // ["[object Object]"]
+const obj = {};
+const objKey = { id: 1 };
+obj[objKey] = "value"; // 键会被转为字符串 "[object Object]"
+console.log(Object.keys(obj)); // ["[object Object]"]
 
 // 2. 保持插入顺序
-const map = new Map()
-map.set('z', 1)
-map.set('a', 2)
-map.set('m', 3)
+const map = new Map();
+map.set("z", 1);
+map.set("a", 2);
+map.set("m", 3);
 
 for (const [key, value] of map) {
-  console.log(key) // 'z', 'a', 'm' (保持插入顺序)
+  console.log(key); // 'z', 'a', 'm' (保持插入顺序)
 }
 
 // Object 的顺序规则
-const obj = {}
-obj['2'] = 'two'
-obj['a'] = 'a'
-obj['1'] = 'one'
-obj[Symbol('sym')] = 'symbol'
+const obj = {};
+obj["2"] = "two";
+obj["a"] = "a";
+obj["1"] = "one";
+obj[Symbol("sym")] = "symbol";
 
-console.log(Object.keys(obj)) // ['1', '2', 'a'] (整数键排序，其他保持插入顺序)
+console.log(Object.keys(obj)); // ['1', '2', 'a'] (整数键排序，其他保持插入顺序)
 
 // 3. 大小获取
-const map = new Map([['a', 1], ['b', 2]])
-console.log(map.size) // 2 (O(1) 时间复杂度)
+const map = new Map([
+  ["a", 1],
+  ["b", 2],
+]);
+console.log(map.size); // 2 (O(1) 时间复杂度)
 
-const obj = { a: 1, b: 2 }
-console.log(Object.keys(obj).length) // 2 (O(n) 时间复杂度)
+const obj = { a: 1, b: 2 };
+console.log(Object.keys(obj).length); // 2 (O(n) 时间复杂度)
 
 // 4. 原型污染问题
-const obj = {}
-console.log(obj['toString']) // [Function: toString] (继承自原型)
-console.log('toString' in obj) // true
+const obj = {};
+console.log(obj["toString"]); // [Function: toString] (继承自原型)
+console.log("toString" in obj); // true
 
 // 防御性编程
-if (obj.hasOwnProperty('toString')) {
+if (obj.hasOwnProperty("toString")) {
   // 实际业务逻辑
 }
 
 // Map 没有这个问题
-const map = new Map()
-console.log(map.get('toString')) // undefined
+const map = new Map();
+console.log(map.get("toString")); // undefined
 
 // 5. 迭代便利性
-const map = new Map([['a', 1], ['b', 2], ['c', 3]])
+const map = new Map([
+  ["a", 1],
+  ["b", 2],
+  ["c", 3],
+]);
 
 // 直接迭代
 for (const [key, value] of map) {
-  console.log(key, value)
+  console.log(key, value);
 }
 
 // 迭代键
 for (const key of map.keys()) {
-  console.log(key)
+  console.log(key);
 }
 
 // 迭代值
 for (const value of map.values()) {
-  console.log(value)
+  console.log(value);
 }
 
 // Object 需要转换
-const obj = { a: 1, b: 2, c: 3 }
+const obj = { a: 1, b: 2, c: 3 };
 for (const [key, value] of Object.entries(obj)) {
-  console.log(key, value)
+  console.log(key, value);
 }
 
 // 6. 频繁增删的性能
 // Map - 优化了增删性能
-const map = new Map()
+const map = new Map();
 for (let i = 0; i < 1000000; i++) {
-  map.set(i, i)
+  map.set(i, i);
 }
 for (let i = 0; i < 1000000; i++) {
-  map.delete(i)
+  map.delete(i);
 }
 
 // Object - 频繁增删可能触发引擎优化/反优化
-const obj = {}
+const obj = {};
 for (let i = 0; i < 1000000; i++) {
-  obj[i] = i
+  obj[i] = i;
 }
 for (let i = 0; i < 1000000; i++) {
-  delete obj[i]
+  delete obj[i];
 }
 
 // 7. JSON 支持
-const obj = { a: 1, b: 2 }
-const json = JSON.stringify(obj) // '{"a":1,"b":2}'
-const parsed = JSON.parse(json)
+const obj = { a: 1, b: 2 };
+const json = JSON.stringify(obj); // '{"a":1,"b":2}'
+const parsed = JSON.parse(json);
 
-const map = new Map([['a', 1], ['b', 2]])
+const map = new Map([
+  ["a", 1],
+  ["b", 2],
+]);
 // JSON.stringify(map) // '{}' (不支持)
 
 // 转换方案
-const mapToJSON = JSON.stringify([...map]) // '[["a",1],["b",2]]'
-const jsonToMap = new Map(JSON.parse(mapToJSON))
+const mapToJSON = JSON.stringify([...map]); // '[["a",1],["b",2]]'
+const jsonToMap = new Map(JSON.parse(mapToJSON));
 
 // 或使用 Object.fromEntries/Object.entries
-const mapToObj = Object.fromEntries(map)
-const objToMap = new Map(Object.entries(obj))
+const mapToObj = Object.fromEntries(map);
+const objToMap = new Map(Object.entries(obj));
 ```
 
 **Map 的使用场景**：
 
 ```javascript
 // 1. 缓存（对象作为键）
-const cache = new Map()
+const cache = new Map();
 
 function getUser(userObj) {
   if (cache.has(userObj)) {
-    return cache.get(userObj)
+    return cache.get(userObj);
   }
-  const data = fetchUserData(userObj)
-  cache.set(userObj, data)
-  return data
+  const data = fetchUserData(userObj);
+  cache.set(userObj, data);
+  return data;
 }
 
 // 2. 存储元数据
-const metadata = new Map()
-metadata.set(document.querySelector('#btn'), { clicks: 0, lastClicked: null })
+const metadata = new Map();
+metadata.set(document.querySelector("#btn"), { clicks: 0, lastClicked: null });
 
 // 3. 统计频率
 function countChars(str) {
-  const count = new Map()
+  const count = new Map();
   for (const char of str) {
-    count.set(char, (count.get(char) || 0) + 1)
+    count.set(char, (count.get(char) || 0) + 1);
   }
-  return count
+  return count;
 }
 
-countChars('hello') // Map { 'h' => 1, 'e' => 1, 'l' => 2, 'o' => 1 }
+countChars("hello"); // Map { 'h' => 1, 'e' => 1, 'l' => 2, 'o' => 1 }
 
 // 4. LRU 缓存
 class LRUCache {
   constructor(capacity) {
-    this.capacity = capacity
-    this.cache = new Map()
+    this.capacity = capacity;
+    this.cache = new Map();
   }
 
   get(key) {
-    if (!this.cache.has(key)) return -1
-    const value = this.cache.get(key)
-    this.cache.delete(key) // 删除
-    this.cache.set(key, value) // 重新插入到末尾
-    return value
+    if (!this.cache.has(key)) return -1;
+    const value = this.cache.get(key);
+    this.cache.delete(key); // 删除
+    this.cache.set(key, value); // 重新插入到末尾
+    return value;
   }
 
   put(key, value) {
     if (this.cache.has(key)) {
-      this.cache.delete(key)
+      this.cache.delete(key);
     }
-    this.cache.set(key, value)
+    this.cache.set(key, value);
     if (this.cache.size > this.capacity) {
-      const firstKey = this.cache.keys().next().value
-      this.cache.delete(firstKey)
+      const firstKey = this.cache.keys().next().value;
+      this.cache.delete(firstKey);
     }
   }
 }
@@ -2240,17 +2358,17 @@ class LRUCache {
 
 **Set vs 数组**：
 
-| 特性 | Set | 数组 |
-|------|-----|------|
-| 元素唯一性 | 自动去重 | 可重复 |
-| 判断存在 | set.has(value) O(1) | arr.includes(value) O(n) |
-| 添加元素 | set.add(value) | arr.push(value) |
-| 删除元素 | set.delete(value) O(1) | arr.splice(index, 1) O(n) |
-| 有序性 | 保持插入顺序 | 保持插入顺序 |
-| 索引访问 | 不支持 | arr[index] |
-| 长度 | set.size | arr.length |
-| 迭代 | for...of | for...of / forEach / for |
-| 数组方法 | 无 map/filter/reduce | 有丰富的数组方法 |
+| 特性       | Set                    | 数组                      |
+| ---------- | ---------------------- | ------------------------- |
+| 元素唯一性 | 自动去重               | 可重复                    |
+| 判断存在   | set.has(value) O(1)    | arr.includes(value) O(n)  |
+| 添加元素   | set.add(value)         | arr.push(value)           |
+| 删除元素   | set.delete(value) O(1) | arr.splice(index, 1) O(n) |
+| 有序性     | 保持插入顺序           | 保持插入顺序              |
+| 索引访问   | 不支持                 | arr[index]                |
+| 长度       | set.size               | arr.length                |
+| 迭代       | for...of               | for...of / forEach / for  |
+| 数组方法   | 无 map/filter/reduce   | 有丰富的数组方法          |
 
 ```javascript
 // Set 的优势
@@ -2354,99 +2472,99 @@ const scores = [85, 90, 85, 92, 90]
 
 ```javascript
 // 1. 数组去重
-const arr = [1, 2, 2, 3, 3, 3]
-const unique = [...new Set(arr)]
+const arr = [1, 2, 2, 3, 3, 3];
+const unique = [...new Set(arr)];
 
 // 2. 字符串去重
-const str = 'hello'
-const uniqueChars = [...new Set(str)].join('') // 'helo'
+const str = "hello";
+const uniqueChars = [...new Set(str)].join(""); // 'helo'
 
 // 3. 判断是否有重复
 function hasDuplicates(arr) {
-  return new Set(arr).size !== arr.length
+  return new Set(arr).size !== arr.length;
 }
 
-hasDuplicates([1, 2, 3]) // false
-hasDuplicates([1, 2, 2]) // true
+hasDuplicates([1, 2, 3]); // false
+hasDuplicates([1, 2, 2]); // true
 
 // 4. 标记已访问节点（图遍历）
 function bfs(graph, start) {
-  const visited = new Set()
-  const queue = [start]
+  const visited = new Set();
+  const queue = [start];
 
   while (queue.length) {
-    const node = queue.shift()
-    if (visited.has(node)) continue
+    const node = queue.shift();
+    if (visited.has(node)) continue;
 
-    visited.add(node)
-    queue.push(...graph[node])
+    visited.add(node);
+    queue.push(...graph[node]);
   }
 
-  return visited
+  return visited;
 }
 
 // 5. 权限管理
-const userPermissions = new Set(['read', 'write'])
-const requiredPermissions = new Set(['read', 'delete'])
+const userPermissions = new Set(["read", "write"]);
+const requiredPermissions = new Set(["read", "delete"]);
 
 function hasPermission(user, required) {
-  return [...required].every(p => user.has(p))
+  return [...required].every((p) => user.has(p));
 }
 
-hasPermission(userPermissions, new Set(['read'])) // true
-hasPermission(userPermissions, requiredPermissions) // false
+hasPermission(userPermissions, new Set(["read"])); // true
+hasPermission(userPermissions, requiredPermissions); // false
 ```
 
 **WeakMap 和 WeakSet**：
 
 ```javascript
 // WeakMap - 键必须是对象，弱引用，不可枚举
-const wm = new WeakMap()
+const wm = new WeakMap();
 
-let obj = { name: 'Alice' }
-wm.set(obj, 'metadata')
+let obj = { name: "Alice" };
+wm.set(obj, "metadata");
 
-obj = null // 对象被回收，WeakMap 中的条目也会被删除
+obj = null; // 对象被回收，WeakMap 中的条目也会被删除
 
 // 用途1：私有数据
-const privateData = new WeakMap()
+const privateData = new WeakMap();
 
 class Person {
   constructor(name) {
-    privateData.set(this, { name })
+    privateData.set(this, { name });
   }
 
   getName() {
-    return privateData.get(this).name
+    return privateData.get(this).name;
   }
 }
 
 // 用途2：DOM 节点关联数据
-const elementData = new WeakMap()
+const elementData = new WeakMap();
 
 function setData(element, data) {
-  elementData.set(element, data)
+  elementData.set(element, data);
 }
 
 // 元素被删除时，关联数据自动回收
 
 // WeakSet - 只能存对象，弱引用，不可枚举
-const ws = new WeakSet()
+const ws = new WeakSet();
 
-let obj1 = { id: 1 }
-ws.add(obj1)
-ws.has(obj1) // true
+let obj1 = { id: 1 };
+ws.add(obj1);
+ws.has(obj1); // true
 
-obj1 = null // 对象被回收
+obj1 = null; // 对象被回收
 
 // 用途：标记对象
-const processedNodes = new WeakSet()
+const processedNodes = new WeakSet();
 
 function process(node) {
-  if (processedNodes.has(node)) return
+  if (processedNodes.has(node)) return;
 
   // 处理节点
-  processedNodes.add(node)
+  processedNodes.add(node);
 }
 ```
 
@@ -2471,6 +2589,7 @@ function process(node) {
 **详细解答**：
 
 **三种状态**：
+
 - **pending**：初始状态，等待中，既没有成功也没有失败
 - **fulfilled**：操作成功完成，有一个结果值（value）
 - **rejected**：操作失败，有一个失败原因（reason）
@@ -2479,14 +2598,15 @@ function process(node) {
 const promise = new Promise((resolve, reject) => {
   // pending 状态
   if (success) {
-    resolve(value) // -> fulfilled
+    resolve(value); // -> fulfilled
   } else {
-    reject(error) // -> rejected
+    reject(error); // -> rejected
   }
-})
+});
 ```
 
 **特点**：
+
 - 状态只能从 pending 变为 fulfilled 或 rejected
 - 状态一旦改变就不能再变（不可逆）
 - 状态改变后会触发 then/catch 回调
@@ -2510,29 +2630,29 @@ async/await 是 Generator + Promise 的语法糖。
 ```javascript
 // async/await
 async function fetchData() {
-  const response = await fetch('/api')
-  const data = await response.json()
-  return data
+  const response = await fetch("/api");
+  const data = await response.json();
+  return data;
 }
 
 // 等价的 Generator 实现
 function* fetchDataGen() {
-  const response = yield fetch('/api')
-  const data = yield response.json()
-  return data
+  const response = yield fetch("/api");
+  const data = yield response.json();
+  return data;
 }
 
 // 执行器
 function run(generator) {
-  const gen = generator()
+  const gen = generator();
 
   function next(value) {
-    const result = gen.next(value)
-    if (result.done) return Promise.resolve(result.value)
-    return Promise.resolve(result.value).then(next)
+    const result = gen.next(value);
+    if (result.done) return Promise.resolve(result.value);
+    return Promise.resolve(result.value).then(next);
   }
 
-  return next()
+  return next();
 }
 ```
 
@@ -2550,37 +2670,44 @@ function run(generator) {
 
 **详细解答**：
 
-| 特性 | ES Module | CommonJS |
-|------|-----------|----------|
-| 语法 | import/export | require/module.exports |
-| 加载时机 | 编译时 | 运行时 |
-| 值类型 | 引用（动态绑定） | 拷贝 |
-| 顶层 this | undefined | module |
-| 循环依赖 | 支持 | 可能出问题 |
-| 异步加载 | 支持 | 不支持 |
+| 特性      | ES Module        | CommonJS               |
+| --------- | ---------------- | ---------------------- |
+| 语法      | import/export    | require/module.exports |
+| 加载时机  | 编译时           | 运行时                 |
+| 值类型    | 引用（动态绑定） | 拷贝                   |
+| 顶层 this | undefined        | module                 |
+| 循环依赖  | 支持             | 可能出问题             |
+| 异步加载  | 支持             | 不支持                 |
 
 ```javascript
 // ES Module - 值是引用
 // a.js
-export let count = 0
-export function increment() { count++ }
+export let count = 0;
+export function increment() {
+  count++;
+}
 
 // b.js
-import { count, increment } from './a.js'
-console.log(count) // 0
-increment()
-console.log(count) // 1
+import { count, increment } from "./a.js";
+console.log(count); // 0
+increment();
+console.log(count); // 1
 
 // CommonJS - 值是拷贝
 // a.js
-let count = 0
-module.exports = { count, increment() { count++ } }
+let count = 0;
+module.exports = {
+  count,
+  increment() {
+    count++;
+  },
+};
 
 // b.js
-const { count, increment } = require('./a.js')
-console.log(count) // 0
-increment()
-console.log(count) // 0 (还是0，因为是拷贝)
+const { count, increment } = require("./a.js");
+console.log(count); // 0
+increment();
+console.log(count); // 0 (还是0，因为是拷贝)
 ```
 
 **面试口语化回答模板**：
@@ -2599,20 +2726,20 @@ console.log(count) // 0 (还是0，因为是拷贝)
 
 ```javascript
 const handler = {
-  get(target, prop, receiver) {},      // 读取属性
+  get(target, prop, receiver) {}, // 读取属性
   set(target, prop, value, receiver) {}, // 设置属性
-  has(target, prop) {},                // in 操作符
-  deleteProperty(target, prop) {},     // delete 操作
-  ownKeys(target) {},                  // Object.keys 等
+  has(target, prop) {}, // in 操作符
+  deleteProperty(target, prop) {}, // delete 操作
+  ownKeys(target) {}, // Object.keys 等
   getOwnPropertyDescriptor(target, prop) {},
   defineProperty(target, prop, desc) {},
   getPrototypeOf(target) {},
   setPrototypeOf(target, proto) {},
   isExtensible(target) {},
   preventExtensions(target) {},
-  apply(target, thisArg, args) {},     // 函数调用
-  construct(target, args, newTarget) {} // new 操作
-}
+  apply(target, thisArg, args) {}, // 函数调用
+  construct(target, args, newTarget) {}, // new 操作
+};
 ```
 
 **面试口语化回答模板**：
@@ -2625,7 +2752,7 @@ const handler = {
 
 ### 11. 什么是迭代器和生成器？
 
-**一句话答案**：迭代器是实现了 next() 方法的对象，生成器是用 function* 声明的特殊函数，可以暂停和恢复执行。
+**一句话答案**：迭代器是实现了 next() 方法的对象，生成器是用 function\* 声明的特殊函数，可以暂停和恢复执行。
 
 **详细解答**：
 
@@ -2636,27 +2763,27 @@ const iterator = {
   index: 0,
   next() {
     if (this.index < 3) {
-      return { value: this.index++, done: false }
+      return { value: this.index++, done: false };
     }
-    return { done: true }
-  }
-}
+    return { done: true };
+  },
+};
 ```
 
-**生成器**：使用 function* 声明，可以暂停和恢复
+**生成器**：使用 function\* 声明，可以暂停和恢复
 
 ```javascript
 function* generator() {
-  yield 1
-  yield 2
-  yield 3
+  yield 1;
+  yield 2;
+  yield 3;
 }
 
-const gen = generator()
-gen.next() // { value: 1, done: false }
-gen.next() // { value: 2, done: false }
-gen.next() // { value: 3, done: false }
-gen.next() // { done: true }
+const gen = generator();
+gen.next(); // { value: 1, done: false }
+gen.next(); // { value: 2, done: false }
+gen.next(); // { value: 3, done: false }
+gen.next(); // { done: true }
 ```
 
 **可迭代对象**：实现 Symbol.iterator 方法
@@ -2664,17 +2791,17 @@ gen.next() // { done: true }
 ```javascript
 const iterable = {
   [Symbol.iterator]() {
-    let i = 0
+    let i = 0;
     return {
       next() {
-        return i < 3 ? { value: i++, done: false } : { done: true }
-      }
-    }
-  }
-}
+        return i < 3 ? { value: i++, done: false } : { done: true };
+      },
+    };
+  },
+};
 
 for (const value of iterable) {
-  console.log(value) // 0, 1, 2
+  console.log(value); // 0, 1, 2
 }
 ```
 
@@ -2682,7 +2809,7 @@ for (const value of iterable) {
 
 > "迭代器是一个实现了 next 方法的对象，每次调用 next 返回 { value, done } 格式的结果，done 为 true 时表示迭代结束。
 >
-> 生成器是 ES6 提供的一种特殊函数，用 function* 声明，内部可以用 yield 暂停执行。调用生成器函数不会立即执行，而是返回一个迭代器对象，每次调用 next 才执行到下一个 yield。生成器简化了迭代器的实现，也是 async/await 的底层原理。
+> 生成器是 ES6 提供的一种特殊函数，用 function\* 声明，内部可以用 yield 暂停执行。调用生成器函数不会立即执行，而是返回一个迭代器对象，每次调用 next 才执行到下一个 yield。生成器简化了迭代器的实现，也是 async/await 的底层原理。
 >
 > 可迭代对象是实现了 Symbol.iterator 方法的对象，数组、字符串、Set、Map 都是可迭代对象，可以用 for...of 遍历。我们也可以给自定义对象实现 Symbol.iterator，让它变成可迭代对象。"
 
@@ -2692,17 +2819,17 @@ for (const value of iterable) {
 
 ### 按版本分类
 
-| 版本 | 年份 | 核心特性 |
-|------|------|----------|
-| ES6 | 2015 | let/const、箭头函数、解构、模板字符串、Promise、Class、Module、Symbol、Set/Map |
-| ES7 | 2016 | includes()、指数运算符 ** |
-| ES8 | 2017 | async/await、Object.values/entries、padStart/padEnd |
-| ES9 | 2018 | Rest/Spread 属性、for await...of、Promise.finally |
-| ES10 | 2019 | flat/flatMap、Object.fromEntries、trimStart/trimEnd、可选 catch |
-| ES11 | 2020 | 可选链 ?.、空值合并 ??、BigInt、Promise.allSettled、globalThis |
-| ES12 | 2021 | ||= &&= ??=、String.replaceAll、Promise.any、WeakRef |
-| ES13 | 2022 | at()、Object.hasOwn、类静态块、顶层 await、正则 /d |
-| ES14 | 2023 | findLast/findLastIndex、Hashbang、WeakMap Symbol 键 |
+| 版本 | 年份 | 核心特性                                                                       |
+| ---- | ---- | ------------------------------------------------------------------------------ | --- | -------------------------------------------------- |
+| ES6  | 2015 | let/const、箭头函数、解构、模板字符串、Promise、Class、Module、Symbol、Set/Map |
+| ES7  | 2016 | includes()、指数运算符 \*\*                                                    |
+| ES8  | 2017 | async/await、Object.values/entries、padStart/padEnd                            |
+| ES9  | 2018 | Rest/Spread 属性、for await...of、Promise.finally                              |
+| ES10 | 2019 | flat/flatMap、Object.fromEntries、trimStart/trimEnd、可选 catch                |
+| ES11 | 2020 | 可选链 ?.、空值合并 ??、BigInt、Promise.allSettled、globalThis                 |
+| ES12 | 2021 |                                                                                |     | = &&= ??=、String.replaceAll、Promise.any、WeakRef |
+| ES13 | 2022 | at()、Object.hasOwn、类静态块、顶层 await、正则 /d                             |
+| ES14 | 2023 | findLast/findLastIndex、Hashbang、WeakMap Symbol 键                            |
 
 ### 高频面试考点
 

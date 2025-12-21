@@ -337,7 +337,7 @@ export default defineConfig({
     },
 
     socialLinks: [
-      { icon: "github", link: "https://github.com/Gavenr/frontend-interview" },
+      { icon: "github", link: "https://github.com/FlyWorlds/frontend-interview" },
     ],
 
     search: {

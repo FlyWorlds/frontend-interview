@@ -11,7 +11,7 @@ hero:
       link: /javascript/
     - theme: alt
       text: GitHub
-      link: https://github.com/Gavenr/frontend-interview
+      link: https://github.com/FlyWorlds/frontend-interview
 
 features:
   - icon: 📝
@@ -55,18 +55,23 @@ features:
 ## 为什么选择这份文档？
 
 ### 🎯 针对性强
+
 专为前端工程师设计，注重**深度理解**和**实战经验**，不只是简单的知识罗列。
 
 ### 📚 系统全面
+
 覆盖前端面试的所有核心知识点，从基础到进阶，从理论到实践，构建完整的知识体系。
 
 ### 💬 通俗易懂
+
 每个知识点都包含**官方定义**和**通俗解释**，既保证准确性，又确保易于理解。
 
 ### 🔍 深入浅出
+
 不仅告诉你"是什么"，更重要的是解释"为什么"和"怎么用"，帮助你真正理解技术原理。
 
 ### 🛠️ 实战导向
+
 大量实际场景题和系统设计题，帮助你积累真实项目经验。
 
 ## 如何使用？
