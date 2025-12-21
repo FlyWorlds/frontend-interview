@@ -769,54 +769,18 @@ p.then((res) => {
 
 ---
 
-## 7. 事件循环深入 (Event Loop Deep Dive)
+## 7. 事件循环 (Event Loop)
 
-### 宏任务 vs 微任务
+> 详细深度解析请移步专属章节: [**事件循环 (Event Loop) 深度解析**](./event-loop.md)
 
-JS 引擎将异步任务分为两类:
+### 核心概念
 
-- **Macrotask (宏任务)**: `setTimeout`, `setInterval`, `setImmediate` (Node), I/O, UI Rendering.
-- **Microtask (微任务)**: `Promise.then/catch/finally`, `process.nextTick` (Node), `MutationObserver`, `queueMicrotask`.
+JS 引擎将异步任务分为:
 
-### 执行顺序 (Browser)
+- **Macrotask (宏任务)**: `setTimeout`, `setInterval`, I/O.
+- **Microtask (微任务)**: `Promise`, `process.nextTick`.
 
-1.  执行同步代码 (Call Stack 清空)。
-2.  执行**所有**微任务 (清空 Microtask Queue)。
-3.  执行**一个**宏任务。
-4.  UI 渲染 (如果有必要)。
-5.  回到步骤 2。
-
-> **关键点**: 微任务优先级高于宏任务,且微任务队列会在下一个宏任务之前**清空**。
-
-```javascript
-console.log("1");
-
-setTimeout(() => {
-  console.log("2");
-  Promise.resolve().then(() => console.log("3"));
-}, 0);
-
-new Promise((resolve) => {
-  console.log("4");
-  resolve();
-}).then(() => {
-  console.log("5");
-});
-
-console.log("6");
-
-// 输出: 1 -> 4 -> 6 -> 5 -> 2 -> 3
-// 解析:
-// 1. 同步: '1', '4', '6'
-// 2. 微任务: '5' (Promise.then)
-// 3. 宏任务: '2' (setTimeout)
-// 4. 新微任务: '3' (在宏任务中产生的微任务,紧接着当前宏任务后执行)
-```
-
-### Node.js 事件循环区别 (旧版本 vs 新版本)
-
-- **Node 11+**: 行为与浏览器趋同。每执行完一个宏任务,就清空微任务队列。
-- **process.nextTick**: 优先级**高于** Promise。它会在当前操作结束后、其他微任务之前立即执行。
+**基本原则**: 微任务优先级高于宏任务。每次执行完同步代码后,先清空微任务队列,再去执行一个宏任务。
 
 ---
 

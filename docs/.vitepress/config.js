@@ -65,6 +65,7 @@ export default defineConfig({
             { text: "原型与继承", link: "/javascript/prototype" },
             { text: "this 指向", link: "/javascript/this" },
             { text: "异步编程", link: "/javascript/async" },
+            { text: "事件循环 (Event Loop)", link: "/javascript/event-loop" },
             { text: "ES6+ 新特性", link: "/javascript/es6" },
             { text: "模块化", link: "/javascript/modules" },
             { text: "手写代码实现", link: "/javascript/handwriting" },
