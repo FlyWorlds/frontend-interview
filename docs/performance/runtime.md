@@ -198,7 +198,142 @@ div.content > p.text { }
 
 ## 二、JavaScript 执行优化
 
-### 1. 防抖 (Debounce)
+### 1. 代码执行性能优化
+
+#### 减少函数调用开销
+
+```javascript
+// ❌ 不推荐: 频繁创建函数
+array.map(item => item.value * 2);
+
+// ✅ 推荐: 复用函数
+const double = x => x * 2;
+array.map(double);
+
+// ❌ 不推荐: 在循环中创建函数
+for (let i = 0; i < 1000; i++) {
+  setTimeout(() => console.log(i), 0);
+}
+
+// ✅ 推荐: 使用函数参数
+for (let i = 0; i < 1000; i++) {
+  setTimeout((index) => console.log(index), 0, i);
+}
+```
+
+#### 优化循环性能
+
+```javascript
+// ❌ 不推荐: 在循环中访问对象属性
+for (let i = 0; i < array.length; i++) {
+  array[i].value = array[i].value * 2;
+}
+
+// ✅ 推荐: 缓存长度和属性
+const len = array.length;
+for (let i = 0; i < len; i++) {
+  const item = array[i];
+  item.value = item.value * 2;
+}
+
+// ✅ 推荐: 使用 for...of (现代浏览器优化更好)
+for (const item of array) {
+  item.value = item.value * 2;
+}
+
+// ✅ 推荐: 倒序循环 (某些情况下更快)
+for (let i = array.length - 1; i >= 0; i--) {
+  // ...
+}
+```
+
+#### 避免不必要的计算
+
+```javascript
+// ❌ 不推荐: 重复计算
+function processItems(items) {
+  return items.filter(item => {
+    const expensive = expensiveCalculation(item);
+    return expensive > 100;
+  }).map(item => {
+    const expensive = expensiveCalculation(item); // 重复计算
+    return expensive * 2;
+  });
+}
+
+// ✅ 推荐: 缓存计算结果
+function processItems(items) {
+  return items.map(item => {
+    const expensive = expensiveCalculation(item);
+    return { item, expensive };
+  }).filter(({ expensive }) => expensive > 100)
+    .map(({ expensive }) => expensive * 2);
+}
+
+// ✅ 推荐: 使用 Map 缓存
+const cache = new Map();
+function memoizedCalculation(item) {
+  const key = item.id;
+  if (cache.has(key)) {
+    return cache.get(key);
+  }
+  const result = expensiveCalculation(item);
+  cache.set(key, result);
+  return result;
+}
+```
+
+#### 选择合适的算法和数据结构
+
+```javascript
+// ❌ 不推荐: O(n²) 复杂度
+function findDuplicates(arr) {
+  const duplicates = [];
+  for (let i = 0; i < arr.length; i++) {
+    for (let j = i + 1; j < arr.length; j++) {
+      if (arr[i] === arr[j]) {
+        duplicates.push(arr[i]);
+      }
+    }
+  }
+  return duplicates;
+}
+
+// ✅ 推荐: O(n) 复杂度
+function findDuplicates(arr) {
+  const seen = new Set();
+  const duplicates = new Set();
+  
+  for (const item of arr) {
+    if (seen.has(item)) {
+      duplicates.add(item);
+    } else {
+      seen.add(item);
+    }
+  }
+  
+  return Array.from(duplicates);
+}
+
+// 查找操作频繁时使用 Set
+const users = new Set(['alice', 'bob', 'charlie']);
+if (users.has('alice')) { // O(1)
+  // ...
+}
+
+// 需要保持顺序时使用 Map
+const orderedMap = new Map();
+orderedMap.set('first', 1);
+orderedMap.set('second', 2);
+// 遍历时保持插入顺序
+
+// 需要快速查找和删除时使用 Map
+const cache = new Map();
+cache.set(key, value);
+cache.delete(key); // O(1)
+```
+
+### 2. 防抖 (Debounce)
 
 ```javascript
 /**
@@ -261,7 +396,7 @@ function debounceWithCancel(fn, delay) {
 }
 ```
 
-### 2. 节流 (Throttle)
+### 3. 节流 (Throttle)
 
 ```javascript
 /**
@@ -337,7 +472,121 @@ const handleScroll = throttle(() => {
 window.addEventListener('scroll', handleScroll)
 ```
 
-### 3. 时间切片 (Time Slicing)
+### 4. 异步操作优化
+
+#### 并发控制
+
+```javascript
+// 限制并发数量
+async function concurrentLimit(tasks, limit) {
+  const results = [];
+  const executing = [];
+  
+  for (const task of tasks) {
+    const promise = Promise.resolve(task()).then(result => {
+      executing.splice(executing.indexOf(promise), 1);
+      return result;
+    });
+    
+    results.push(promise);
+    executing.push(promise);
+    
+    if (executing.length >= limit) {
+      await Promise.race(executing);
+    }
+  }
+  
+  return Promise.all(results);
+}
+
+// 使用
+const urls = Array.from({ length: 100 }, (_, i) => `/api/data/${i}`);
+const tasks = urls.map(url => () => fetch(url).then(r => r.json()));
+const results = await concurrentLimit(tasks, 5); // 最多5个并发
+```
+
+#### 请求去重和缓存
+
+```javascript
+class RequestCache {
+  constructor() {
+    this.cache = new Map();
+    this.pending = new Map();
+  }
+  
+  async request(url, options = {}) {
+    const key = `${url}_${JSON.stringify(options)}`;
+    
+    // 如果已有缓存
+    if (this.cache.has(key)) {
+      return this.cache.get(key);
+    }
+    
+    // 如果正在请求中，返回同一个 Promise
+    if (this.pending.has(key)) {
+      return this.pending.get(key);
+    }
+    
+    // 发起新请求
+    const promise = fetch(url, options)
+      .then(response => response.json())
+      .then(data => {
+        this.cache.set(key, data);
+        this.pending.delete(key);
+        return data;
+      })
+      .catch(error => {
+        this.pending.delete(key);
+        throw error;
+      });
+    
+    this.pending.set(key, promise);
+    return promise;
+  }
+  
+  clear() {
+    this.cache.clear();
+    this.pending.clear();
+  }
+}
+```
+
+#### 防抖和节流优化
+
+```javascript
+// 使用 requestIdleCallback 优化节流
+function throttleWithIdle(fn, delay) {
+  let lastTime = 0;
+  let timeoutId = null;
+  
+  return function(...args) {
+    const now = Date.now();
+    const context = this;
+    
+    if (now - lastTime >= delay) {
+      fn.apply(context, args);
+      lastTime = now;
+    } else {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(() => {
+            fn.apply(context, args);
+            lastTime = Date.now();
+          });
+        } else {
+          setTimeout(() => {
+            fn.apply(context, args);
+            lastTime = Date.now();
+          }, delay - (now - lastTime));
+        }
+      }, delay - (now - lastTime));
+    }
+  };
+}
+```
+
+### 5. 时间切片 (Time Slicing)
 
 ```javascript
 /**
@@ -425,7 +674,7 @@ function renderLargeList(data) {
 }
 ```
 
-### 4. Web Worker
+### 6. Web Worker
 
 ```javascript
 // 主线程
@@ -532,7 +781,7 @@ async function handleHeavyTask(data) {
 }
 ```
 
-### 5. requestAnimationFrame
+### 7. requestAnimationFrame
 
 ```javascript
 /**
@@ -879,7 +1128,58 @@ const list = new VariableHeightVirtualList({
 
 ---
 
-## 四、内存优化
+## 四、DOM 操作优化
+
+### 1. 批量 DOM 操作
+
+```javascript
+// ❌ 不推荐: 频繁操作 DOM
+for (let i = 0; i < 1000; i++) {
+  const div = document.createElement('div');
+  div.textContent = i;
+  container.appendChild(div);
+}
+
+// ✅ 推荐: 使用 DocumentFragment
+const fragment = document.createDocumentFragment();
+for (let i = 0; i < 1000; i++) {
+  const div = document.createElement('div');
+  div.textContent = i;
+  fragment.appendChild(div);
+}
+container.appendChild(fragment);
+
+// ✅ 推荐: 使用 innerHTML (简单场景)
+let html = '';
+for (let i = 0; i < 1000; i++) {
+  html += `<div>${i}</div>`;
+}
+container.innerHTML = html;
+```
+
+### 2. 使用 Intersection Observer
+
+```javascript
+// 懒加载图片
+const imageObserver = new IntersectionObserver((entries, observer) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const img = entry.target;
+      img.src = img.dataset.src;
+      img.classList.remove('lazy');
+      observer.unobserve(img);
+    }
+  });
+});
+
+document.querySelectorAll('img[data-src]').forEach(img => {
+  imageObserver.observe(img);
+});
+```
+
+---
+
+## 五、内存优化
 
 ### 1. 避免内存泄漏
 
@@ -957,7 +1257,53 @@ function cleanup() {
 }
 ```
 
-### 2. 对象池
+### 2. 及时释放引用
+
+```javascript
+// ❌ 不推荐: 保留不必要的引用
+const cache = new Map();
+function processData(data) {
+  // 处理完数据后，cache 仍然保留引用
+  cache.set(data.id, data);
+}
+
+// ✅ 推荐: 使用 WeakMap (键可被垃圾回收)
+const cache = new WeakMap();
+function processData(data) {
+  cache.set(data, processedData);
+  // data 被回收后，WeakMap 中的条目也会自动清理
+}
+
+// ✅ 推荐: 手动清理
+function processData(data) {
+  const result = expensiveProcess(data);
+  // 使用完后清理
+  data = null;
+  return result;
+}
+```
+
+### 3. 优化数据结构
+
+```javascript
+// ❌ 不推荐: 使用普通对象存储大量数据
+const data = {};
+for (let i = 0; i < 1000000; i++) {
+  data[i] = { value: i };
+}
+
+// ✅ 推荐: 使用 TypedArray (如果数据是数字)
+const data = new Int32Array(1000000);
+for (let i = 0; i < 1000000; i++) {
+  data[i] = i;
+}
+
+// ✅ 推荐: 使用 Map 代替对象 (键值对数量多时)
+const map = new Map();
+map.set(key, value);
+```
+
+### 4. 对象池
 
 ```javascript
 class ObjectPool {
@@ -1025,7 +1371,7 @@ if (particle.life <= 0) {
 }
 ```
 
-### 3. 大数据处理
+### 5. 大数据处理
 
 ```javascript
 // 分片处理
@@ -1066,6 +1412,111 @@ worker.onmessage = (e) => {
     displayChunk(chunk)
   }
 }
+```
+
+---
+
+## 六、性能监控和分析
+
+### 1. 使用 Performance API
+
+```javascript
+// 测量函数执行时间
+function measurePerformance(fn, label) {
+  performance.mark(`${label}-start`);
+  const result = fn();
+  performance.mark(`${label}-end`);
+  performance.measure(label, `${label}-start`, `${label}-end`);
+  
+  const measure = performance.getEntriesByName(label)[0];
+  console.log(`${label}: ${measure.duration}ms`);
+  
+  return result;
+}
+
+// 监控内存使用
+function monitorMemory() {
+  if (performance.memory) {
+    const {
+      usedJSHeapSize,
+      totalJSHeapSize,
+      jsHeapSizeLimit
+    } = performance.memory;
+    
+    console.log({
+      used: `${(usedJSHeapSize / 1024 / 1024).toFixed(2)} MB`,
+      total: `${(totalJSHeapSize / 1024 / 1024).toFixed(2)} MB`,
+      limit: `${(jsHeapSizeLimit / 1024 / 1024).toFixed(2)} MB`
+    });
+  }
+}
+
+// 定期检查
+setInterval(monitorMemory, 5000);
+```
+
+### 2. 使用 Chrome DevTools
+
+```javascript
+// 使用 console.time 和 console.timeEnd
+console.time('processData');
+processData();
+console.timeEnd('processData');
+
+// 使用 Performance Observer
+const observer = new PerformanceObserver((list) => {
+  for (const entry of list.getEntries()) {
+    console.log(entry.name, entry.duration);
+  }
+});
+observer.observe({ entryTypes: ['measure', 'mark'] });
+```
+
+---
+
+## 七、2025年性能优化最佳实践
+
+### 1. 使用 Web Workers 处理重计算
+
+```javascript
+// 主线程
+const worker = new Worker('worker.js');
+worker.postMessage({ data: largeArray });
+worker.onmessage = (e) => {
+  updateUI(e.data);
+};
+
+// worker.js
+self.onmessage = function(e) {
+  const { data } = e.data;
+  const result = data.map(item => expensiveCalculation(item));
+  self.postMessage(result);
+};
+```
+
+### 2. 使用 WebAssembly 提升性能
+
+```javascript
+// 加载 WebAssembly 模块
+async function loadWasm() {
+  const wasmModule = await WebAssembly.instantiateStreaming(
+    fetch('module.wasm')
+  );
+  return wasmModule.instance.exports;
+}
+
+// 使用 WebAssembly 函数
+const wasm = await loadWasm();
+const result = wasm.compute(data); // 比 JavaScript 快很多
+```
+
+### 3. 使用 OffscreenCanvas
+
+```javascript
+// 在 Worker 中进行 Canvas 操作
+const offscreen = canvas.transferControlToOffscreen();
+const worker = new Worker('canvas-worker.js');
+worker.postMessage({ canvas: offscreen }, [offscreen]);
 ```
 
 ---
@@ -1126,6 +1577,77 @@ el.parentNode.replaceChild(clone, el)
 </details>
 
 ### 3. 防抖和节流的区别?
+
+<details>
+<summary>点击查看答案</summary>
+
+| 特性 | 防抖 (Debounce) | 节流 (Throttle) |
+|------|----------------|-----------------|
+| 执行时机 | 最后一次触发后延迟执行 | 固定时间间隔执行 |
+| 适用场景 | 搜索输入、resize、表单验证 | 滚动、鼠标移动、高频点击 |
+| 执行次数 | 可能只执行一次 | 固定频率执行多次 |
+
+```javascript
+// 防抖: 输入停止 500ms 后搜索
+const search = debounce(() => fetchResults(), 500)
+
+// 节流: 滚动时每 200ms 检查一次位置
+const checkPosition = throttle(() => updatePosition(), 200)
+```
+</details>
+
+### 4. 如何优化一个渲染大量数据的列表?
+
+<details>
+<summary>点击查看答案</summary>
+
+**答案要点:**
+- 虚拟滚动
+- 分页加载
+- 使用 DocumentFragment
+- 防抖/节流滚动事件
+- 使用 Intersection Observer
+</details>
+
+### 5. 如何检测和解决内存泄漏?
+
+<details>
+<summary>点击查看答案</summary>
+
+**答案要点:**
+- 使用 Chrome DevTools Memory Profiler
+- 检查未清理的事件监听器
+- 检查闭包引用
+- 使用 WeakMap/WeakSet
+- 及时清理定时器
+</details>
+
+### 6. 如何优化首屏加载时间?
+
+<details>
+<summary>点击查看答案</summary>
+
+**答案要点:**
+- 代码分割和懒加载
+- 资源压缩和 CDN
+- 预加载关键资源
+- 减少 HTTP 请求
+- 使用 HTTP/2 或 HTTP/3
+- 服务端渲染 (SSR)
+</details>
+
+### 7. 如何优化动画性能?
+
+<details>
+<summary>点击查看答案</summary>
+
+**答案要点:**
+- 使用 CSS 动画代替 JavaScript 动画
+- 使用 transform 和 opacity (GPU 加速)
+- 使用 requestAnimationFrame
+- 避免触发重排和重绘
+- 使用 will-change 提示浏览器
+</details>
 
 <details>
 <summary>点击查看答案</summary>

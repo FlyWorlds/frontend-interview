@@ -51,6 +51,15 @@ export default defineConfig({
           { text: "跨端开发", link: "/cross-platform/" },
         ],
       },
+      
+      {
+        text: "笔记",
+        items: [
+          { text: "笔记首页", link: "/notes/" },
+          { text: "JavaScript笔记", link: "/notes/javascript/" },
+          { text: "面试准备", link: "/notes/interview-notes" },
+        ],
+      },
       { text: "AI", link: "/ai/" },
     ],
 
@@ -332,6 +341,27 @@ export default defineConfig({
             { text: "原子化 CSS", link: "/css/atomic-css" },
             { text: "CSS-in-JS", link: "/css/css-in-js" },
             { text: "现代 CSS 新特性", link: "/css/modern-css" },
+          ],
+        },
+      ],
+
+      "/notes/": [
+        {
+          text: "学习笔记",
+          items: [
+            { text: "笔记首页", link: "/notes/" },
+            { text: "JavaScript笔记", link: "/notes/javascript/" },
+            { text: "面试准备", link: "/notes/interview-notes" },
+          ],
+        },
+      ],
+
+      "/notes/javascript/": [
+        {
+          text: "JavaScript 学习笔记",
+          items: [
+            { text: "JavaScript 笔记首页", link: "/notes/javascript/" },
+            { text: "JavaScript 核心", link: "/notes/javascript/javascript-core" },
           ],
         },
       ],

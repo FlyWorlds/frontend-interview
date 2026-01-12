@@ -14,6 +14,8 @@ JavaScript 是前端开发的核心语言，不仅要会用，更要深入理解
 - [**事件循环 (Event Loop)**](./event-loop.md) (宏任务/微任务, Node.js 区别)
 - [**前端安全**](./security.md) (XSS, CSRF, CSP, 原型污染)
 - [**设计模式与函数式编程**](./patterns.md) (单例/观察者/发布订阅, 纯函数/柯里化)
+- [**性能优化专题**](../performance/runtime.md) (代码优化, 内存优化, 渲染优化, 2025最佳实践) ⭐ 2025新增
+- [**ES2024/ES2025 新特性**](./es2024-2025.md) (最新特性详解, 应用场景, 面试重点) ⭐ 2025新增
 
 ---
 
@@ -1373,7 +1375,7 @@ typeof []             // 'object'
 
 </details>
 
-### 2. == 和 === 的区别?
+### 2. == 和 === 的区别? ⭐⭐⭐⭐⭐
 
 <details>
 <summary>点击查看答案</summary>
@@ -1397,6 +1399,8 @@ NaN == NaN; // false
 ```
 
 **建议: 始终使用 ===**
+
+**详细内容**: 请参考 [数据类型与类型转换 - 每日一道面试八股文 Day 3](./data-types.md#day-3--和--的区别与隐式类型转换)
 
 </details>
 
@@ -1492,6 +1496,476 @@ function deepClone(obj, map = new WeakMap()) {
 
 </details>
 
+### 6. 如何实现一个支持取消的 Promise? ⭐ 2025高频
+
+<details>
+<summary>点击查看答案</summary>
+
+```javascript
+function cancellablePromise(executor) {
+  let cancel;
+  const promise = new Promise((resolve, reject) => {
+    cancel = (reason) => {
+      reject(new Error(reason || 'Cancelled'));
+    };
+    executor(resolve, reject, cancel);
+  });
+  promise.cancel = cancel;
+  return promise;
+}
+
+// 使用 ES2024 的 Promise.withResolvers
+function cancellablePromise(executor) {
+  const { promise, resolve, reject } = Promise.withResolvers();
+  const cancel = (reason) => reject(new Error(reason || 'Cancelled'));
+  executor(resolve, reject, cancel);
+  promise.cancel = cancel;
+  return promise;
+}
+
+// 使用示例
+const p = cancellablePromise((resolve, reject, cancel) => {
+  const timer = setTimeout(() => resolve('done'), 5000);
+  cancel = () => {
+    clearTimeout(timer);
+    reject(new Error('Cancelled'));
+  };
+});
+
+p.then(console.log).catch(console.error);
+p.cancel('User cancelled');
+```
+
+**应用场景**: 用户取消请求、组件卸载时取消异步操作
+
+</details>
+
+### 7. 如何实现并发控制的异步队列? ⭐ 2025高频
+
+<details>
+<summary>点击查看答案</summary>
+
+```javascript
+async function concurrentLimit(tasks, limit) {
+  const results = [];
+  const executing = [];
+  
+  for (const task of tasks) {
+    const promise = Promise.resolve(task()).then(result => {
+      executing.splice(executing.indexOf(promise), 1);
+      return result;
+    });
+    
+    results.push(promise);
+    executing.push(promise);
+    
+    if (executing.length >= limit) {
+      await Promise.race(executing);
+    }
+  }
+  
+  return Promise.all(results);
+}
+
+// 使用示例
+const urls = Array.from({ length: 100 }, (_, i) => `/api/data/${i}`);
+const tasks = urls.map(url => () => fetch(url).then(r => r.json()));
+const results = await concurrentLimit(tasks, 5); // 最多5个并发
+```
+
+**应用场景**: 批量请求控制、文件上传控制、爬虫并发控制
+
+</details>
+
+### 8. 如何检测和解决内存泄漏? ⭐ 2025高频
+
+<details>
+<summary>点击查看答案</summary>
+
+**检测方法:**
+
+```javascript
+// 1. 使用 Performance API
+function monitorMemory() {
+  if (performance.memory) {
+    const { usedJSHeapSize, totalJSHeapSize, jsHeapSizeLimit } = performance.memory;
+    console.log({
+      used: `${(usedJSHeapSize / 1024 / 1024).toFixed(2)} MB`,
+      total: `${(totalJSHeapSize / 1024 / 1024).toFixed(2)} MB`,
+      limit: `${(jsHeapSizeLimit / 1024 / 1024).toFixed(2)} MB`
+    });
+  }
+}
+
+// 2. 使用 Chrome DevTools Memory Profiler
+// 3. 使用 heap snapshot 对比
+
+// 常见内存泄漏场景
+// 1. 未清理的事件监听器
+element.addEventListener('click', handler);
+// 忘记: element.removeEventListener('click', handler);
+
+// 2. 未清理的定时器
+const timer = setInterval(() => {}, 1000);
+// 忘记: clearInterval(timer);
+
+// 3. 闭包引用大对象
+function createLeak() {
+  const hugeData = new Array(1000000);
+  return function() {
+    console.log(hugeData.length); // hugeData 无法回收
+  };
+}
+
+// 4. DOM 引用未清理
+const elements = {
+  button: document.getElementById('button')
+};
+document.body.removeChild(elements.button);
+// elements.button 仍然引用 DOM
+
+// 解决方案
+// 1. 使用 WeakMap/WeakSet
+const cache = new WeakMap(); // 键可被垃圾回收
+
+// 2. 及时清理引用
+element = null;
+timer = null;
+```
+
+</details>
+
+### 9. ES2024 新特性有哪些? 如何应用? ⭐ 2025高频
+
+<details>
+<summary>点击查看答案</summary>
+
+**主要新特性:**
+
+1. **Array.findLast() / findLastIndex()** - 从后往前查找
+2. **Array.toSorted() / toReversed() / toSpliced() / with()** - 非破坏性数组方法
+3. **Object.groupBy() / Map.groupBy()** - 原生分组功能
+4. **Promise.withResolvers()** - 简化 Promise 创建
+5. **String.isWellFormed() / toWellFormed()** - Unicode 字符串检测和修复
+6. **ArrayBuffer.transfer()** - 高效转移 ArrayBuffer 所有权
+
+**应用示例:**
+
+```javascript
+// 1. 查找最后一个满足条件的元素
+const lastError = logs.findLast(log => log.level === 'error');
+
+// 2. 不可变数组操作 (React/Vue 友好)
+const sorted = items.toSorted((a, b) => a.price - b.price);
+
+// 3. 原生分组
+const grouped = Object.groupBy(users, user => user.role);
+
+// 4. 可取消的 Promise
+const { promise, resolve, reject } = Promise.withResolvers();
+```
+
+详细内容请参考: [ES2024/ES2025 新特性详解](./es2024-2025.md)
+
+</details>
+
+### 10. 如何优化大列表渲染性能? ⭐ 2025高频
+
+<details>
+<summary>点击查看答案</summary>
+
+**方案 1: 虚拟滚动**
+
+```javascript
+class VirtualList {
+  constructor(container, items, itemHeight) {
+    this.container = container;
+    this.items = items;
+    this.itemHeight = itemHeight;
+    this.visibleCount = Math.ceil(container.clientHeight / itemHeight);
+    this.startIndex = 0;
+    this.render();
+    container.addEventListener('scroll', this.handleScroll.bind(this));
+  }
+  
+  handleScroll() {
+    const scrollTop = this.container.scrollTop;
+    const newStartIndex = Math.floor(scrollTop / this.itemHeight);
+    if (newStartIndex !== this.startIndex) {
+      this.startIndex = newStartIndex;
+      this.render();
+    }
+  }
+  
+  render() {
+    const endIndex = Math.min(
+      this.startIndex + this.visibleCount + 1,
+      this.items.length
+    );
+    const visibleItems = this.items.slice(this.startIndex, endIndex);
+    // 只渲染可见项...
+  }
+}
+```
+
+**方案 2: 使用 Intersection Observer**
+
+```javascript
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      loadItem(entry.target);
+    }
+  });
+});
+
+items.forEach(item => observer.observe(item));
+```
+
+**方案 3: 分页加载**
+
+```javascript
+async function loadPage(page) {
+  const data = await fetch(`/api/items?page=${page}`).then(r => r.json());
+  appendItems(data.items);
+}
+```
+
+详细内容请参考: [性能优化专题](../performance/runtime.md)
+
+</details>
+
+### 11. 如何实现一个 LRU 缓存? ⭐ 2025高频
+
+<details>
+<summary>点击查看答案</summary>
+
+```javascript
+class LRUCache {
+  constructor(capacity) {
+    this.capacity = capacity;
+    this.cache = new Map();
+  }
+  
+  get(key) {
+    if (!this.cache.has(key)) return -1;
+    
+    // 更新顺序: 删除后重新添加
+    const value = this.cache.get(key);
+    this.cache.delete(key);
+    this.cache.set(key, value);
+    return value;
+  }
+  
+  put(key, value) {
+    if (this.cache.has(key)) {
+      this.cache.delete(key);
+    } else if (this.cache.size >= this.capacity) {
+      // 删除最久未使用的 (Map 的第一个元素)
+      const firstKey = this.cache.keys().next().value;
+      this.cache.delete(firstKey);
+    }
+    this.cache.set(key, value);
+  }
+}
+
+// 使用示例
+const cache = new LRUCache(2);
+cache.put(1, 1);
+cache.put(2, 2);
+cache.get(1);    // 返回 1
+cache.put(3, 3); // 该操作会使得密钥 2 作废
+cache.get(2);    // 返回 -1 (未找到)
+```
+
+**应用场景**: HTTP 缓存、React Query 缓存、Vue 组件缓存
+
+</details>
+
+### 12. 如何实现请求重试机制? ⭐ 2025高频
+
+<details>
+<summary>点击查看答案</summary>
+
+```javascript
+async function retry(fn, options = {}) {
+  const {
+    retries = 3,
+    delay = 1000,
+    backoff = 2,
+    onRetry = () => {}
+  } = options;
+  
+  let lastError;
+  
+  for (let i = 0; i <= retries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error;
+      
+      if (i < retries) {
+        const waitTime = delay * Math.pow(backoff, i);
+        onRetry(error, i + 1, waitTime);
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+      }
+    }
+  }
+  
+  throw lastError;
+}
+
+// 使用示例
+const result = await retry(
+  () => fetch('/api/data').then(r => r.json()),
+  {
+    retries: 3,
+    delay: 1000,
+    backoff: 2, // 指数退避: 1s, 2s, 4s
+    onRetry: (error, attempt, waitTime) => {
+      console.log(`重试第 ${attempt} 次，等待 ${waitTime}ms`);
+    }
+  }
+);
+```
+
+**应用场景**: 网络请求重试、文件上传重试、API 调用重试
+
+</details>
+
+### 13. 如何实现发布订阅模式? ⭐ 2025高频
+
+<details>
+<summary>点击查看答案</summary>
+
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = {};
+  }
+  
+  on(event, callback) {
+    if (!this.events[event]) {
+      this.events[event] = [];
+    }
+    this.events[event].push(callback);
+  }
+  
+  off(event, callback) {
+    if (this.events[event]) {
+      this.events[event] = this.events[event].filter(cb => cb !== callback);
+    }
+  }
+  
+  emit(event, ...args) {
+    if (this.events[event]) {
+      this.events[event].forEach(callback => callback(...args));
+    }
+  }
+  
+  once(event, callback) {
+    const wrapper = (...args) => {
+      callback(...args);
+      this.off(event, wrapper);
+    };
+    this.on(event, wrapper);
+  }
+}
+
+// 使用示例
+const emitter = new EventEmitter();
+emitter.on('click', (data) => console.log('clicked', data));
+emitter.emit('click', { x: 1, y: 2 });
+```
+
+**应用场景**: 组件通信、事件总线、状态管理
+
+</details>
+
+### 14. 如何优化首屏加载时间? ⭐ 2025高频
+
+<details>
+<summary>点击查看答案</summary>
+
+**优化策略:**
+
+1. **代码分割和懒加载**
+```javascript
+// 路由懒加载
+const Home = lazy(() => import('./Home'));
+const About = lazy(() => import('./About'));
+```
+
+2. **资源压缩和 CDN**
+```javascript
+// 使用 CDN 加载第三方库
+<script src="https://cdn.example.com/react.min.js"></script>
+```
+
+3. **预加载关键资源**
+```html
+<link rel="preload" href="/critical.css" as="style">
+<link rel="prefetch" href="/next-page.js" as="script">
+```
+
+4. **减少 HTTP 请求**
+```javascript
+// 合并请求
+const [user, posts] = await Promise.all([
+  fetch('/api/user'),
+  fetch('/api/posts')
+]);
+```
+
+5. **使用 HTTP/2 或 HTTP/3**
+6. **服务端渲染 (SSR)**
+7. **图片优化**: WebP、懒加载、响应式图片
+
+详细内容请参考: [性能优化专题](../performance/runtime.md)
+
+</details>
+
+### 15. Object.groupBy 和传统 reduce 的区别? ⭐ 2025高频
+
+<details>
+<summary>点击查看答案</summary>
+
+**传统方式:**
+
+```javascript
+const grouped = inventory.reduce((acc, item) => {
+  const key = item.type;
+  if (!acc[key]) {
+    acc[key] = [];
+  }
+  acc[key].push(item);
+  return acc;
+}, {});
+```
+
+**ES2024 方式:**
+
+```javascript
+const grouped = Object.groupBy(inventory, ({ type }) => type);
+```
+
+**区别:**
+
+1. **代码简洁性**: `Object.groupBy` 更简洁
+2. **性能**: 原生实现，性能更好
+3. **可读性**: 语义更清晰
+4. **类型安全**: TypeScript 支持更好
+
+**Map.groupBy 的优势:**
+
+```javascript
+// 键可以是任意类型
+const grouped = Map.groupBy(items, item => item.id); // 数字键
+const grouped2 = Map.groupBy(items, item => item.date); // 日期键
+```
+
+</details>
+
 ---
 
 ## 总结
@@ -1504,13 +1978,25 @@ function deepClone(obj, map = new WeakMap()) {
 4. **原型**: 原型链、继承方式
 5. **异步**: Promise、async/await、事件循环
 6. **内存**: 垃圾回收、内存泄漏
+7. **ES2024/ES2025**: 新特性、应用场景 ⭐ 2025新增
+8. **性能优化**: 代码优化、内存优化、渲染优化 ⭐ 2025新增
 
 ### 面试技巧
 
-1. 先说概念,再举例子
-2. 结合实际项目经验
-3. 展示深入理解 (原理、底层)
-4. 主动提及相关知识点
+1. **先说概念,再举例子**: 先解释原理,再给出实际应用场景
+2. **结合实际项目经验**: 分享在项目中如何应用这些知识点
+3. **展示深入理解**: 不仅要知道是什么,更要知道为什么
+4. **主动提及相关知识点**: 展示知识体系的完整性
+5. **关注最新特性**: 了解 ES2024/ES2025 新特性,展示学习能力 ⭐ 2025新增
+6. **性能优化意识**: 在回答中体现性能优化的思考 ⭐ 2025新增
+
+### 2025年面试趋势
+
+1. **新特性应用**: ES2024/ES2025 新特性的实际应用场景
+2. **性能优化**: 代码性能、内存优化、渲染优化
+3. **工程化实践**: 模块化、打包优化、代码分割
+4. **异步编程**: Promise 高级用法、并发控制、错误处理
+5. **实际项目经验**: 解决实际问题的能力,而非纯理论
 
 ---
 
@@ -1583,4 +2069,386 @@ const promise = new Promise((res, rej) => {
 
 // 现在
 const { promise, resolve, reject } = Promise.withResolvers();
+
+// 应用场景: 在类中管理异步状态
+class AsyncQueue {
+  constructor() {
+    const { promise, resolve, reject } = Promise.withResolvers();
+    this.promise = promise;
+    this.resolve = resolve;
+    this.reject = reject;
+  }
+  
+  async process() {
+    try {
+      const result = await this.promise;
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+}
+```
+
+### 4. Array findLast / findLastIndex (ES2023)
+
+从数组末尾开始查找元素。
+
+```javascript
+const arr = [1, 2, 3, 4, 5, 4, 3, 2, 1];
+
+// 查找最后一个满足条件的元素
+const lastEven = arr.findLast(x => x % 2 === 0); // 2
+const lastIndex = arr.findLastIndex(x => x % 2 === 0); // 7
+
+// 应用场景: 查找最近的日志、最后一条记录等
+const logs = [
+  { level: 'info', message: 'start' },
+  { level: 'error', message: 'failed' },
+  { level: 'info', message: 'end' }
+];
+const lastError = logs.findLast(log => log.level === 'error');
+```
+
+### 5. Array toSorted / toReversed / toSpliced / with (ES2023)
+
+数组的非破坏性方法，返回新数组而不修改原数组。
+
+```javascript
+const arr = [3, 1, 2];
+
+// toSorted: 非破坏性排序
+const sorted = arr.toSorted(); // [1, 2, 3]
+console.log(arr); // [3, 1, 2] (原数组不变)
+
+// toReversed: 非破坏性反转
+const reversed = arr.toReversed(); // [2, 1, 3]
+
+// toSpliced: 非破坏性 splice
+const spliced = arr.toSpliced(1, 1, 'a', 'b'); // [3, 'a', 'b', 2]
+
+// with: 替换指定索引的值
+const newArr = arr.with(1, 'x'); // [3, 'x', 2]
+
+// 应用场景: React/Vue 等框架中的不可变数据更新
+const updatedItems = items.toSorted((a, b) => a.price - b.price);
+```
+
+### 6. String.prototype.isWellFormed / toWellFormed (ES2024)
+
+检测和修复字符串中的代理对问题。
+
+```javascript
+// 检测字符串是否格式正确
+const str1 = "Hello";
+str1.isWellFormed(); // true
+
+const str2 = "\uD800"; // 孤立的代理对
+str2.isWellFormed(); // false
+
+// 修复格式不正确的字符串
+const fixed = str2.toWellFormed(); // "\uFFFD" (替换为替换字符)
+```
+
+### 7. ArrayBuffer.prototype.transfer / transferToFixedLength (ES2024)
+
+高效地转移 ArrayBuffer 的所有权。
+
+```javascript
+const buffer1 = new ArrayBuffer(1024);
+const buffer2 = buffer1.transfer(512); // 转移并调整大小
+
+// buffer1 现在 detached (无法使用)
+// buffer2 是新的 ArrayBuffer，大小为 512 字节
+
+// 应用场景: Web Workers 间高效传输数据
+const worker = new Worker('worker.js');
+const data = new ArrayBuffer(1024);
+// 转移所有权，避免复制
+worker.postMessage(data.transfer(), [data]);
+```
+
+### 8. 正则表达式 v 标志 (ES2024)
+
+增强的正则表达式功能，支持更强大的 Unicode 匹配。
+
+```javascript
+// 使用 v 标志启用新的 Unicode 特性
+const regex = /[\p{Emoji}\p{Letter}]/v;
+
+// 支持集合运算
+const regex2 = /[\p{Letter}--\p{ASCII}]/v; // 非 ASCII 字母
+```
+
+### 9. Temporal API (提案阶段, 2025年关注)
+
+更强大的日期时间处理 API。
+
+```javascript
+// 当前 Date API 的问题
+const date1 = new Date('2024-01-01');
+const date2 = new Date('2024-01-01T00:00:00Z');
+date1.getTime() !== date2.getTime(); // 时区问题
+
+// Temporal API (提案中)
+// const instant = Temporal.Now.instant();
+// const zoned = instant.toZonedDateTimeISO('Asia/Shanghai');
+```
+
+---
+
+## 十四、2025年高频面试题补充
+
+### 1. 如何实现一个支持取消的 Promise?
+
+```javascript
+function cancellablePromise(executor) {
+  let cancel;
+  const promise = new Promise((resolve, reject) => {
+    cancel = (reason) => {
+      reject(new Error(reason || 'Cancelled'));
+    };
+    executor(resolve, reject, cancel);
+  });
+  promise.cancel = cancel;
+  return promise;
+}
+
+// 使用
+const p = cancellablePromise((resolve, reject, cancel) => {
+  setTimeout(() => resolve('done'), 5000);
+});
+
+p.then(console.log).catch(console.error);
+p.cancel('User cancelled'); // 取消 Promise
+```
+
+### 2. 如何实现一个带超时的 Promise?
+
+```javascript
+function timeoutPromise(promise, timeout) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Timeout')), timeout)
+    )
+  ]);
+}
+
+// 使用
+const fetchWithTimeout = timeoutPromise(
+  fetch('/api/data'),
+  5000
+);
+```
+
+### 3. 如何实现一个并发控制的异步队列?
+
+```javascript
+async function concurrentLimit(tasks, limit) {
+  const results = [];
+  const executing = [];
+  
+  for (const task of tasks) {
+    const promise = Promise.resolve(task()).then(result => {
+      executing.splice(executing.indexOf(promise), 1);
+      return result;
+    });
+    
+    results.push(promise);
+    executing.push(promise);
+    
+    if (executing.length >= limit) {
+      await Promise.race(executing);
+    }
+  }
+  
+  return Promise.all(results);
+}
+
+// 使用
+const tasks = Array.from({ length: 10 }, (_, i) => 
+  () => fetch(`/api/data/${i}`)
+);
+const results = await concurrentLimit(tasks, 3); // 最多3个并发
+```
+
+### 4. 如何检测内存泄漏?
+
+```javascript
+// 使用 Performance API 监控内存
+function monitorMemory() {
+  if (performance.memory) {
+    const used = performance.memory.usedJSHeapSize;
+    const total = performance.memory.totalJSHeapSize;
+    const limit = performance.memory.jsHeapSizeLimit;
+    
+    console.log({
+      used: `${(used / 1024 / 1024).toFixed(2)} MB`,
+      total: `${(total / 1024 / 1024).toFixed(2)} MB`,
+      limit: `${(limit / 1024 / 1024).toFixed(2)} MB`,
+      usage: `${((used / limit) * 100).toFixed(2)}%`
+    });
+  }
+}
+
+// 定期检查
+setInterval(monitorMemory, 5000);
+```
+
+### 5. 如何优化大列表渲染性能?
+
+```javascript
+// 虚拟滚动实现
+class VirtualList {
+  constructor(container, items, itemHeight) {
+    this.container = container;
+    this.items = items;
+    this.itemHeight = itemHeight;
+    this.visibleCount = Math.ceil(container.clientHeight / itemHeight);
+    this.scrollTop = 0;
+    
+    this.render();
+    container.addEventListener('scroll', () => this.handleScroll());
+  }
+  
+  handleScroll() {
+    this.scrollTop = this.container.scrollTop;
+    this.render();
+  }
+  
+  render() {
+    const start = Math.floor(this.scrollTop / this.itemHeight);
+    const end = Math.min(start + this.visibleCount + 1, this.items.length);
+    
+    const visibleItems = this.items.slice(start, end);
+    const offsetY = start * this.itemHeight;
+    
+    // 更新 DOM
+    this.container.innerHTML = '';
+    visibleItems.forEach((item, index) => {
+      const element = document.createElement('div');
+      element.textContent = item;
+      element.style.position = 'absolute';
+      element.style.top = `${offsetY + index * this.itemHeight}px`;
+      this.container.appendChild(element);
+    });
+    
+    // 设置总高度
+    this.container.style.height = `${this.items.length * this.itemHeight}px`;
+  }
+}
+```
+
+### 6. 如何实现一个 LRU 缓存?
+
+```javascript
+class LRUCache {
+  constructor(capacity) {
+    this.capacity = capacity;
+    this.cache = new Map();
+  }
+  
+  get(key) {
+    if (!this.cache.has(key)) return -1;
+    
+    // 更新顺序: 删除后重新添加
+    const value = this.cache.get(key);
+    this.cache.delete(key);
+    this.cache.set(key, value);
+    return value;
+  }
+  
+  put(key, value) {
+    if (this.cache.has(key)) {
+      this.cache.delete(key);
+    } else if (this.cache.size >= this.capacity) {
+      // 删除最久未使用的 (Map 的第一个元素)
+      const firstKey = this.cache.keys().next().value;
+      this.cache.delete(firstKey);
+    }
+    this.cache.set(key, value);
+  }
+}
+```
+
+### 7. 如何实现一个发布订阅模式?
+
+```javascript
+class EventEmitter {
+  constructor() {
+    this.events = {};
+  }
+  
+  on(event, callback) {
+    if (!this.events[event]) {
+      this.events[event] = [];
+    }
+    this.events[event].push(callback);
+  }
+  
+  off(event, callback) {
+    if (this.events[event]) {
+      this.events[event] = this.events[event].filter(cb => cb !== callback);
+    }
+  }
+  
+  emit(event, ...args) {
+    if (this.events[event]) {
+      this.events[event].forEach(callback => callback(...args));
+    }
+  }
+  
+  once(event, callback) {
+    const wrapper = (...args) => {
+      callback(...args);
+      this.off(event, wrapper);
+    };
+    this.on(event, wrapper);
+  }
+}
+```
+
+### 8. 如何实现一个请求重试机制?
+
+```javascript
+async function retry(fn, options = {}) {
+  const {
+    retries = 3,
+    delay = 1000,
+    backoff = 2,
+    onRetry = () => {}
+  } = options;
+  
+  let lastError;
+  
+  for (let i = 0; i <= retries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error;
+      
+      if (i < retries) {
+        const waitTime = delay * Math.pow(backoff, i);
+        onRetry(error, i + 1, waitTime);
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+      }
+    }
+  }
+  
+  throw lastError;
+}
+
+// 使用
+const result = await retry(
+  () => fetch('/api/data').then(r => r.json()),
+  {
+    retries: 3,
+    delay: 1000,
+    backoff: 2,
+    onRetry: (error, attempt, waitTime) => {
+      console.log(`重试第 ${attempt} 次，等待 ${waitTime}ms`);
+    }
+  }
+);
 ```

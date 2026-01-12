@@ -657,7 +657,7 @@ function isArray(value) {
 
 ---
 
-### Q4: == 和 === 的区别？
+### Q4: == 和 === 的区别？ ⭐⭐⭐⭐⭐
 
 #### 一句话答案
 == 会进行类型转换后比较，=== 不会转换类型，必须类型和值都相等。
@@ -707,6 +707,221 @@ if (value == null) {
   // value 是 null 或 undefined
 }
 ```
+
+---
+
+## 📝 每日一道面试八股文
+
+### Day 3: == 和 === 的区别与隐式类型转换
+
+#### 题目
+
+请解释 JavaScript 中的 `==` 和 `===` 的区别，并说明 `==` 的隐式类型转换规则（至少列举3种典型场景）。
+
+#### 核心考点
+
+- `==`（宽松相等）与 `===`（严格相等）的本质区别
+- `==` 的隐式类型转换规则（面试高频，易混淆）
+- 实际开发中的最佳实践（避免 `==` 的坑）
+
+#### 标准答案
+
+##### 一、== 与 === 的核心区别
+
+| 操作符 | 名称 | 比较规则 | 示例 |
+|--------|------|----------|------|
+| `===` | 严格相等 | 不进行类型转换，先判断两边类型是否相同，若不同则直接返回 false；若类型相同，再比较值是否相等 | `1 === "1"` → false（类型不同）<br>`1 === 1` → true（类型和值都相同） |
+| `==` | 宽松相等 | 先进行隐式类型转换，将两边转换为同一类型后，再比较值是否相等 | `1 == "1"` → true（字符串"1"转数字1后比较） |
+
+##### 二、== 的隐式类型转换规则（重点）
+
+`==` 的转换逻辑可总结为：**"类型不同时，优先将两边转换为数字（Number）进行比较，特殊情况除外"**。
+
+以下是4种典型场景：
+
+###### 1. 字符串与数字比较：字符串转数字
+
+**规则**: 若一边是字符串，另一边是数字，`==` 会将字符串转换为数字，再比较数值。
+
+```javascript
+// 示例1：字符串转数字
+"123" == 123        // true（字符串"123"转数字123）
+
+// 示例2：非数字字符串
+"abc" == NaN        // false（非数字字符串转数字是 NaN，NaN与任何值都不相等，包括自身）
+
+// 示例3：空字符串
+"" == 0             // true（空字符串转数字是 0）
+
+// 示例4：空格字符串
+" " == 0            // true（空格字符串转数字是 0）
+
+// 示例5：数字字符串
+"0" == 0            // true（"0"转数字0）
+```
+
+###### 2. 布尔值参与比较：布尔值转数字
+
+**规则**: 若一边是布尔值（true/false），`==` 会将布尔值转换为数字（true→1，false→0），再按数字规则比较。
+
+```javascript
+// 示例1：布尔值转数字
+true == 1           // true（true转数字1）
+false == 0          // true（false转数字0）
+
+// 示例2：布尔值与字符串
+true == "1"          // true（先转 true→1，再转 "1"→1，最终 1==1）
+false == ""          // true（先转 false→0，再转 ""→0，最终 0==0）
+
+// 示例3：布尔值与数字字符串
+true == "2"          // false（true→1，"2"→2，1≠2）
+false == "0"         // true（false→0，"0"→0，0==0）
+```
+
+###### 3. null 与 undefined 比较：特殊相等
+
+**规则**: `null` 和 `undefined` 在 `==` 比较时是特殊处理的，二者互相相等，且与其他类型比较时有固定结果：
+
+```javascript
+// 特殊规则：null 和 undefined 互相相等
+null == undefined    // true（唯一相等的情况）
+
+// null 与其他类型比较
+null == null         // true
+null == 0            // false（null 不与数字相等）
+null == false        // false（null 不与布尔值相等）
+null == ""           // false（null 不与字符串相等）
+
+// undefined 与其他类型比较
+undefined == undefined  // true
+undefined == 0          // false（undefined 不与数字相等）
+undefined == false      // false（undefined 不与布尔值相等）
+undefined == ""         // false（undefined 不与字符串相等）
+
+// 注意：null 和 undefined 仅彼此相等，与其他类型都不相等
+```
+
+###### 4. 对象与原始值比较：对象转原始值
+
+**规则**: 若一边是对象（如数组、对象字面量），另一边是原始值（数字、字符串、布尔值），`==` 会将对象转换为原始值（调用 `valueOf()` 或 `toString()` 方法），再按原始值规则比较。
+
+```javascript
+// 示例1：数组转数字
+[1] == 1             // true（数组 [1]转原始值是 "1"，再转数字1，最终 1==1）
+
+// 示例2：空数组
+[] == ""             // true（空数组转原始值是空字符串 ""）
+[] == 0               // true（空数组→""→0，0==0）
+
+// 示例3：对象转字符串
+{a:1} == "[object Object]"  // true（对象转原始值是 toString()结果）
+
+// 示例4：数组转字符串
+[1,2] == "1,2"       // true（数组转字符串"1,2"）
+
+// 示例5：复杂转换
+[1,2,3] == "1,2,3"   // true（数组调用 toString()）
+```
+
+##### 三、典型"坑点"案例（面试常考）
+
+```javascript
+console.log(false == 0);        // true（false→0，0==0）
+console.log(true == 1);         // true（true→1，1==1）
+console.log(null == undefined); // true（特殊规则）
+console.log(null == 0);         // false（null仅与undefined相等）
+console.log([] == 0);           // true（[]→""→0，0==0）
+console.log([] == "");          // true（[]→""，""==""）
+console.log([1,2] == "1,2");    // true（数组转字符串"1,2"）
+console.log([] == ![]);         // true（![]→false→0，[]→""→0，0==0）
+console.log({} == !{});         // false（!{}→false→0，{}→"[object Object]"→NaN，NaN≠0）
+```
+
+##### 四、实际开发中的最佳实践
+
+**永远优先使用 `===`，避免 `==` 的隐式转换导致逻辑错误。只有在明确需要"宽松比较"且清楚转换规则时才用 `==`（极少场景）。**
+
+```javascript
+// ❌ 不推荐：使用 ==
+if (userInput == 0) { }  // 可能误判空字符串
+
+// ✅ 推荐：使用 ===
+if (userInput === 0) { }  // 明确判断数字0
+
+// ✅ 如果需要类型转换，显式转换
+if (Number(userInput) === 0) { }
+if (String(value) === "0") { }
+
+// ✅ 唯一可以用 == 的场景：判断 null/undefined
+if (value == null) {
+  // value 是 null 或 undefined
+  // 等价于 value === null || value === undefined
+}
+```
+
+#### 面试延伸问题
+
+##### 1. NaN == NaN 的结果是什么？为什么？
+
+**答案**: `false`
+
+**原因**: NaN 的定义就是"不等于任何值，包括自身"。这是 IEEE 754 标准的规定。
+
+```javascript
+NaN == NaN        // false
+NaN === NaN       // false
+Number.isNaN(NaN) // true（正确判断方法）
+```
+
+##### 2. [] == ![] 的结果是什么？为什么？
+
+**答案**: `true`
+
+**解析过程**:
+1. `![]` 先执行：空数组 `[]` 是真值，取反得 `false`
+2. 变成 `[] == false`
+3. `[]` 调用 `toString()` 得到 `''`
+4. `''` 和 `false` 都转为数字 `0`
+5. `0 == 0` 为 `true`
+
+```javascript
+[] == ![]  // true
+// 步骤分解：
+// 1. ![] → false
+// 2. [] == false
+// 3. [].toString() → ""
+// 4. "" == false
+// 5. Number("") → 0, Number(false) → 0
+// 6. 0 == 0 → true
+```
+
+##### 3. 如何判断一个值是否为 NaN？
+
+**答案**: 使用 `Number.isNaN(x)` 或 `x !== x`（利用 NaN 不等于自身的特性）
+
+```javascript
+// 方法1：Number.isNaN（推荐）
+Number.isNaN(NaN)        // true
+Number.isNaN("abc")      // false（不会先转换类型）
+
+// 方法2：利用 NaN 不等于自身
+function isNaN(value) {
+  return value !== value
+}
+isNaN(NaN)  // true
+
+// 方法3：isNaN（不推荐，会先转换类型）
+isNaN(NaN)        // true
+isNaN("abc")      // true（"abc"转数字是NaN）
+isNaN(undefined)  // true（undefined转数字是NaN）
+```
+
+#### 总结
+
+- **`==` 的核心**: "隐式类型转换"，规则复杂且易踩坑
+- **`===` 的核心**: "严格比较"，更安全可靠
+- **面试要点**: `==` 的转换逻辑是"类型不同时先转数字，特殊情况（null/undefined、对象转原始值）单独处理"
+- **最佳实践**: 始终使用 `===`，除非明确需要宽松比较（如判断 null/undefined）
 
 ---
 
